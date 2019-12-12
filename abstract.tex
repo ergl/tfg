@@ -1,36 +1,42 @@
-% +--------------------------------------------------------------------+
-% | Copyright Page
-% +--------------------------------------------------------------------+
-
 \newpage
-
 \thispagestyle{empty}
 
 \begin{center}
-
 {\bf \Huge Abstract}
-
-  \end{center}
-\vspace{1cm}
-
-English version of the abstract
+\end{center}
 
 \vspace{1cm}
 
-% +--------------------------------------------------------------------+
-% | On the line below, replace Fecha
-% |
-% +--------------------------------------------------------------------+
+Most distributed database systems use weak consistency protocols to avoid the
+performance penalty of coordinating replicas. However, these protocols impose
+on the programmers the need to reason about possible anomalies, and the need
+to implement conflict resolution mechanisms in application code.
+
+Parallel Snapshot Isolation (PSI) has been proposed as a solution to this
+problem, however, it suffers a significant abort rate due to stale reads,
+given that transactions are forced to read from a fixed snapshot of versions
+once they start.
+
+In contrast, the recently proposed Non-Monotonic Snapshot Isolation (NMSI)
+protocol allows transactions to read versions of data committed after it
+started, leading to a lower abort rate and increased scalability. In spite
+of this, the proposed implementation uses a complex clock mechanism to ensure
+consistent snapshots.
+
+In this work, we'll show a implementation of the NMSI protocol using logical
+clocks to ensure consistent snapshots and simple conflict resolution, and
+compare it against the previous implementation. In addition, we perform a
+comparative study of different consistency protocol implementations, showing
+that NMSI can offer similar performance to weaker protocols while providing
+stronger guarantees.
+
+\vspace{1cm}
 
 \begin{center}
-
 {\bf \Large Keywords}
+\end{center}
 
-   \end{center}
+\vspace{0.5cm}
 
-   \vspace{0.5cm}
-   
+% TODO(borja): Fill
 List of keywords
-   
-
-

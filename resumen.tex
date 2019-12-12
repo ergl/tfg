@@ -1,36 +1,42 @@
-% +--------------------------------------------------------------------+
-% | Copyright Page
-% +--------------------------------------------------------------------+
-
 \newpage
-
 \thispagestyle{empty}
 
 \begin{center}
-
 {\bf \Huge Resumen en castellano}
-
-  \end{center}
-\vspace{1cm}
-
-Breve resumen del trabajo.
+\end{center}
 
 \vspace{1cm}
 
-% +--------------------------------------------------------------------+
-% | On the line below, repla	ce Fecha
-% |
-% +--------------------------------------------------------------------+
+La mayoría de las bases de datos distribuidas usan protocolos de consistencia débil
+para evitar la penalización de rendimiento que supone la coordinación de las distintas
+réplicas. Sin embargo, dichos protocolos imponen en los programadores la necesidad de
+razonar sobre posibles anomalías, así como implementar mecanismos de resolución de
+conflictos en el código de las aplicaciones.
+
+El protocolo PSI (Parallel Snapshot Isolation) se ha propuesto como una posible solución,
+sin embargo sufre de una significativa tasa de abortos debido a lecturas de datos antiguos,
+dado que las transaciones están obligadas a leer de una instantánea fijada en el momento
+en que comienzan.
+
+En contraste, el protocolo NMSI (Non-Monotonic Snapshot Isolation) propuesto recientemente
+permite a las transacciones leer versiones de datos confirmados después de su comienzo,
+lo que conlleva una tasa de cancelación más baja y una mayor escalabilidad. A pesar de esto,
+la implementación propuesta utiliza un mecanismo de relojes complejo para garantizar instantáneas
+consistentes.
+
+En este trabajo, mostraremos una implementación del protocolo NMSI usando relojes lógicos
+para garantizar instantáneas consistentes y una resolución de conflictos simple, comparándola
+con la implementación anterior. Además, realizamos un estudio comparativo de diferentes
+implementaciones de protocolos de consistencia, mostrando que NMSI puede ofrecer un rendimiento
+similar a los protocolos más débiles mientras proporciona garantías mas fuertes.
+
+\vspace{1cm}
 
 \begin{center}
-
 {\bf \Large Palabras clave}
+\end{center}
 
-   \end{center}
+\vspace{0.5cm}
 
-   \vspace{0.5cm}
-   
-   Lista de palabras clave
-   
-
-
+% TODO(borja): Fill
+Lista de palabras clave
