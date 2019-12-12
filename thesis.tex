@@ -54,7 +54,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish]{babel}
+\usepackage[USenglish,spanish]{babel}
 % +--------------------------------------------------------------------+
 % | Now, we add in all external packages that we will use throughout   |
 % | the document.  You can add other packages as needed.
@@ -140,44 +140,23 @@
 % +--------------------------------------------------------------------+
 
 \begin{document}
+   \setcounter{page}{-1}
 
-
-  \setcounter{page}{-1}
-
-
-% +--------------------------------------------------------------------+
-% | Title Page -- Required for both Doctoral and Masters Students
-% +--------------------------------------------------------------------+
-
-\input{title.tex}
+   \input{title.tex}
    \pdfbookmark[0]{Portada}{PDFPortadaPage}
 
-% +--------------------------------------------------------------------+
-% | Autorizacion Page -- Required for both Doctoral and Masters Students
-% +--------------------------------------------------------------------+
-
-\input{autorizacion.tex}
+   \input{autorizacion.tex}
    \pdfbookmark[0]{Autorización}{PDFAutorizacionPage}
 
-
-   
    \input{resumen.tex}
-   
-   \pdfbookmark[0]{Resumen}{PDFResumenPage}
+   \pdfbookmark[0]{Resume  n}{PDFResumenPage}
 
-    \input{abstract.tex}
-       \pdfbookmark[0]{Abstract}{PDFAbstractPage}
-    \vfill
+   \input{abstract.tex}
+   \pdfbookmark[0]{Abstract}{PDFAbstractPage}
+   \vfill
 
-
-% +--------------------------------------------------------------------+
-% | We use the following code to suppress page numbers and other
-% | style issues we do not want present on a given page.               |
-% +--------------------------------------------------------------------+
-
-%\thispagestyle{empty} Looks like it's ok to remove this line
-\newpage
-\pagenumbering{roman}
+   \newpage
+   \pagenumbering{roman}
 
 % +--------------------------------------------------------------------+
 % | On the line below, set the number to represent the page number of
@@ -190,23 +169,14 @@
 % | first page on which page numbers are displayed.
 % +--------------------------------------------------------------------+
 
-\setcounter{page}{1}
+   \setcounter{page}{1}
 
-% +--------------------------------------------------------------------+
-% | Here, we will generate our Table of Contents (TOC) entries.        |
-% | This adds the section to the TOC and then generates the indicated  |
-% | section.                                                           |
-% +--------------------------------------------------------------------+
 
-\phantomsection
-\addcontentsline{toc}{chapter}{Índice}
-
-\tableofcontents
-%\listoffigures
-%\listoftables
-
-%\hfill  Are these lines necessary?
-%\hfill
+   \phantomsection
+   \addcontentsline{toc}{chapter}{Índice}
+   \tableofcontents
+   %\listoffigures
+   %\listoftables
 
 % +--------------------------------------------------------------------+
 % | Acknowledgements Page
@@ -215,9 +185,9 @@
 % | or delete the following 3 lines.
 % +--------------------------------------------------------------------+
 
-\input{agradecimientos.tex}
-\phantomsection
-\addcontentsline{toc}{chapter}{Agradecimientos}
+   \input{agradecimientos.tex}
+   \phantomsection
+   \addcontentsline{toc}{chapter}{Agradecimientos}
 
 % +--------------------------------------------------------------------+
 % | Dedication Page
@@ -226,17 +196,17 @@
 % | or delete the following 3 lines.
 % +--------------------------------------------------------------------+
 
-\input{dedicatoria.tex}
-\phantomsection
-\addcontentsline{toc}{chapter}{Dedicatoria}
+   \input{dedicatoria.tex}
+   \phantomsection
+   \addcontentsline{toc}{chapter}{Dedicatoria}
 
 % +--------------------------------------------------------------------+
 % | Preface Page
 % +--------------------------------------------------------------------+
 
-%\input{preface.tex}
-%\phantomsection
-%\addcontentsline{toc}{chapter}{Preface}
+   \input{preface.tex}
+   \phantomsection
+   \addcontentsline{toc}{chapter}{Preface}
 
 % +--------------------------------------------------------------------+
 % | We use arabic (1, 2, 3...) page numbering starting from page 1.    |
@@ -246,9 +216,9 @@
 % | and other general style issues that we've defined globally.        |
 % +--------------------------------------------------------------------+
 
-\newpage
-\pagenumbering{arabic}
-\setcounter{page}{1}
+   \newpage
+   \pagenumbering{arabic}
+   \setcounter{page}{1}
 
 % +--------------------------------------------------------------------+
 % | Here is where we include individual sections of the thesis or
@@ -259,17 +229,11 @@
 % | Chapters
 % +--------------------------------------------------------------------+
 
-\input{chapter1.tex}
-
-% +--------------------------------------------------------------------+
-% | Uncomment the lines below to add additional chapters.  Name the
-% | files chapter2.tex for Chapter 2, chapter3.tex for Chapter 3, etc.
-% +--------------------------------------------------------------------+
-
-\input{chapter2.tex}
-\input{chapter3.tex}
-%\input{chapter4.tex}
-%\input{chapter5.tex}
+   \input{chapter1.tex}
+   \input{chapter2.tex}
+   \input{chapter3.tex}
+   %\input{chapter4.tex}
+   %\input{chapter5.tex}
 
 % +-------------------------------------------------------------------------+
 % | References                                                              |

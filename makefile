@@ -1,17 +1,17 @@
-MAINDOC = principal 
+MAINDOC = thesis
 DOCS = $(wildcard *.tex)
 DVIFILE = $(patsubst %,%.dvi,$(MAINDOC))
 PSFILE = $(patsubst %,%.ps,$(MAINDOC))
 PDFFILE = $(patsubst %,%.pdf,$(MAINDOC))
 TEXCODE = $(patsubst code/%.cc, code/%.tex, $(wildcard code/*.cc))
 
-all:  $(PDFFILE) 
+all:  $(PDFFILE)
 
-$(DVIFILE): $(TEXCODE) ${DOCS} 
-$(PDFFILE): $(TEXCODE) ${DOCS} 
+$(DVIFILE): $(TEXCODE) ${DOCS}
+$(PDFFILE): $(TEXCODE) ${DOCS}
 
 code/%.tex: code/%.cc
-	cpp2latex -h -s 0 -t 4 $< > code/$*.tex 
+	cpp2latex -h -s 0 -t 4 $< > code/$*.tex
 	#lgrind -i -lc -t 4 $< > code/$*.tex
 
 %.pdf: %.tex
