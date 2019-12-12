@@ -41,7 +41,7 @@
 % |                                                                    |
 % +--------------------------------------------------------------------+
 
-\documentclass[final, 12pt,oneside]{class_diss}
+\documentclass[final,12pt,oneside]{class_diss}
 
 % +--------------------------------------------------------------------+
 % | The following command sets the bibliography style to American
@@ -113,18 +113,18 @@
 \usepackage[pdftex, plainpages=false, pdfpagelabels]{hyperref}
 
 \hypersetup{
-    linktocpage=true,
-    colorlinks=true,
-    bookmarks=true,
-    citecolor=blue,
-    urlcolor=red,
-    linkcolor=Maroon,
-    citebordercolor={1 0 0},
-    urlbordercolor={1 0 0},
-    linkbordercolor={.7 .8 .8},
-    breaklinks=true,
-    pdfpagelabels=true,
-    }
+   linktocpage=true,
+   colorlinks=true,
+   bookmarks=true,
+   citecolor=blue,
+   urlcolor=red,
+   linkcolor=Maroon,
+   citebordercolor={1 0 0},
+   urlbordercolor={1 0 0},
+   linkbordercolor={.7 .8 .8},
+   breaklinks=true,
+   pdfpagelabels=true,
+}
 
 % +--------------------------------------------------------------------+
 % | Page margins are set on 1 inch on all sides.                       |
@@ -145,13 +145,13 @@
    \input{title.tex}
    \pdfbookmark[0]{Portada}{PDFPortadaPage}
 
-   \input{autorizacion.tex}
+   \input{authorization.tex}
    \pdfbookmark[0]{Autorización}{PDFAutorizacionPage}
 
-   \input{resumen.tex}
-   \pdfbookmark[0]{Resume  n}{PDFResumenPage}
+   \input{abstract_es.tex}
+   \pdfbookmark[0]{Resumen}{PDFResumenPage}
 
-   \input{abstract.tex}
+   \input{abstract_en.tex}
    \pdfbookmark[0]{Abstract}{PDFAbstractPage}
    \vfill
 
@@ -170,10 +170,9 @@
 % +--------------------------------------------------------------------+
 
    \setcounter{page}{1}
-
-
    \phantomsection
-   \addcontentsline{toc}{chapter}{Índice}
+   \addcontentsline{toc}{chapter}{Contents}
+   \selectlanguage{USenglish}
    \tableofcontents
    %\listoffigures
    %\listoftables
@@ -185,9 +184,9 @@
 % | or delete the following 3 lines.
 % +--------------------------------------------------------------------+
 
-   \input{agradecimientos.tex}
+   \input{acknowledgements.tex}
    \phantomsection
-   \addcontentsline{toc}{chapter}{Agradecimientos}
+   \addcontentsline{toc}{chapter}{Acknowledgements}
 
 % +--------------------------------------------------------------------+
 % | Dedication Page
@@ -196,7 +195,7 @@
 % | or delete the following 3 lines.
 % +--------------------------------------------------------------------+
 
-   \input{dedicatoria.tex}
+   \input{dedication.tex}
    \phantomsection
    \addcontentsline{toc}{chapter}{Dedicatoria}
 
