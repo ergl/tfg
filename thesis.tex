@@ -55,10 +55,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[USenglish,spanish]{babel}
-% +--------------------------------------------------------------------+
-% | Now, we add in all external packages that we will use throughout   |
-% | the document.  You can add other packages as needed.
-% +--------------------------------------------------------------------+
 
 %\usepackage{     caption2} % Customize captions a bit more
 \usepackage{      amsmath} % American Mathematics Society standards
@@ -126,18 +122,10 @@
    pdfpagelabels=true,
 }
 
-% +--------------------------------------------------------------------+
-% | Page margins are set on 1 inch on all sides.                       |
-% +--------------------------------------------------------------------+
-
 \topmargin      = -0.56in
 \textheight     =  8.60in
 \textwidth      =  6.46in
 \oddsidemargin  =  0.02in
-
-% +--------------------------------------------------------------------+
-% | The document finally begins here.                                  |
-% +--------------------------------------------------------------------+
 
 \begin{document}
    \setcounter{page}{-1}
@@ -147,16 +135,6 @@
 
    \input{authorization.tex}
    \pdfbookmark[0]{Autorización}{PDFAutorizacionPage}
-
-   \input{abstract_es.tex}
-   \pdfbookmark[0]{Resumen}{PDFResumenPage}
-
-   \input{abstract_en.tex}
-   \pdfbookmark[0]{Abstract}{PDFAbstractPage}
-   \vfill
-
-   \newpage
-   \pagenumbering{roman}
 
 % +--------------------------------------------------------------------+
 % | On the line below, set the number to represent the page number of
@@ -169,43 +147,29 @@
 % | first page on which page numbers are displayed.
 % +--------------------------------------------------------------------+
 
-   \setcounter{page}{1}
+   \pagenumbering{roman}
+   \setcounter{page}{-1}
    \phantomsection
-   \addcontentsline{toc}{chapter}{Contents}
    \selectlanguage{USenglish}
    \tableofcontents
    %\listoffigures
    %\listoftables
 
-% +--------------------------------------------------------------------+
-% | Acknowledgements Page
-% |
-% | If you choose not to have an Acknowledgements page, comment out
-% | or delete the following 3 lines.
-% +--------------------------------------------------------------------+
-
    \input{acknowledgements.tex}
    \phantomsection
    \addcontentsline{toc}{chapter}{Acknowledgements}
 
-% +--------------------------------------------------------------------+
-% | Dedication Page
-% |
-% | If you choose not to have a Dedication page, comment out
-% | or delete the following 3 lines.
-% +--------------------------------------------------------------------+
-
    \input{dedication.tex}
    \phantomsection
-   \addcontentsline{toc}{chapter}{Dedicatoria}
+   \addcontentsline{toc}{chapter}{Dedication}
 
-% +--------------------------------------------------------------------+
-% | Preface Page
-% +--------------------------------------------------------------------+
-
-   \input{preface.tex}
+   \input{abstract_en.tex}
    \phantomsection
-   \addcontentsline{toc}{chapter}{Preface}
+   \addcontentsline{toc}{chapter}{Abstract}
+
+   \input{abstract_es.tex}
+   \phantomsection
+   \addcontentsline{toc}{chapter}{Resumen}
 
 % +--------------------------------------------------------------------+
 % | We use arabic (1, 2, 3...) page numbering starting from page 1.    |
@@ -219,20 +183,10 @@
    \pagenumbering{arabic}
    \setcounter{page}{1}
 
-% +--------------------------------------------------------------------+
-% | Here is where we include individual sections of the thesis or
-% | dissertation.                                                      |
-% +--------------------------------------------------------------------+
-
-% +--------------------------------------------------------------------+
-% | Chapters
-% +--------------------------------------------------------------------+
-
    \input{chapter1.tex}
    \input{chapter2.tex}
    \input{chapter3.tex}
-   %\input{chapter4.tex}
-   %\input{chapter5.tex}
+   %% ...
 
 % +-------------------------------------------------------------------------+
 % | References                                                              |
@@ -262,17 +216,6 @@
 \bibdata{references}
 \bibliography{references}
 \addcontentsline{toc}{chapter}{Bibliography}
-
-% +--------------------------------------------------------------------+
-% | Finally, we generate the appendix.  To add or delete appendices,
-% | add or remove the line
-% |
-% |     \input{appendixX.tex}
-% |
-% | where "X" is the letter designation of the Appendix (A, B, C, etc.)
-% | You should have one \input{appendixX.tex} line and a corresponding
-% | file appendixX.tex for each appendix.                                 |
-% +--------------------------------------------------------------------+
 
 \appendix
 \input{appendixA.tex}
