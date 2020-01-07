@@ -50,8 +50,6 @@
 % | the filename of the style you want to use.
 % +--------------------------------------------------------------------+
 
-\bibliographystyle{styles/plain}
-
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[USenglish,spanish]{babel}
@@ -97,8 +95,8 @@
 % | style.                                                             |
 % +--------------------------------------------------------------------+
 
-\usepackage[sort&compress]{natbib}
-\bibpunct{}{}{,}{s}{}{}
+\usepackage[sort&compress,numbers,square]{natbib}
+\bibpunct[; ]{[}{]}{,}{n}{}{}
 \usepackage{hypernat}
 
 % +--------------------------------------------------------------------+
@@ -214,6 +212,7 @@
 % +--------------------------------------------------------------------+
 
 \bibdata{references}
+\bibliographystyle{plainnat}
 \bibliography{references}
 \addcontentsline{toc}{chapter}{Bibliography}
 
