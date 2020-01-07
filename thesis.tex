@@ -1,15 +1,4 @@
 % +--------------------------------------------------------------------+
-% | LaTeX Template                                                     |
-% | for K-State Electronic Theses, Dissertations, and Reports          |
-% |                                                                    |
-% | Comments and guidelines for using the template are shown           |
-% | within boxes like this one.                                        |
-% |                                                                    |
-% | Revised 6/30/06                                                    |
-% | 9/14/06: Removed typos                                             |
-% +--------------------------------------------------------------------+
-
-% +--------------------------------------------------------------------+
 % | Your paper should contain the following sections, except where     |
 % | indicated as optional, in the order shown.  Also, all headings     |
 % | shown with an asterisk (*) must be centered and in uppercase       |
@@ -43,13 +32,6 @@
 
 \documentclass[final,12pt,oneside]{class_diss}
 
-% +--------------------------------------------------------------------+
-% | The following command sets the bibliography style to American
-% | Institute of Physics (AIP).  Other styles are available in the
-% | styles directory.  To use a different style, replace "aip" with
-% | the filename of the style you want to use.
-% +--------------------------------------------------------------------+
-
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[USenglish,spanish]{babel}
@@ -72,17 +54,7 @@
 \usepackage{amsthm}
 \usepackage{latexsym}
 
-% +--------------------------------------------------------------------+
-% | The color package allows one to select colors for hyperlinking     |
-% | (see below).                                                       |
-% +--------------------------------------------------------------------+
-
 \usepackage[usenames]{color}
-
-% +--------------------------------------------------------------------+
-% | Colors defined for use with this template.                         |
-% +--------------------------------------------------------------------+
-
 \definecolor{  Pink}{rgb}{1.0, 0.5, 0.5}
 \definecolor{Maroon}{rgb}{0.8, 0.0, 0.0}
 
@@ -101,11 +73,6 @@
 \usepackage[sort&compress,numbers,square]{natbib}
 \bibpunct[; ]{[}{]}{,}{n}{}{}
 \usepackage{hypernat}
-
-% +--------------------------------------------------------------------+
-% | Lastly, the hyperref package allows one to hyperlink cross-        |
-% | references and figures in a LaTeX document.                        |
-% +--------------------------------------------------------------------+
 
 \usepackage[pdftex, plainpages=false, pdfpagelabels]{hyperref}
 
@@ -188,22 +155,6 @@
    \input{chapter2.tex}
    \input{chapter3.tex}
    \input{ch4_protocol.tex}
-
-% +-------------------------------------------------------------------------+
-% | References                                                              |
-% +-------------------------------------------------------------------------+
-
-% +-------------------------------------------------------------------------+
-% | In order for WinEDT to index references correctly, it has to know where |
-% | the file resides.  The following command is prefaced by %, and will be  |
-% | ignored completely by LaTeX.  However, WinEDT will use this line to     |
-% | access the external .bib bibliography file.  Also note that WinEDT can  |
-% | read file path names with either "\" or "/" - LaTeX, however, doesn't   |
-% | like "\", so it's easier to store a path name in the "Unix" style.      |
-% +-------------------------------------------------------------------------+
-
-%Included for Gather Purpose only.  Do NOT uncomment:
-%input "references.bib"
 
 % +--------------------------------------------------------------------+
 % | This template uses the BibTeX program to format references.  The
