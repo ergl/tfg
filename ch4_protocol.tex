@@ -186,20 +186,18 @@
 \SetKw{Break}{break}
 \SetKw{New}{new}
 
-% We show the pseudocode and the model of the system as a set of processes and partitions. Explain the different variables and structures (include the table that we had from the pseudocode).
-
 % Go over the different parts of the protocol, or at least the read request and prepare/decide.
 
 % We should talk something about prefix order and read aborts here. Image of the executions that cause read aborts.
 
-% TODO(borja): Protocol name?
-In this chapter, we describe how our protocol works. We first present how the system is modelled, followed by a description of the different data data structures that it encompasses. Next, we show how the protocol is implemented, and go over its different phases; in particular, the read and the commit phases.
+\todo{Protocol name?}
+In this chapter, we describe how our protocol works. We first present how the system is modelled, followed by a description of the different data data structures that it encompasses. Next, we show how the protocol is implemented by going over the exeuction of a transaction, focusing in particular on the read and commit phases.
 
 \section{System Model}
 
 We consider an asynchronous, message-passing system consisiting of a set of reliable processes connected by reliable channels. Fault-tolerance concerns are orthogonal to the problem we address. The processes are split into two sets; a set of \emph{servers} $\mathcal{S} = \{s_1, \dots, s_N\}$, and a set of \emph{clients} $\mathcal{C} = \{c_1, \dots, c_M\}$. The system manages a set of objects $\Obj$ split into $N$ partitions, each stored by a server process. We let $\partitions(x)$ be the index of the partition the object $x$ belongs to, so that it is managed by server $s_{\partitionof(x)}$. Clients execute transactions by communicating with servers. Transactions can be \emph{interactive}, i.e., when a transaction starts, the client does not know which operations it will perform in advance. Clients refer to transactions by their identifier from a set $\transtype$.
 
-\section{Client and Server data structures}
+\section{Server data structures}
 
 The data structures maintained by the protocol at a process are summarised in Figure~\ref{fig:prot-ds-table}. Each server $s_i$ maintains a counter $\lastprep$ of the number of update transactions that initiated their commit phase at the server. When such a transaction commits at a server $s_i$, it will be assigned a \emph{sequence number} $k$ derived from this counter. All the update operations by the transaction at $s_i$ are identified by a pair $(s_i, k)$, which we call dot~\citep{carlos-causality}. We call the order of transactions imposed by their sequence numbers issued by $s_i$ the \emph{commit order} at $s_i$.
 
