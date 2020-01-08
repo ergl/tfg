@@ -191,11 +191,11 @@
 % We should talk something about prefix order and read aborts here. Image of the executions that cause read aborts.
 
 \todo{Protocol name?}
-In this chapter, we describe how our protocol works. We first present how the system is modelled, followed by a description of the different data data structures that it encompasses. Next, we show how the protocol is implemented by going over the exeuction of a transaction, focusing in particular on the read and commit phases.
+In this chapter, we describe how our protocol works. We first present how the system is modelled, followed by a description of the different data data structures that it encompasses. Next, we show how the protocol is implemented by going over the execution of a transaction, focusing in particular on the read and commit phases.
 
 \section{System Model}
 
-We consider an asynchronous, message-passing system consisiting of a set of reliable processes connected by reliable channels. Fault-tolerance concerns are orthogonal to the problem we address. The processes are split into two sets; a set of \emph{servers} $\mathcal{S} = \{s_1, \dots, s_N\}$, and a set of \emph{clients} $\mathcal{C} = \{c_1, \dots, c_M\}$. The system manages a set of objects $\Obj$ split into $N$ partitions, each stored by a server process. We let $\partitions(x)$ be the index of the partition the object $x$ belongs to, so that it is managed by server $s_{\partitionof(x)}$. Clients execute transactions by communicating with servers. Transactions can be \emph{interactive}, i.e., when a transaction starts, the client does not know which operations it will perform in advance. Clients refer to transactions by their identifier from a set $\transtype$.
+We consider an asynchronous, message-passing system consisting of a set of reliable processes connected by reliable channels. Fault-tolerance concerns are orthogonal to the problem we address. The processes are split into two sets; a set of \emph{servers} $\mathcal{S} = \{s_1, \dots, s_N\}$, and a set of \emph{clients} $\mathcal{C} = \{c_1, \dots, c_M\}$. The system manages a set of objects $\Obj$ split into $N$ partitions, each stored by a server process. We let $\partitionOf(x)$ be the index of the partition the object $x$ belongs to, so that it is managed by server $s_{\partitionOf(x)}$. Clients execute transactions by communicating with servers. Transactions can be \emph{interactive}, i.e., when a transaction starts, the client does not know which operations it will perform in advance. Clients refer to transactions by their identifier from a set $\transtype$.
 
 \section{Server data structures}
 
