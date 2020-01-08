@@ -209,4 +209,16 @@ A server $s_i$ maintains multiple versions of the objects it manages, stored in 
 
 Finally, a server $s_i$ maintains an ordered queue $\CommitQueue$ of transactions trying to commit updates at the server. The queue has entries of two types. An entry $\langle \pending, T, \localWS \rangle$ means that $\tx$ is successfully prepared to commit at $s_i$, but the final decision on it is not yet known; $\localWS$ is the \emph{write-set} of the transaction, containing object-value pairs. An entry $\langle \ready, T, \localWS, V \rangle$ in the queue means that $\tx$ has been decided to commit with a commit vector $V$, but its writes have not yet been added to the $\VersionLog$. The order of transactions in $\CommitQueue$ follows the commit order at the server.
 
+\section{Transaction Execution}
+\todo{Maybe it's better to split the pseudocode and inline it with the text?}
+
+A client executing a transaction $\tx$ maintains a transaction \emph{context} including several pieces of data, summarised in Figure~\ref{fig:prot-ds-table} and explained below. This context is initialised by the client when it starts a transaction (line~\ref{alg:start_tx_start}).
+
+Since our protocol uses optimistic concurrency control, the execution of $\tx$ is speculative: clients read objects from servers and buffer writes locally. At the end of the execution, the decision whether to commit or abort a transaction is taken based on the existence of conflicts with concurrently executing transactions. When a transaction $\tx$ writes a value $v$ to an object $x$ (line~\ref{alg:write_start}), the client buffers this write in $\tx$'s \emph{write-set}, $\tx.\WS$, while discarding any previously written value of $x$.
+
+When the transaction $\tx$ issues a read operation on an object $x$ (line~\ref{alg:read_start}), the client will first check $\tx.\WS$ (line~\ref{alg:read_ws_check}): if $\tx$ has already written to $x$, the value stored in the write-set is returned. Otherwise, and assuming that $j = \partitionOf(x)$, the client sends a $\msgreadrequest$ message to the server $s_j$ to fetch the value of the object (line~\ref{alg:read_send}).
+
+When the transaction $\tx$ reads an object from a partition $j$ for the first time, the server $s_j$ fixes a \emph{snapshot} of versions from which it will serve all future reads by $\tx$. This snapshot is defined by an integer $k$: it will include the versions written by all the transactions that committed at the server with a sequence number up to $k$. The client keeps this information in the transaction context, by storing $k$ in the $j$-th entry of a \emph{snapshot vector} $\tx.\VCaggr$, and by marking the current partition as read in $\tx.\hasRead$, a Boolean mapping its $j$-th entry to $\top$ if $\tx$ read an object from $j$, and $\bot$ otherwise.
+
+
 \input{ch4_pseudocode.tex}
