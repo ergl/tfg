@@ -1,8 +1,9 @@
 \section{Algorithm pseudocode}
+\todo{Fix table, weird spacing in middle column}
 
 \begin{figure}[h]
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
-\begin{tabularx}{\linewidth}{|c|p{5cm}|X|}
+\begin{tabularx}{\linewidth}{|c|p{5.5cm}|X|}
   \hline
   \multicolumn{3}{|c|}{\textbf{Variables at a server $s_i$}}\\
   \hline
@@ -180,7 +181,7 @@
       \Send{$\VOTE(t, \abort)$} \KwTo $c_j$\; \label{alg:send_abort}
     }\Else{
     $\lastprep \leftarrow \lastprep + 1$\;\label{alg:lastprep_incr}
-    $\cqput(\tx, \pending)$\;\label{alg:queue_put}
+    $\cqput(\tx, \pending, \localWS)$\;\label{alg:queue_put}
     \Send{$\VOTE(\tx, \commit, \lastprep)$} \KwTo $c_j$\;\label{alg:prepare_end}
   }}
 
