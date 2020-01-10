@@ -176,12 +176,12 @@
       \ready, \_, \_ \rangle \in \cqueue)
         \wedge{}$ $\localWS' \cap \localWS \ne
         \emptyset) \vee (\exists x.\, x \in \localWS \wedge
-        \last(\VersionLog[x]).\Vcomm[i] > \localVdep[i])$\label{alg:conflict_check}}{
+        \left(\VersionLog[x].\last.\Vcomm[i] > \localVdep[i]\right)$\label{alg:conflict_check}}{
       \Send{$\VOTE(t, \abort)$} \KwTo $c_j$\; \label{alg:send_abort}
     }\Else{
     $\lastprep \leftarrow \lastprep + 1$\;\label{alg:lastprep_incr}
     $\cqput(\tx, \pending)$\;\label{alg:queue_put}
-    \Send{$\VOTE(\tx, \commit,  \lastprep)$} \KwTo $c_j$\;\label{alg:prepare_end}
+    \Send{$\VOTE(\tx, \commit, \lastprep)$} \KwTo $c_j$\;\label{alg:prepare_end}
   }}
 
     \smallskip
@@ -189,7 +189,7 @@
   % Decide
   \SubAlgo{\WhenReceived $\DECIDE(\tx, \commitVC, \mathit{decision})$ \KwFrom
     $\partj$\label{alg:decide_start}}{
-    \uIf{$\mathit{decision} = \abort$\label{alg:decide_if}}{
+    \uIf{$\mathit{decision} = \commit$\label{alg:decide_if}}{
       $\cqupdate(\langle \tx, \ready, \_, \argCommitVC\rangle)$\;\label{arg:queue_update}
     }
     \Else{
