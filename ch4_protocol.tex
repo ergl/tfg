@@ -233,16 +233,6 @@ When the transaction $\tx$ reads an object from a partition $j$ for the first ti
 Both $\tx.\VCaggr$ and $\tx.\hasRead$ are supplied by the client when issuing a read operation on object $x$, by using them as parameters to the $\READREQUEST$ message sent to the server $s_j$. When the server receives this message (line~\ref{alg:read_req_start}), it first checks, using the $\hasRead$ mapping, if the transaction has read from it before (line~\ref{alg:read_req_read_check}). In this case, the snapshot is determined by $\VCaggr[j]$, and the server returns the latest version $\mathit{ver}$ of the object $x$ written by a transaction in the snapshot, i.e., with a sequence number no higher than $\VCaggr[j]$ (line~\ref{alg:chose-version}). This version is determined by examining the $j$-th entry of the commit vectors in $\VersionLog$. The server then replies to the client with a $\READRETURN$ message containing the value of the chosen version and its associated version vector, as well as the unmodified snapshot vector provided by the client: since the server used a previously fixed snapshot, no updates to the vector are required.
 
 % \begin{figure}[t]
-% \includegraphics[width=\textwidth]{figures/ch4_snapshot.pdf}
-% \vspace{-6.5cm}
-% \caption{Illustrations of the snapshot computation. Vertical lines depict the
-%   commit order at the corresponding partitions (top to bottom) and horizontal
-%   lines the cut-offs of various snapshots. Arrows between partitions depict
-%   causal dependencies.}
-% \label{fig:snapshot}
-% \end{figure}
-
-% \begin{figure}[t]
 % \includegraphics[width=\textwidth]{figures/ch4_snapshot_fork.pdf}
 % \vspace{-5.5cm}
 % \caption{Illustrations of the snapshot computation. Vertical lines depict the
@@ -254,7 +244,17 @@ Both $\tx.\VCaggr$ and $\tx.\hasRead$ are supplied by the client when issuing a 
 
 We now consider the case when the client is reading from the server $s_j$ for the first time (line~\ref{alg:read_req_read_check_else}), in which case, we have to fix the snapshot for the transaction $\tx$ at this server. Choosing a suitable snapshot is complicated by the fact that we allow transactions to be interactive---that is, we do not know in advance which objects will read in the future. We hence fix the snapshot in such a way that \emph{any} later read from this snapshot will be causally \todo{cc} compatible with any reads (past or future) from the snapshots that $\tx$ has already read, as specified by $\hasRead$ and $\VCaggr$. To ensure this, the snapshot we select has to satisfy two requirements.
 
-\todo{snip: insert two requirements. Example of simple read abort?}
+\begin{figure}[t]
+\includegraphics[width=\textwidth]{figures/ch4_snapshot.pdf}
+\vspace{-6.5cm}
+\caption{Illustrations of the snapshot computation. Vertical lines depict the
+  commit order at the corresponding partitions (top to bottom) and horizontal
+  lines the cut-offs of various snapshots. Arrows between partitions depict
+  causal dependencies.}
+\label{fig:snapshot}
+\end{figure}
+
+\todo{Example of simple read abort?} On the one hand, the snapshot cannot be too fresh. For example, suppose a transaction $\tx_1$ writing to some partition $j$ is excluded from the snapshot chosen by $\tx$ at $j$. Then, the snapshot chosen by $\tx$ at $i$ cannot contain $\tx_1$, nor any other transaction that causally depends on it, like $\tx_2$ (Figure~\ref{fig:snapshot}a). If the snapshot chosen by $\tx$ included $\tx_2$, it would be able to read some of $\tx_2$'s writes at $i$, thereby forcing $\tx$ to read the writes by $\tx_2$'s causal dependencies, including $\tx_1$; but $\tx$ cannot see these writes, because it excluded them from the snapshot at partition $j$. Thus, when building the snapshot, the server will need to take into account the snapshots taken by $\tx$ at the partitions it already read; the server selects the longest prefix of $\CommitLog$ transactions, such that their writes---and the ones by their causal dependencies---are included in $\tx$'s previous snapshots. This prefix is denoted by $r$ (line~\ref{alg:max_vc_search}), and is computed using the $\Vaggr$ vector included in each of the entries of $\CommitLog$, summarising the causal dependencies of all transactions up to a given record in the log. Thus, the snapshot at $s_j$ includes all transactions with sequence numbers up to $r.\Vaggr[j]$.
 
 Once the server fixes a new snapshot, it selects the most recent version of the object $x$, defined by $e.\Vaggr[j]$ (line~\ref{alg:chose-version}), to return to the client. The server replies with a $\READRETURN$ message, carrying a triple of the value of the object, its associated version vector, and the aggregate vector for $e.\Vaggr$, summarising the causal \todo{cc} dependencies of all the transactions in the snapshot. When the client receives the message (line~\ref{alg:read_msg_decomp}), it first sets the $j$-th entry of $\tx.\hasRead$ to $\top$, to indicate that $\tx$ has read an object at partition $j$, and joins the returned aggregate vector to $\tx.\VCaggr$. The client also joins the commit vector associated with the version read to a \emph{dependency vector} $\tx.\VCdep$, which represents all causal \todo{cc} dependencies developed by $\tx$ during its execution. This ensures that, upon reading a version of object $x$, $\tx$ will causally depend \todo{cc} on the transaction $\tx'$ that wrote that version of $x$, along with the causal dependencies of $\tx'$.
 
