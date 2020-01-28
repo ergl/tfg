@@ -1,0 +1,60 @@
+In the report, we show a figure (ch4_snapshot.pdf) (b) as a way to show an example of how a read abort might occur. The problem with the diagram is that, in the protocol, there's no "unified" view of the causal order of transactions. Instead, each partition "views" a specific commit order. Also, commit order might not represent read causality, so it's an over-approximation.
+
+For example, one might think that, since $T_2$ is before $T_4$ at $i$, that $T_4$ "sees" $T_2$'s writes. But it might be that the order is introduces at commit time, and $T_4$ was never aware of $T_2$'s existence.
+
+To create a situation where a transaction $T$ picks a snapshot at $j$ excluding $T_1$ and another at $k$ that includes $T_3$, both $i$ and $k$ need to disagree on their view of the commit order of $T_2$ and $T_4$. A disagreement needs a minimum of two partitions involved.
+
+The exact execution is detailed in the code below. To summarise, $i$ observes $T_2 \lt T_4$, while $k$ observes $T_4$; that is, $(T_2\ ||\ T_4) \lt T_3$. With this, at $j$ we have $T \lt T_1$, and at k $T_3 \lt T$. At $i$ we find ourselves with:
+
+1. $T \lt T_1 \lt T_2 \lt T_4$ (from snapshot at $j$), and:
+2. $T_4 \lt T_3 \lt T$ (from snapshot at $k$), so:
+3. $(T \lt T_2) \land (T_2 \lt T)$
+
+Which is clearly impossible, since we define $(T_1 \lt T_2) \land (T_2 \lt T_1) \iff T_1 = T_2$
+
+```erlang
+inter_dc_manager:start_bg_processes(stable).
+RingSize = 64.
+Pr = fun() -> coord_req_promise:new(self(), ignore) end.
+
+Tx1 = {0,0}.
+Tx2 = {0,1}.
+Tx3 = {1,0}.
+Tx4 = {2,0}.
+
+P0 = 0.
+P1 = element(1, log_utilities:get_key_partition(1)).
+P2 = element(1, log_utilities:get_key_partition(2)).
+
+%% Set initial scenario
+Prologue = fun() ->
+    %% Assume Tx1 has read the key `0` from P0 before
+    {ok, P0, 1} = antidote_pvc_protocol:prepare(P0, psi, Tx1, #{0 => 0}, 0),
+    ok = antidote_pvc_protocol:decide(P0, Tx1, {ok, #{P0 => 1}})
+end.
+
+Fork = fun() ->
+    %% To make a read abort possible, we need to make a forked history visible
+    %% to a transaction. The fork will happen at P1 and P2
+    
+    %% Concurrent prepare, interleaving order
+    {ok, P1, 1} = antidote_pvc_protocol:prepare(P1, psi, Tx2, #{1 => 1}, 0),
+    {ok, P1, 2} = antidote_pvc_protocol:prepare(P1, psi, Tx3, #{1+RingSize => 1}, 0),
+    {ok, P2, 1} = antidote_pvc_protocol:prepare(P2, psi, Tx3, #{2 => 1}, 0),
+    ok = antidote_pvc_protocol:decide(P1, Tx2, {ok, #{P0 => 1, P1 => 1}}),
+    ok = antidote_pvc_protocol:decide(P1, Tx3, {ok, #{P1 => 2, P2 => 1}}),
+    ok = antidote_pvc_protocol:decide(P2, Tx3, {ok, #{P1 => 2, P2 => 1}}),
+    
+    %% Here, Tx4 reads from P2 and observes Tx3, but not Tx2
+    {ok, P2, 2} = antidote_pvc_protocol:prepare(P2, psi, Tx4, #{2 => 2}, 1),
+    antidote_pvc_protocol:decide(P2, Tx4, {ok, #{P1 => 2, P2 => 2}})
+end.
+
+%% Imagine Tx5 reads from P0, fixing #{P0 => 0} as Vaggr and Vdep
+ok = Prologue().
+%% Now the fork happens, and Tx5 reads from P2, picking up #{P0 => 0, P1 => 2, P2 => 2}
+ok = Fork().
+
+%% This read should result in an abort
+antidote_pvc_protocol:read_request(Pr(), P1, 1, #{P1 => 2, P2 => 2}, [P0, P2]).
+```
