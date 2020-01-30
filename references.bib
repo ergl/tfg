@@ -23,3 +23,49 @@
   numpages = {8},
   keywords = {replicated data, network partitioning, distributed systems, mutual consistency, network failures, Availability}
 }
+
+@article{dynamo-amz,
+    title = {Dynamo: amazon's highly available key-value store},
+    volume = {41},
+    issn = {01635980},
+    shorttitle = {Dynamo},
+    doi = {10.1145/1323293.1294281},
+    language = {en},
+    number = {6},
+    urldate = {2020-01-29},
+    journal = {SIGOPS Oper. Syst. Rev.},
+    author = {DeCandia, Giuseppe and Hastorun, Deniz and Jampani, Madan and Kakulapati, Gunavardhan and Lakshman, Avinash and Pilchin, Alex and Sivasubramanian, Swaminathan and Vosshall, Peter and Vogels, Werner},
+    month = oct,
+    year = {2007},
+    pages = {205},
+    file = {DeCandia et al_2007_Dynamo.pdf:/Users/ryan/software/Dropbox/zotero/software/papers/DeCandia et al_2007_Dynamo.pdf:application/pdf}
+}
+
+
+@inproceedings{psi-intro,
+    address = {Cascais, Portugal},
+    title = {Transactional storage for geo-replicated systems},
+    isbn = {978-1-4503-0977-6},
+    doi = {10.1145/2043556.2043592},
+    abstract = {We describe the design and implementation of Walter, a key-value store that supports transactions and replicates data across distant sites. A key feature behind Walter is a new property called Parallel Snapshot Isolation (PSI). PSI allows Walter to replicate data asynchronously, while providing strong guarantees within each site. PSI precludes write-write conﬂicts, so that developers need not worry about conﬂict-resolution logic. To prevent write-write conﬂicts and implement PSI, Walter uses two new and simple techniques: preferred sites and counting sets. We use Walter to build a social networking application and port a Twitter-like application.},
+    language = {en},
+    urldate = {2019-04-30},
+    booktitle = {Proceedings of the {Twenty}-{Third} {ACM} {Symposium} on {Operating} {Systems} {Principles} - {SOSP} '11},
+    publisher = {ACM Press},
+    author = {Sovran, Yair and Power, Russell and Aguilera, Marcos K. and Li, Jinyang},
+    year = {2011},
+    pages = {385}
+}
+
+@inproceedings{sql-critique,
+    title = {A {Critique} of {ANSI} {SQL} {Isolation} {Levels}},
+    doi = {10.1145/223784.223785},
+    abstract = {ANSI SQL-92 [MS, ANSI] defines Isolation Levels in terms of phenomena: Dirty Reads, Non-Repeatable Reads, and Phantoms. This paper shows these phenomena and the ANSI SQL definitions fail to characterize several popular isolation levels, including the standard locking implementations of the levels.
+
+Investigating the ambiguities of the phenomena leads to clearer definitions; in addition new phenomena that better characterize isolation types are introduced. An important multiversion isolation type, Snapshot Isolation, is defined.},
+    language = {en},
+    booktitle = {Proceedings of the 1995 {ACM} {SIGMOD} international conference on {Management} of data - {SIGMOD} '95},
+    author = {Berenson, Hal and Bernstein, Phil and Gray, Jim and Melton, Jim and O’Neil, Elizabeth and O'Neil, Patrick},
+    year = {1995},
+    pages = {13}
+}
