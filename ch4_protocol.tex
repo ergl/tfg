@@ -188,11 +188,7 @@
 \SetKw{Break}{break}
 \SetKw{New}{new}
 
-% Go over the different parts of the protocol, or at least the read request and prepare/decide.
-
-% We should talk something about prefix order and read aborts here. Image of the executions that cause read aborts.
-
-\todo{Protocol name?}
+\todo{Protocol name? Design tradeoffs?}
 
 In this chapter, we describe how our protocol works. We first present how the system is modelled, followed by a description of the different data structures that it encompasses. Next, we show how the protocol is implemented by going over the execution of a transaction, focusing in particular on the read and commit phases.
 
@@ -204,7 +200,9 @@ We consider an asynchronous, message-passing system consisting of a set of relia
 
 The data structures maintained by the protocol at a process are summarised in Figure~\ref{fig:prot-ds-table}. Each server $s_i$ maintains a counter $\lastprep$ of the number of update transactions that initiated their commit phase at the server. When such a transaction commits at a server $s_i$, it will be assigned a \emph{sequence number} $k$ derived from this counter. All the update operations by the transaction at $s_i$ are identified by a pair $(s_i, k)$, which we call dot~\citep{carlos-causality}. We call the order of transactions imposed by their sequence numbers issued by $s_i$ the \emph{commit order} at $s_i$.
 
-To track the happens-before \todo{HB should be defined previously, I guess} relationship between transactions, we use \emph{version vectors}~\citep{version-vectors}. Such a vector consists of $N$ entries, one for each server, storing a non-negative integer. A version vector $V$ represents the set of dots $\{(s_i, k) \mid k \le V[i]\}$, which identify the writes by transactions whose sequence number at a server $s_i$ is no higher than $V[i]$. Version vectors are compared according to the following relation, showing when one vector covers more dots than another: $V_1 \sqsubseteq V_2 \iff \forall i.\ V_1[i] \le V_2[i]$. In addition, there exists a \emph{join} operation on vectors, taking their component-wise maximum. We we will denote this operation by $\max$ from now on. We also denote the set of all version vectors by $\VCSet$, and the vector with all entries set to $0$ by $\vec{0}$.
+\todo{Maybe move this to preliminaries? We have to justify doing PSI with VCs instead of NMSI's approach with dependence vectors}
+
+To track the happens-before \todo{HB should be defined previously} relationship between transactions, we use \emph{version vectors}~\citep{version-vectors}. Such a vector consists of $N$ entries, one for each server, storing a non-negative integer. A version vector $V$ represents the set of dots $\{(s_i, k) \mid k \le V[i]\}$, which identify the writes by transactions whose sequence number at a server $s_i$ is no higher than $V[i]$. Version vectors are compared according to the following relation, showing when one vector covers more dots than another: $V_1 \sqsubseteq V_2 \iff \forall i.\ V_1[i] \le V_2[i]$. In addition, there exists a \emph{join} operation on vectors, taking their component-wise maximum. We we will denote this operation by $\max$ from now on. We also denote the set of all version vectors by $\VCSet$, and the vector with all entries set to $0$ by $\vec{0}$.
 
 The protocol associates each committed transaction $\tx$ with a \emph{commit vector}---a version vector $V$ representing the dots that cover all the writes by $\tx$ as well as the writes of transactions preceding $\tx$ under happens-before \todo{HB}. In particular, the entry $V[i]$ for a server $s_i$ where $\tx$ wrote an object stores the sequence number of $\tx$ issued by $s_i$. A server $s_i$ maintains a list of update transactions that committed at the server in a $\CommitLog$, storing triples $\langle T,V_c,V_a\rangle$. Here, $\tx$ is the identifier of a committed transaction, and $V_c$ is its commit vector. The $\CommitLog$ at $s_i$ is totally ordered according to the value $V_c[i]$, which follows the commit order at $s_i$. The last component of the triple, $V_a$, represents the join of the commit vectors of all the transactions up to $\tx$ in $\CommitLog$. This \emph{aggregate} vector is stored for efficiency---the server also caches the aggregate vector of the last committed transaction in a variable $\LocalTime$. Initially, the $\CommitLog$ contains a single dummy entry $\langle \_, \vec{0}, \vec{0} \rangle$.
 
