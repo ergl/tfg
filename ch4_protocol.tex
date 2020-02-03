@@ -218,7 +218,6 @@ A server $s_i$ maintains multiple versions of the objects it manages, stored in 
 
 Finally, a server $s_i$ maintains an ordered queue $\CommitQueue$ of transactions trying to commit updates at the server. The queue has entries of two types. An entry $\langle \pending, T, \localWS \rangle$ means that $\tx$ is successfully prepared to commit at $s_i$, but the final decision on it is not yet known; $\localWS$ is the \emph{write-set} of the transaction, containing object-value pairs. An entry $\langle \ready, T, \localWS, V \rangle$ in the queue means that $\tx$ has been decided to commit with a commit vector $V$, but its writes have not yet been added to the $\VersionLog$. The order of transactions in $\CommitQueue$ follows the commit order at the server.
 
-\todo{Fix table, weird spacing in middle column}
 \begin{figure}[t]
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
 \begin{tabularx}{\linewidth}{|c|p{5.5cm}|X|}
@@ -278,26 +277,20 @@ Finally, a server $s_i$ maintains an ordered queue $\CommitQueue$ of transaction
   ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$. The orders
   of entries in $\CommitLog$, $\VersionLog$ and $\CommitQueue$ are consistent
   with the commit order of transactions the entries are associated with. We
-  select the components of various tuples using the names given in the figure.}
+  select the components of various tuples using the names given in the figure. \todo{Fix table, weird spacing in middle column}}
 \label{fig:prot-ds-table}
 \end{figure}
 
-\section{Transaction Execution}
+\section{Protocol Description}
 
 \todo{
   \begin{itemize}
     \item Revisit captions for pseudocode figures
     \item Think if \emph{causal dependency} is already defined in a previous section
-    \item Divide into (for example):
-      \begin{itemize}
-        \item Protocol description
-        \item Transaction execution
-        \item Transaction termination
-      \end{itemize}
   \end{itemize}
 }
 
-\subsection{Reading Objects and Building Consistent Snapshots}
+\subsection{Transaction Execution}
 
 \begin{figure}[h]
 \begin{algorithm}[H]
@@ -500,9 +493,9 @@ Upon receiving the decision on a transaction $\tx$ (line~\ref{alg:decide_start})
     $\cladd(T, \mrvc)$\;\label{alg:queue_clog_add}
   }
 \end{algorithm}
-\caption{Applying the changes by a transaction at server $s_i$}
+\caption{Partition state update after at server $s_i$ after a transaction commits}
 \end{figure}
 
 Committed transactions are applied to the database in their order in $\CommitQueue$, i.e., the commit order. When a $\ready$ transaction $\tx$ gets to the head of the queue (line~\ref{alg:queue_start}), the server dequeues it and adds its writes to $\VersionLog$, tagged with its commit vector. The server then joins $\tx$'s commit vector to $\LocalTime$, and adds the transaction to $\CommitLog$, along with $\LocalTime$ as its aggregate vector.
 
-\todo{Correctness?}
+\todo{Do we need a correctness section?}
