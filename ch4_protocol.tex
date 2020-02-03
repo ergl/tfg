@@ -190,6 +190,12 @@
 
 \todo{Protocol name? Design tradeoffs?}
 
+\todo{Move table closer to the text}
+
+\todo{Add an ``overview'' section with a figure that explains the protocol at a high level, step by step. We can do it as an example, denoting the messages between client and server. We can also say how the state (assuming an initial one) evolves with each step.
+
+Another option is to use this figure in two places. In overview, the figure will explain the messages and steps. In the detailed section, use the figure as a running example.}
+
 In this chapter, we describe how our protocol works. We first present how the system is modelled, followed by a description of the different data structures that it encompasses. Next, we show how the protocol is implemented by going over the execution of a transaction, focusing in particular on the read and commit phases.
 
 \section{System Model}
@@ -197,6 +203,8 @@ In this chapter, we describe how our protocol works. We first present how the sy
 We consider an asynchronous, message-passing system consisting of a set of reliable processes connected by reliable channels. Fault-tolerance concerns are orthogonal to the problem we address. The processes are split into two sets; a set of \emph{servers} $\mathcal{S} = \{s_1, \dots, s_N\}$, and a set of \emph{clients} $\mathcal{C} = \{c_1, \dots, c_M\}$. The system manages a set of objects $\Obj$ split into $N$ partitions, each stored by a server process. We let $\partitionOf(x)$ be the index of the partition the object $x$ belongs to, so that it is managed by server $s_{\partitionOf(x)}$. Clients execute transactions by communicating with servers. Transactions can be \emph{interactive}, i.e., when a transaction starts, the client does not know which operations it will perform in advance. Clients refer to transactions by their identifier from a set $\transtype$.
 
 \section{Server data structures}
+
+\todo{Data structures and protocol explanations are too tied together. Perhaps add an ``overview'' section before (of the protocol) so we can explain the structures without mixing the two.}
 
 The data structures maintained by the protocol at a process are summarised in Figure~\ref{fig:prot-ds-table}. Each server $s_i$ maintains a counter $\lastprep$ of the number of update transactions that initiated their commit phase at the server. When such a transaction commits at a server $s_i$, it will be assigned a \emph{sequence number} $k$ derived from this counter. All the update operations by the transaction at $s_i$ are identified by a pair $(s_i, k)$, which we call dot~\citep{carlos-causality}. We call the order of transactions imposed by their sequence numbers issued by $s_i$ the \emph{commit order} at $s_i$.
 
@@ -212,9 +220,18 @@ Finally, a server $s_i$ maintains an ordered queue $\CommitQueue$ of transaction
 
 \section{Transaction Execution}
 
-\todo{Split the pseudocode and inline it with the text}
-
-\todo{Think if \emph{causal dependency} is already defined in a previous section}
+\todo{
+  \begin{itemize}
+    \item Split the pseudocode and inline it with the text.
+    \item Think if \emph{causal dependency} is already defined in a previous section
+    \item Divide into (for example):
+      \begin{itemize}
+        \item Protocol description
+        \item Transaction execution
+        \item Transaction termination
+      \end{itemize}
+  \end{itemize}
+}
 
 \subsection{Reading Objects and Building Consistent Snapshots}
 
@@ -281,5 +298,7 @@ The client waits until it receives $\VOTE$ messages from all involved servers (l
 Upon receiving the decision on a transaction $\tx$ (line~\ref{alg:decide_start}), a server updates the entry associated with $\tx$ in $\CommitQueue$, to change its status to $\ready$ and record its commit vector. If the transaction is aborted, the server removes $\tx$ from the queue.
 
 Committed transactions are applied to the database in their order in $\CommitQueue$, i.e., the commit order. When a $\ready$ transaction $\tx$ gets to the head of the queue (line~\ref{alg:queue_start}), the server dequeues it and adds its writes to $\VersionLog$, tagged with its commit vector. The server then joins $\tx$'s commit vector to $\LocalTime$, and adds the transaction to $\CommitLog$, along with $\LocalTime$ as its aggregate vector.
+
+\todo{Correctness?}
 
 \input{ch4_pseudocode.tex}
