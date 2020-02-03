@@ -190,11 +190,11 @@
 
 \todo{Protocol name? Design tradeoffs?}
 
-\todo{Move table closer to the text}
+\todo{
+Add an ``overview'' section with a figure that explains the protocol at a high level, step by step. We can do it as an example, denoting the messages between client and server. We can also say how the state (assuming an initial one) evolves with each step.
 
-\todo{Add an ``overview'' section with a figure that explains the protocol at a high level, step by step. We can do it as an example, denoting the messages between client and server. We can also say how the state (assuming an initial one) evolves with each step.
-
-Another option is to use this figure in two places. In overview, the figure will explain the messages and steps. In the detailed section, use the figure as a running example.}
+Another option is to use this figure in two places. In overview, the figure will explain the messages and steps. In the detailed section, use the figure as a running example.
+}
 
 In this chapter, we describe how our protocol works. We first present how the system is modelled, followed by a description of the different data structures that it encompasses. Next, we show how the protocol is implemented by going over the execution of a transaction, focusing in particular on the read and commit phases.
 
@@ -286,7 +286,7 @@ Finally, a server $s_i$ maintains an ordered queue $\CommitQueue$ of transaction
 
 \todo{
   \begin{itemize}
-    \item Split the pseudocode and inline it with the text.
+    \item Revisit captions for pseudocode figures
     \item Think if \emph{causal dependency} is already defined in a previous section
     \item Divide into (for example):
       \begin{itemize}
@@ -299,6 +299,23 @@ Finally, a server $s_i$ maintains an ordered queue $\CommitQueue$ of transaction
 
 \subsection{Reading Objects and Building Consistent Snapshots}
 
+\begin{figure}[h]
+\begin{algorithm}[H]
+  \setcounter{AlgoLine}{0}
+  \SubAlgo{\Fun ${\tt start}()$\label{alg:start_tx_start}}{
+    \Return{$\KwSty{new}\ \transtype(\WS= \emptyset, \hasRead =
+      \vec{\bot}, \VCaggr = \vec{0}, \VCdep =
+      \vec{0})$};\label{alg:start_tx_end}}
+
+  \smallskip
+
+  \SubAlgo{\Fun ${\tt write}(T, x, v)$\label{alg:write_start}}{
+    $\tx.\WS \leftarrow \left(\tx.\WS\ \backslash\ \{\langle x, \_ \rangle\}\right) \cup \{\langle x,v\rangle\}$\;\label{alg:write_end}
+  }
+\end{algorithm}
+\caption{Initialisation of a transaction and update of an object \emph{x} at client $c_i$}
+\end{figure}
+
 A client executing a transaction $\tx$ maintains a transaction \emph{context} including several pieces of data, summarised in Figure~\ref{fig:prot-ds-table} and explained below. This context is initialised by the client when it starts a transaction (line~\ref{alg:start_tx_start}).
 
 Since our protocol uses optimistic concurrency control, the execution of $\tx$ is speculative: clients read objects from servers and buffer writes locally. At the end of the execution, the decision whether to commit or abort a transaction is taken based on the existence of conflicts with concurrently executing transactions. When a transaction $\tx$ writes a value $v$ to an object $x$ (line~\ref{alg:write_start}), the client buffers this write in $\tx$'s \emph{write-set}, $\tx.\WS$, while discarding any previously written value of $x$.
@@ -306,6 +323,47 @@ Since our protocol uses optimistic concurrency control, the execution of $\tx$ i
 When the transaction $\tx$ issues a read operation on an object $x$ (line~\ref{alg:read_start}), the client will first check $\tx.\WS$ (line~\ref{alg:read_ws_check}): if $\tx$ has already written to $x$, the value stored in the write-set is returned. Otherwise, and assuming that $j = \partitionOf(x)$, the client sends a $\READREQUEST$ message to the server $s_j$ to fetch the value of the object (line~\ref{alg:read_send}).
 
 When the transaction $\tx$ reads an object from a partition $j$ for the first time, the server $s_j$ fixes a \emph{snapshot} of versions from which it will serve all future reads by $\tx$. This snapshot is defined by an integer $k$: it will include the versions written by all the transactions that committed at the server with a sequence number up to $k$. The client keeps this information in the transaction context, by storing $k$ in the $j$-th entry of a \emph{snapshot vector} $\tx.\VCaggr$, and by marking the current partition as read in $\tx.\hasRead$, a Boolean mapping its $j$-th entry to $\top$ if $\tx$ read an object from $j$, and $\bot$ otherwise. If $\tx.\hasRead[j]=\top$, then the vector $\tx.\VCaggr$ is equal to the join of the commit vectors of all transactions that at partition $j$ have a sequence number no higher than $\VCaggr[j]$, and vice versa.
+
+\begin{figure}[h]
+\begin{algorithm}[H]
+  \SubAlgo{\Fun ${\tt read}(T, x)$\label{alg:read_start}}{
+    \If{$\langle x, v \rangle \in \tx.\WS$\label{alg:read_ws_check}}{
+      \Return{$v$}\;
+    }
+
+    $j \leftarrow \partitionof(x)$\;
+    \Send{$\READREQUEST(x, T.\VCaggr, T.\hasRead)$} \KwTo $s_j$\;\label{alg:read_send}
+    \Receive{$\READRETURN(m)$} \KwFrom $s_j$\;\label{alg:read_recv}
+    \uIf{$m = \abort$} {
+      \Throw{$\abort$}\;\label{alg:read_abort}
+    }
+    \ElseIf{$m = \langle v,\localVdep,\localVaggr \rangle$\label{alg:read_msg_decomp}}{
+      $\tx.\hasRead[j] \leftarrow \true$\;
+      $\tx.\VCdep \leftarrow \max(\tx.\VCdep,\localVdep)$\;\label{alg:read_upd_vcdep}
+      $\tx.\VCaggr \leftarrow \max(\tx.\VCaggr,\localVaggr)$\;\label{alg:read_upd_vcaggr}
+      \Return{$v$}\;\label{alg:read_end}
+    }
+  }
+  \smallskip
+  \SubAlgo{\WhenReceived $\READREQUEST(x, \argVCaggr, \argHasRead)$ \KwFrom $c_j$\label{alg:read_req_start}}{
+    \uIf{$\argHasRead[i]$\label{alg:read_req_read_check}} {
+      $V \leftarrow \argVCaggr$\;\label{alg:read_req_read_maxvc}
+    }
+    \Else{\label{alg:read_req_read_check_else}
+      \Until{$\mrvc[i] \ge \argVCaggr[i]$}\;\label{alg:read_req_wait}
+      $r \leftarrow \max\{r \in \CommitLog \mid \forall j.\, \argHasRead[j] {\implies} \left(r.\Vaggr[j] \le \argVCaggr[j]\right)\}$\;\label{alg:max_vc_search}
+      \If{$r.\Vaggr[i] < \argVCaggr[i]$\label{alg:read_req_abort_check}}{
+        \Send{$\READRETURN(\abort)$} \KwTo $c_j$\;\label{alg:read_req_abort}
+        \Return\;
+      }
+      $V \leftarrow r.\Vaggr$\;\label{alg:read_req_unread_maxvc}
+    }
+    $\ver = \max\{\ver \in \VersionLog \mid ver.\Vcomm[i] \le V[i]\}$\; \label{alg:chose-version}
+    \Send{$\READRETURN(\ver.\val, \ver.\Vcomm,V)$} \KwTo $c_j$\;\label{alg:read_req_end}
+  }
+\end{algorithm}
+\caption{Local and remote read of object \emph{x}}
+\end{figure}
 
 \todo{First mention of causal dependency} Thus, the entries of the snapshot vector for partitions that $\tx$ has not yet read from delimit all the possible causal dependencies $\tx$ may develop at these partitions if it keeps reading objects from the snapshots it has already fixed.
 
@@ -347,6 +405,73 @@ A client executing a transaction $\tx$ tries to commit it by calling a {\tt comm
 
 In more detail, to commit a transaction $\tx$, the client first sends a $\PREPARE$ message to all servers storing the objects written by the transaction (line~\ref{alg:commit_send_loop}). The message contains $\tx$'s write-set and its dependency vector $\tx.\VCdep$. When a server $s_i$ receives this message (line~\ref{alg:prepare_start}), it \emph{validates} the transaction, deciding whether it can commit or abort due to conflicting concurrent transactions. The server then replies to the client with a \emph{vote} representing its decision. Based on the votes, the client determines the final decision on the transaction---the transaction commits if all votes are positive---and distributes the decision to the relevant servers.
 
+\begin{figure}[htb!]
+\begin{algorithm}[H]
+  % Commit
+  \SubAlgo{\Fun ${\tt commit}(T)$\label{alg:commit_start}}{
+    \If{$\tx.\WS = \emptyset$\label{alg:commit_readonly_start}}{
+      \Return{$\commit$}\;\label{alg:commit_readonly_end}
+    }
+
+    \ForAll{$\partj \in \partitions(\tx.\WS)$\label{alg:commit_send_loop}}{
+      \Send{$\PREPARE(T, T.\WS, \VCdep)$} \KwTo $\partj$\;\label{alg:commit_send_prepare}
+    }
+
+    $\commitVC \leftarrow \tx.\VCdep$\; \label{alg:commit_commitvc_firstassignment}
+    $\outcome \leftarrow \commit$\;
+
+    \ForAll{$\partj \in \partitions(\tx.\WS)$\label{alg:commit_send_votes}}{
+      \Receive{$\VOTE(m)$} \KwFrom $\partj$\;\label{alg:commit_recv_vote}
+      \uIf{$m = \langle T, \abort \rangle$\label{alg:commit_vote_check}}{
+        $\outcome \leftarrow \abort$\;
+        \Break\;
+      }
+      \ElseIf{$m = \langle T, \commit, k \rangle$\label{alg:commit_vote_check_else}}{
+        $\commitVC[j] \leftarrow k$\;\label{alg:commit_assign_seqn}
+      }
+    }
+
+    \ForAll{$\partj \in \partitions(\tx.\WS)$}{
+      \Send{$\DECIDE(\tx, \commitVC,\outcome)$} \KwTo $\partj$\;\label{alg:commit_send_decide}
+    }
+
+    \Return{$\outcome$}\;\label{alg:commit_end}
+  }
+
+  \smallskip
+
+  % Prepare
+  \SubAlgo{\WhenReceived $\PREPARE(\tx, \localWS, \localVdep)$ \KwFrom
+    $c_j$\label{alg:prepare_start}}{
+    \uIf{$(\exists T'.\
+      (\langle T', \pending, \localWS' \rangle \in \cqueue \vee \langle T',
+      \ready, \_, \_ \rangle \in \cqueue)
+        \wedge{}$ $\localWS' \cap \localWS \ne
+        \emptyset) \vee (\exists x.\, x \in \localWS \wedge
+        \left(\VersionLog[x].\last.\Vcomm[i] > \localVdep[i]\right)$\label{alg:conflict_check}}{
+      \Send{$\VOTE(t, \abort)$} \KwTo $c_j$\; \label{alg:send_abort}
+    }\Else{
+    $\lastprep \leftarrow \lastprep + 1$\;\label{alg:lastprep_incr}
+    $\cqput(\tx, \pending, \localWS)$\;\label{alg:queue_put}
+    \Send{$\VOTE(\tx, \commit, \lastprep)$} \KwTo $c_j$\;\label{alg:prepare_end}
+  }}
+
+  \smallskip
+
+  % Decide
+  \SubAlgo{\WhenReceived $\DECIDE(\tx, \commitVC, \mathit{decision})$ \KwFrom
+    $\partj$\label{alg:decide_start}}{
+    \uIf{$\mathit{decision} = \commit$\label{alg:decide_if}}{
+      $\cqupdate(\langle \tx, \ready, \_, \argCommitVC\rangle)$\;\label{arg:queue_update}
+    }
+    \Else{
+      $\cqremove(\tx)$\;\label{alg:decide_end}
+    }
+  }
+\end{algorithm}
+\caption{Commit protocol of a transaction and two-phase commit at server $s_i$}
+\end{figure}
+
 We now describe how a server $s_i$ computes its vote on a transaction (line~\ref{alg:conflict_check}). The vote for a transaction $\tx$ ensures the following property, used to validate the \Wconflict axiom of PSI: \todo{Reference back to the model in previous chapter}
 
 \begin{itemize}
@@ -361,8 +486,23 @@ The client waits until it receives $\VOTE$ messages from all involved servers (l
 
 Upon receiving the decision on a transaction $\tx$ (line~\ref{alg:decide_start}), a server updates the entry associated with $\tx$ in $\CommitQueue$, to change its status to $\ready$ and record its commit vector. If the transaction is aborted, the server removes $\tx$ from the queue.
 
+\begin{figure}[h]
+\begin{algorithm}[H]
+  % Queue head
+  \SubAlgo{\Upon $\langle T, \ready, \localWS, \commitVC\rangle =
+    \cqhead()$\label{alg:queue_start}}{
+    $\cqremove(T)$\;\label{alg:queue_end}
+    \ForAll{$\{\langle x , v \rangle \mid \langle x , v \rangle \in \localWS \wedge \partitionof(x) = i\}$} { \label{alg:queue_loopws}
+        $\vlapply(\langle x , v , \commitVC \rangle)$\;\label{alg:queue_vapply}
+    }
+
+    $\mrvc \leftarrow \max(\mrvc,\commitVC)$\;\label{alg:queue_mrvc}
+    $\cladd(T, \mrvc)$\;\label{alg:queue_clog_add}
+  }
+\end{algorithm}
+\caption{Applying the changes by a transaction at server $s_i$}
+\end{figure}
+
 Committed transactions are applied to the database in their order in $\CommitQueue$, i.e., the commit order. When a $\ready$ transaction $\tx$ gets to the head of the queue (line~\ref{alg:queue_start}), the server dequeues it and adds its writes to $\VersionLog$, tagged with its commit vector. The server then joins $\tx$'s commit vector to $\LocalTime$, and adds the transaction to $\CommitLog$, along with $\LocalTime$ as its aggregate vector.
 
 \todo{Correctness?}
-
-\input{ch4_pseudocode.tex}
