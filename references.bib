@@ -77,18 +77,13 @@
 }
 
 @inproceedings{psi-intro,
-    address = {Cascais, Portugal},
     title = {Transactional storage for geo-replicated systems},
-    isbn = {978-1-4503-0977-6},
-    doi = {10.1145/2043556.2043592},
     abstract = {We describe the design and implementation of Walter, a key-value store that supports transactions and replicates data across distant sites. A key feature behind Walter is a new property called Parallel Snapshot Isolation (PSI). PSI allows Walter to replicate data asynchronously, while providing strong guarantees within each site. PSI precludes write-write conﬂicts, so that developers need not worry about conﬂict-resolution logic. To prevent write-write conﬂicts and implement PSI, Walter uses two new and simple techniques: preferred sites and counting sets. We use Walter to build a social networking application and port a Twitter-like application.},
     language = {en},
     urldate = {2019-04-30},
     booktitle = {Proceedings of the {Twenty}-{Third} {ACM} {Symposium} on {Operating} {Systems} {Principles} - {SOSP} '11},
-    publisher = {ACM Press},
     author = {Sovran, Yair and Power, Russell and Aguilera, Marcos K. and Li, Jinyang},
-    year = {2011},
-    pages = {385}
+    year = {2011}
 }
 
 @inproceedings{sql-critique,
@@ -102,4 +97,29 @@ Investigating the ambiguities of the phenomena leads to clearer definitions; in 
     author = {Berenson, Hal and Bernstein, Phil and Gray, Jim and Melton, Jim and O’Neil, Elizabeth and O'Neil, Patrick},
     year = {1995},
     pages = {13}
+}
+
+@inproceedings{antidote-db,
+  author = {Akkoorath, Deepthi Devaki and Tomsic, Alejandro Z. and Bravo, Manuel and Li, Zhongmiao and Crain, Tyler and Bieniusa, Annette and Preguica, Nuno and Shapiro, Marc},
+  booktitle = {Proceedings of the 36th International Conference on Distributed Computing Systems (ICDCS 2016)},
+  title = {{Cure: Strong Semantics Meets High Availability and Low Latency}},
+  year = {2016}
+}
+
+@online{protobuf,
+    title = {Protocol {Buffers}},
+    url = {https://github.com/protocolbuffers/protobuf},
+    urldate = {2020-02-03}
+}
+
+@online{pvc-client,
+    title = {{PVC} client-side library},
+    url = {https://github.com/ergl/pvc},
+    urldate = {2020-02-03}
+}
+
+@online{pvc-server,
+    title = {{PVC} {Server}},
+    url = {https://github.com/ergl/antidote},
+    urldate = {2020-02-03}
 }

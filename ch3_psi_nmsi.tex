@@ -2,8 +2,15 @@
 \chapter{PSI/NMSI}
 
 \todo{
-We explain what PSI is, how it differs from classical SI, and how it avoids some of the anomalies explained during the preliminaries. Explain the protocol in terms of abstract executions.
+We explain what PSI is, how it differs from classical SI, and how it avoids some of the anomalies explained during the preliminaries. Explain the protocol in terms of abstract executions. As Alexey for reference showing that PSI is equivalent to NMSI.
 
-PSI = SI (isolation) + Causal consistency (consistency) => ref Lamport
-Traditional SI = Sequential consistency?
+PSI = SI within a site, (isolation) + causal consistency across sites (consistency) => ref Lamport.
+
+Traditional SI = Sequential consistency?.
+
+Mention~\citep{psi-intro}, difference: transactions are not fixed at start time, but at read time (like NMSI).
+
+From same paper:
+
+Snapshot isolation is inadequate for a system replicated at many sites, due to two issues. First, to define snapshots, snapshot iso- lation imposes a total ordering of the commit time of all transac- tions, even those that do not conflict. Establishing such an ordering when transactions execute at different sites is inefficient. Second, the writes of a committed transaction must be immediately visible to later transactions. Therefore a transaction can commit only after its writes have been propagated to all remote replicas, thereby pre- cluding asynchronous propagation of its updates.
 }

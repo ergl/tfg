@@ -1,2 +1,25 @@
 \cleardoublepage
-\chapter{Evaluation}
+\chapter{Implementation and Evaluation}
+\label{eval_chapter}
+
+\section{Implementation}
+
+The \todo{protocol name} implementation has a client-side library~\citep{pvc-client} and a server~\citep{pvc-server}, written as a plug-in transactional protocol for AntidoteDB~\citep{antidote-db}, a key-value database. Both implementations were written in the Erlang programming language, with a total of 6K lines of code. AntidoteDB provides the application programmer rich data types such as \todo{list, mention CRDTs}, supports both in-memory and disk-based storage, and implements \todo{full/partial} replication. In our implementation, we constrain ourselves to a simple in-memory, key-value storage using Last-Write-Wins registers (LWWs) \todo{cite?}. In addition, we have disabled replication, and only focus on the distribution problem. During normal operation, the client-side library communicates with the server using Google's Protocol Buffers~\citep{protobuf} through an optimised TCP connection that allows pipelining \todo{Maybe omit}.
+
+We also implemented two alternative protocols that implement different consistency criteria: Read Committed (RC) and Serialisability (SER) \todo{cite}, so we can compare our experimental results.
+
+To prevent unbounded state growth, we also implement a simple garbage collection mechanism for both $\CommitLog$ and $\VersionLog$ at each partition. \todo{More? Mention RC and SER implementations}.
+
+\section{Evaluation}
+
+\todo{Maybe we don't need these many subsections, and can summarise some of them in separate paragraphs}
+
+\subsection{Experimental Setup}
+
+\subsection{Throughput Micro-benchmark}
+
+\subsection{Dynamic Workloads}
+
+\subsection{Read Abort Rate Impact}
+
+\todo{Maybe?}
