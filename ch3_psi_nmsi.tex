@@ -12,5 +12,5 @@ Mention~\citep{psi-intro}, difference: transactions are not fixed at start time,
 
 From same paper:
 
-Snapshot isolation is inadequate for a system replicated at many sites, due to two issues. First, to define snapshots, snapshot iso- lation imposes a total ordering of the commit time of all transac- tions, even those that do not conflict. Establishing such an ordering when transactions execute at different sites is inefficient. Second, the writes of a committed transaction must be immediately visible to later transactions. Therefore a transaction can commit only after its writes have been propagated to all remote replicas, thereby pre- cluding asynchronous propagation of its updates.
+Snapshot isolation is inadequate for a system replicated at many sites, due to two issues. First, to define snapshots, snapshot isolation imposes a total ordering of the commit time of all transactions, even those that do not conflict. Establishing such an ordering when transactions execute at different sites is inefficient. Second, the writes of a committed transaction must be immediately visible to later transactions. Therefore a transaction can commit only after its writes have been propagated to all remote replicas, thereby precluding asynchronous propagation of its updates.
 }

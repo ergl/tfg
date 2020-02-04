@@ -8,13 +8,15 @@ The \todo{protocol name} implementation has a client-side library~\citep{pvc-cli
 
 We also implemented two alternative protocols that implement different consistency criteria: Read Committed (RC) and Serialisability (SER) \todo{cite}, so we can compare our experimental results.
 
-To prevent unbounded state growth, we also implement a simple garbage collection mechanism for both $\CommitLog$ and $\VersionLog$ at each partition. \todo{More? Mention RC and SER implementations}.
+To prevent unbounded state growth, we also implement a simple garbage collection mechanism for both $\CommitLog$ and $\VersionLog$ at each partition. \todo{More? Mention RC and SER implementations. Maybe pseudocode of the implementations can go in an appendix}.
 
 \section{Evaluation}
 
 \todo{Maybe we don't need these many subsections, and can summarise some of them in separate paragraphs}
 
 \subsection{Experimental Setup}
+
+\todo{Details of computers: Xeon E2186G, 6 cores, 12 threads. 3.80-4.70GHz, 32GB memory, 1GbE ethernet. For each server machine we use a client machine. Latency was added using tc. Preloaded with 1 million keys, payload of 256 bytes}
 
 \subsection{Throughput Micro-benchmark}
 
