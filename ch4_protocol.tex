@@ -187,15 +187,21 @@
 \SetKw{Break}{break}
 \SetKw{New}{new}
 
-\todo{Protocol name? Design tradeoffs?}
-
 \todo{
 Add an ``overview'' section with a figure that explains the protocol at a high level, step by step. We can do it as an example, denoting the messages between client and server. We can also say how the state (assuming an initial one) evolves with each step.
 
 Another option is to use this figure in two places. In overview, the figure will explain the messages and steps. In the detailed section, use the figure as a running example.
+
+Tradeoff of 2pc vs Ardekani et. al. atomic multicast (the difference with NMSI)
+
+Design tradeoffs?
 }
 
-In this chapter, we describe how our protocol works. We first present how the system is modelled, followed by a description of the different data structures that it encompasses. Next, we show how the protocol is implemented by going over the execution of a transaction, focusing in particular on the read and commit phases.
+In this chapter, we describe how our protocol \todo{name} works. First, we present an overview of how the different participants interact. We follow with a formal description of the system model, and a description of the different data structures it encompasses. Next, we show how the protocol is implemented by going over the execution of a transaction.
+
+\section{Overview}
+
+Our protocol follows a client-server model with optimistic concurrency control: clients execute transactions speculatively by issuing remote read operations to servers and buffering writes locally. At the end of the execution of a transaction, clients perform a variant of the classical \emph{two-phase commit protocol (2PC)} among all the participating servers to decide whether to commit or abort the transaction. Figure~\ref{fig:execution} shows an overview of an example execution of the protocol.
 
 \section{System Model}
 
@@ -206,6 +212,18 @@ We consider an asynchronous, message-passing system consisting of a set of relia
 \todo{Data structures and protocol explanations are too tied together. Perhaps add an ``overview'' section before (of the protocol) so we can explain the structures without mixing the two.}
 
 The data structures maintained by the protocol at a process are summarised in Figure~\ref{fig:prot-ds-table}. Each server $s_i$ maintains a counter $\lastprep$ of the number of update transactions that initiated their commit phase at the server. When such a transaction commits at a server $s_i$, it will be assigned a \emph{sequence number} $k$ derived from this counter. All the update operations by the transaction at $s_i$ are identified by a pair $(s_i, k)$, which we call dot~\citep{carlos-causality}. We call the order of transactions imposed by their sequence numbers issued by $s_i$ the \emph{commit order} at $s_i$.
+
+% \begin{itemize}
+%   \item $\lastprep$, a counter of the number of update transactions that initiated their commit phase at $s_i$. When a transaction commits at $s_i$, it will be assigned a \emph{sequence number} $k$ derived from this counter.
+% \end{itemize}
+
+\begin{figure}[t]
+\vspace{-2cm}
+\includegraphics[width=\textwidth]{figures/ch4_execution.pdf}
+\vspace{-2cm}
+\caption{Message flow diagram of a sample execution, with message arrows labeled with their names in the protocol. The different interactions between a client and servers are shown in the shadowed regions. The operation performed by the client is shown at the top, and the state observed by the client at the end of each message exchange is summarised at the bottom.}
+\label{fig:execution}
+\end{figure}
 
 \todo{Maybe move this to preliminaries? We have to justify doing PSI with VCs instead of NMSI's approach with dependence vectors}
 
@@ -497,5 +515,3 @@ Upon receiving the decision on a transaction $\tx$ (line~\ref{alg:decide_start})
 \end{figure}
 
 Committed transactions are applied to the database in their order in $\CommitQueue$, i.e., the commit order. When a $\ready$ transaction $\tx$ gets to the head of the queue (line~\ref{alg:queue_start}), the server dequeues it and adds its writes to $\VersionLog$, tagged with its commit vector. The server then joins $\tx$'s commit vector to $\LocalTime$, and adds the transaction to $\CommitLog$, along with $\LocalTime$ as its aggregate vector.
-
-\todo{Do we need a correctness section?}
