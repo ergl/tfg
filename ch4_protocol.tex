@@ -122,7 +122,6 @@
 \newcommand{\argVCaggr}{\ensuremath{\mathit{Vsnap}}}
 \newcommand{\argVCdep}{\ensuremath{\mathit{Vdep}}}
 \newcommand{\argHasRead}{\mathit{HasRead}}
-\newcommand{\argCommitVC}{\ensuremath{\mathit{commitVC}}}
 \newcommand{\maxVC}{\ensuremath{\mathit{MaxVC}}}
 \newcommand{\argMaxVC}{\ensuremath{\mathit{MaxVC}}}
 \newcommand{\argVLog}{\ensuremath{\mathit{VersionLog}}}
@@ -456,7 +455,7 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
   \SubAlgo{\WhenReceived $\DECIDE(\tx, \commitVC, \mathit{decision})$ \KwFrom
     $\partj$\label{alg:decide_start}}{
     \uIf{$\mathit{decision} = \commit$\label{alg:decide_if}}{
-      $\cqupdate(\langle \tx, \ready, \_, \argCommitVC\rangle)$\;\label{arg:queue_update}
+      $\cqupdate(\langle \tx, \ready, \_, \commitVC\rangle)$\;\label{arg:queue_update}
     }
     \Else{
       $\cqremove(\tx)$\;\label{alg:decide_end}
