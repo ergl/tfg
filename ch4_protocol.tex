@@ -201,9 +201,25 @@ In this chapter, we describe how our protocol \todo{name} works. First, we prese
 
 \section{Overview}
 
-Our protocol follows a client-server model with optimistic concurrency control: clients execute transactions speculatively by issuing remote read operations to servers and buffering writes locally. At the end of the execution of a transaction, clients perform a variant of the classical \emph{two-phase commit protocol (2PC)} among all the participating servers to decide whether to commit or abort the transaction. Figure~\ref{fig:execution} shows an overview of an example execution of the protocol.
+Our protocol consists of three components: \emph{client} and \emph{server} processes that provide the system interface for managing transactions and its individual operations, respectively; and \emph{partitions}, managed by a server, and which manage individual data objects. Figure~\ref{fig:execution} shows an overview of an example execution of the protocol.
+
+\subparagraph{Clients.} They provide the transactional interface of our protocol, namely \texttt{start}, \texttt{read}, \texttt{write} and \texttt{commit}. Our protocol uses optimistic concurrency control, and therefore the \texttt{start} and \texttt{write} operations are local to the client. \texttt{Read} operations are issued to servers, which in turn communicate with its partitions and return the values and metadata associated with the objects the client requested. At \texttt{commit} time, the client acts a coordinator of a \emph{two-phase commit protocol (2PC)} among all the participating servers, issuing \texttt{prepare} and \texttt{decide} operations. The written values buffered locally are transmitted to the servers at \texttt{prepare} time, together with the accumulated metadata for the objects that the client read. The decision to commit or abort a transaction is taken based on this metadata.
+
+\subparagraph{Servers.} These processes handle three operations issued by clients: \texttt{read}, \texttt{prepare} and \texttt{decide}. For \texttt{reads}, it forwards the request to the partition responsible for the object being read. When receiving a \texttt{prepare} request for a certain transaction, the server checks for conflicts among concurrent transactions stored in a FIFO queue of transactions to be decided. If the transaction contained in the request does not conflict, it is added to the queue, and the server replies to the client with a positive vote. If the transaction is found to be conflicting, a negative vote is sent instead.
+
+\subparagraph{Partitions.} A partition is responsible for fulfilling read requests on behalf of servers. Each partition contains non-overlapping sets of objects, storing them as a list of versions, in accordance with a multi-version concurrency control protocol. When executing a read request, a partition finds the appropriate version of the object being read in its state, and returns the object value, along with some metadata of the chosen version.
+
+\begin{figure}[t]
+\vspace{-2cm}
+\includegraphics[width=\textwidth]{figures/ch4_execution.pdf}
+\vspace{-2cm}
+\caption{Message flow diagram of a sample execution, with message arrows labeled with their names in the protocol. The different interactions between a client and servers are shown in the shadowed regions. The operation performed by the client is shown at the top, and the state observed by the client at the end of each message exchange is summarised at the bottom.}
+\label{fig:execution}
+\end{figure}
 
 \section{System Model}
+
+\todo{Figure out how to fit this with the previous section}
 
 We consider an asynchronous, message-passing system consisting of a set of reliable processes connected by reliable channels. Fault-tolerance concerns are orthogonal to the problem we address. The processes are split into two sets; a set of \emph{servers} $\mathcal{S} = \{s_1, \dots, s_N\}$, and a set of \emph{clients} $\mathcal{C} = \{c_1, \dots, c_M\}$. The system manages a set of objects $\Obj$ split into $N$ partitions, each stored by a server process. We let $\partitionOf(x)$ be the index of the partition the object $x$ belongs to, so that it is managed by server $s_{\partitionOf(x)}$. Clients execute transactions by communicating with servers. Transactions can be \emph{interactive}, i.e., when a transaction starts, the client does not know which operations it will perform in advance. Clients refer to transactions by their identifier from a set $\transtype$.
 
@@ -217,19 +233,13 @@ The data structures maintained by the protocol at a process are summarised in Fi
 %   \item $\lastprep$, a counter of the number of update transactions that initiated their commit phase at $s_i$. When a transaction commits at $s_i$, it will be assigned a \emph{sequence number} $k$ derived from this counter.
 % \end{itemize}
 
-\begin{figure}[t]
-\vspace{-2cm}
-\includegraphics[width=\textwidth]{figures/ch4_execution.pdf}
-\vspace{-2cm}
-\caption{Message flow diagram of a sample execution, with message arrows labeled with their names in the protocol. The different interactions between a client and servers are shown in the shadowed regions. The operation performed by the client is shown at the top, and the state observed by the client at the end of each message exchange is summarised at the bottom.}
-\label{fig:execution}
-\end{figure}
-
 \todo{Maybe move this to preliminaries? We have to justify doing PSI with VCs instead of NMSI's approach with dependence vectors}
 
 To track the happens-before \todo{HB should be defined previously} relationship between transactions, we use \emph{version vectors}~\citep{version-vectors}. Such a vector consists of $N$ entries, one for each server, storing a non-negative integer. A version vector $V$ represents the set of dots $\{(s_i, k) \mid k \le V[i]\}$, which identify the writes by transactions whose sequence number at a server $s_i$ is no higher than $V[i]$. Version vectors are compared according to the following relation, showing when one vector covers more dots than another: $V_1 \sqsubseteq V_2 \iff \forall i.\ V_1[i] \le V_2[i]$. In addition, there exists a \emph{join} operation on vectors, taking their component-wise maximum. We we will denote this operation by $\max$ from now on. We also denote the set of all version vectors by $\VCSet$, and the vector with all entries set to $0$ by $\vec{0}$.
 
 The protocol associates each committed transaction $\tx$ with a \emph{commit vector}---a version vector $V$ representing the dots that cover all the writes by $\tx$ as well as the writes of transactions preceding $\tx$ under happens-before \todo{HB}. In particular, the entry $V[i]$ for a server $s_i$ where $\tx$ wrote an object stores the sequence number of $\tx$ issued by $s_i$. A server $s_i$ maintains a list of update transactions that committed at the server in a $\CommitLog$, storing triples $\langle T,V_c,V_a\rangle$. Here, $\tx$ is the identifier of a committed transaction, and $V_c$ is its commit vector. The $\CommitLog$ at $s_i$ is totally ordered according to the value $V_c[i]$, which follows the commit order at $s_i$. The last component of the triple, $V_a$, represents the join of the commit vectors of all the transactions up to $\tx$ in $\CommitLog$. This \emph{aggregate} vector is stored for efficiency---the server also caches the aggregate vector of the last committed transaction in a variable $\LocalTime$. Initially, the $\CommitLog$ contains a single dummy entry $\langle \_, \vec{0}, \vec{0} \rangle$.
+
+\todo{Note how the order of T's and the order of versions relates, like in \textsection 5.1 of Blotter}
 
 A server $s_i$ maintains multiple versions of the objects it manages, stored in a mapping $\VersionLog$, which we call the \emph{database}. This log maps an object to a a list of \emph{versions}, pairs of a value and the commit vector of the transaction that wrote this value. The $\VersionLog$ is ordered by the $i$-th component of the commit vector of each version, which follows the commit order of transactions at $s_i$. We denote by $\VersionLog[x].\last$ the most recent entry in the list for the object $x$.
 
