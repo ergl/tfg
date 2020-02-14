@@ -227,6 +227,8 @@ We consider an asynchronous, message-passing system consisting of a set of relia
 
 \todo{Data structures and protocol explanations are too tied together. Perhaps add an ``overview'' section before (of the protocol) so we can explain the structures without mixing the two.}
 
+\todo{Look into \textsection 4.2 in GMU paper for a possible way to write this section.}
+
 The data structures maintained by the protocol at a process are summarised in Figure~\ref{fig:prot-ds-table}. Each server $s_i$ maintains a counter $\lastprep$ of the number of update transactions that initiated their commit phase at the server. When such a transaction commits at a server $s_i$, it will be assigned a \emph{sequence number} $k$ derived from this counter. All the update operations by the transaction at $s_i$ are identified by a pair $(s_i, k)$, which we call dot~\citep{carlos-causality}. We call the order of transactions imposed by their sequence numbers issued by $s_i$ the \emph{commit order} at $s_i$.
 
 % \begin{itemize}
@@ -400,7 +402,7 @@ Both $\tx.\VCaggr$ and $\tx.\hasRead$ are supplied by the client when issuing a 
 % \label{fig:fig:snapshot_fork}
 % \end{figure}
 
-We now consider the case when the client is reading from the server $s_i$ for the first time (line~\ref{alg:read_req_read_check_else}), in which case, we have to fix the snapshot for the transaction $\tx$ at this server. Choosing a suitable snapshot is complicated by the fact that we allow transactions to be interactive---that is, we do not know in advance which objects will read in the future. We hence fix the snapshot in such a way that \emph{any} later read from this snapshot will be \emph{causally consistent} \todo{check usage} with any reads (past or future) from the snapshots that $\tx$ has already read, as specified by $\hasRead$ and $\VCaggr$. To ensure this, the snapshot we select has to satisfy two requirements.
+We now consider the case when the client is reading from the server $s_i$ for the first time (line~\ref{alg:read_req_read_check_else}), in which case, we have to fix the snapshot for the transaction $\tx$ at this server. Choosing a suitable snapshot is complicated by the fact that we allow transactions to be interactive---that is, we do not know in advance which objects will read in the future. We hence fix the snapshot in such a way that \emph{any} later read from this snapshot will be \emph{causally consistent} \todo{check usage, define in chapter 2 or 3} with any reads (past or future) from the snapshots that $\tx$ has already read, as specified by $\hasRead$ and $\VCaggr$. To ensure this, the snapshot we select has to satisfy two requirements.
 
 \begin{figure}[t]
 \includegraphics[width=\textwidth]{figures/ch4_snapshot.pdf}
@@ -422,7 +424,7 @@ Once the server fixes a new snapshot, it selects the most recent version of the 
 
 \subsection{Transaction Termination}
 
-A client executing a transaction $\tx$ tries to commit it by calling a {\tt commit} function (line~\ref{alg:commit_start}). Read-only transactions are committed without any additional checks, since they already read a causally consistent snapshot (line~\ref{alg:commit_readonly_start}). To commit an update transaction $\tx$, we use a variant of the classical \emph{two-phase commit protocol (2PC)} \todo{cite 2PC?} among the processes that store the objects written by the transaction; the client executing $\tx$ servers as the 2PC coordinator.
+A client executing a transaction $\tx$ tries to commit it by calling a {\tt commit} function (line~\ref{alg:commit_start}). Read-only transactions are committed without any additional checks, since they already read a causally consistent snapshot (line~\ref{alg:commit_readonly_start}). To commit an update transaction $\tx$, we use a variant of the classical \emph{two-phase commit protocol (2PC)} among the processes that store the objects written by the transaction; the client executing $\tx$ servers as the 2PC coordinator.
 
 In more detail, to commit a transaction $\tx$, the client first sends a $\PREPARE$ message to all servers storing the objects written by the transaction (line~\ref{alg:commit_send_loop}). The message contains $\tx$'s write-set and its dependency vector $\tx.\VCdep$. When a server $s_i$ receives this message (line~\ref{alg:prepare_start}), it \emph{validates} the transaction, deciding whether it can commit or abort due to conflicting concurrent transactions. The server then replies to the client with a \emph{vote} representing its decision. Based on the votes, the client determines the final decision on the transaction---the transaction commits if all votes are positive---and distributes the decision to the relevant servers.
 
@@ -521,7 +523,7 @@ Upon receiving the decision on a transaction $\tx$ (line~\ref{alg:decide_start})
     $\cladd(T, \mrvc)$\;\label{alg:queue_clog_add}
   }
 \end{algorithm}
-\caption{Partition state update after at server $s_i$ after a transaction commits}
+\caption{Partition state update at server $s_i$ after a transaction commits}
 \end{figure}
 
 Committed transactions are applied to the database in their order in $\CommitQueue$, i.e., the commit order. When a $\ready$ transaction $\tx$ gets to the head of the queue (line~\ref{alg:queue_start}), the server dequeues it and adds its writes to $\VersionLog$, tagged with its commit vector. The server then joins $\tx$'s commit vector to $\LocalTime$, and adds the transaction to $\CommitLog$, along with $\LocalTime$ as its aggregate vector.
