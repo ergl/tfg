@@ -491,6 +491,18 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
       $\cqremove(\tx)$\;\label{alg:decide_end}
     }
   }
+
+  % Queue head
+  \SubAlgo{\Upon $\langle T, \ready, \localWS, \commitVC\rangle =
+    \cqhead()$\label{alg:queue_start}}{
+    $\cqremove(T)$\;\label{alg:queue_end}
+    \ForAll{$\{\langle x , v \rangle \mid \langle x , v \rangle \in \localWS \wedge \partitionof(x) = i\}$} { \label{alg:queue_loopws}
+        $\vlapply(\langle x , v , \commitVC \rangle)$\;\label{alg:queue_vapply}
+    }
+
+    $\mrvc \leftarrow \max(\mrvc,\commitVC)$\;\label{alg:queue_mrvc}
+    $\cladd(T, \mrvc)$\;\label{alg:queue_clog_add}
+  }
 \end{algorithm}
 \caption{Commit protocol of a transaction and two-phase commit at server $s_i$}
 \end{figure}
@@ -508,22 +520,5 @@ If the validation for transaction $\tx$ fails, the server sends a $\VOTE$ messag
 The client waits until it receives $\VOTE$ messages from all involved servers (line~\ref{alg:commit_recv_vote}). If all the servers voted \commit, the client constructs the final commit vector for $\tx$ by changing its dependency vector $\tx.\VCdep$, so that it covers not only $\tx$'s causal dependencies, but also all its writes. These writes are identified by the sequence numbers provided by the servers as part of their $\VOTE$ messages. Thus, the commit vector is defined by setting the entries in $\tx.\VCdep$ for partitions written by $\tx$ to these sequence numbers (line~\ref{alg:commit_assign_seqn}). The client then sends a $\DECIDE$ message to all the involved servers with the final decision on $\tx$ along with its commit vector (line~\ref{alg:commit_send_decide}).
 
 Upon receiving the decision on a transaction $\tx$ (line~\ref{alg:decide_start}), a server updates the entry associated with $\tx$ in $\CommitQueue$, to change its status to $\ready$ and record its commit vector. If the transaction is aborted, the server removes $\tx$ from the queue.
-
-\begin{figure}[h]
-\begin{algorithm}[H]
-  % Queue head
-  \SubAlgo{\Upon $\langle T, \ready, \localWS, \commitVC\rangle =
-    \cqhead()$\label{alg:queue_start}}{
-    $\cqremove(T)$\;\label{alg:queue_end}
-    \ForAll{$\{\langle x , v \rangle \mid \langle x , v \rangle \in \localWS \wedge \partitionof(x) = i\}$} { \label{alg:queue_loopws}
-        $\vlapply(\langle x , v , \commitVC \rangle)$\;\label{alg:queue_vapply}
-    }
-
-    $\mrvc \leftarrow \max(\mrvc,\commitVC)$\;\label{alg:queue_mrvc}
-    $\cladd(T, \mrvc)$\;\label{alg:queue_clog_add}
-  }
-\end{algorithm}
-\caption{Partition state update at server $s_i$ after a transaction commits}
-\end{figure}
 
 Committed transactions are applied to the database in their order in $\CommitQueue$, i.e., the commit order. When a $\ready$ transaction $\tx$ gets to the head of the queue (line~\ref{alg:queue_start}), the server dequeues it and adds its writes to $\VersionLog$, tagged with its commit vector. The server then joins $\tx$'s commit vector to $\LocalTime$, and adds the transaction to $\CommitLog$, along with $\LocalTime$ as its aggregate vector.
