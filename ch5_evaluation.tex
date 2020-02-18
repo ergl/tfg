@@ -6,25 +6,40 @@
 
 The \todo{protocol name} implementation has a client-side library~\citep{pvc-client} and a server~\citep{pvc-server}, written as a plug-in transactional protocol for AntidoteDB~\citep{antidote-db}, a key-value database. Both implementations were written in the Erlang programming language, with a total of 6K lines of code. AntidoteDB provides the application programmer rich data types such as \todo{list, mention CRDTs}, supports both in-memory and disk-based storage, and implements \todo{full/partial} replication. In our implementation, we constrain ourselves to a simple in-memory, key-value storage using Last-Write-Wins registers (LWWs) \todo{cite?}. In addition, we disable replication, focusing only on the distribution problem. During normal operation, the client-side library communicates with the server using Google's Protocol Buffers~\citep{protobuf}. To enhance network efficiency, client messages are transmitted in periodic batches to the servers.
 
-We also implemented two alternative protocols that implement different consistency criteria: Read Committed (RC) and Serialisability (SER) \todo{cite}, so we can compare our experimental results.
+\todo{Expand on this, maybe? If we didn't talk about these levels in preliminaries or chapter 3, put a paragraph about them here, with refs}
+
+For comparison purposes, we also implemented two other isolation levels: Read Committed and Serialisability (henceforth, RC and SER, respectively). Both were implemented on top of our original implementation and are as efficient as possible. The pseudocode for both implementations can be found in Appendix~\ref{appendix:code}.
 
 \todo{Expand on this, maybe?}
-To prevent unbounded state growth, we also implement a simple garbage collection mechanism for both $\CommitLog$ and $\VersionLog$ at each partition. \todo{More? Mention RC and SER implementations. Maybe pseudocode of the implementations can go in an appendix}.
+To prevent unbounded state growth, we also implement a simple garbage collection mechanism for both $\CommitLog$ and $\VersionLog$ at each partition.
 
 \section{Evaluation}
 
+We evaluate the performance of \todo{protocol name} using the Yahoo! Cloud Serving Benchmark~\citep{ycsb}, modified to generate transactional workloads~\citep{ardekani-nsmi}. Figure~\ref{fig:workload-types} describes the workloads used. All experiments are run on a local cluster, and we always use six core machines with 3.80 GHz to 4.70 GHz Intel Xeon processors, and 32 GB of RAM. To simulate different sites with variable latency, we use the \texttt{tc} Linux command. The bandwidth between any host is of 1 Gbps.
+
+We divide the cluster in up to three different sites. Each site has four server machines and four client machines. Thus, there is no shared memory between clients and servers. In all our benchmarks, the system is loaded with one million random keys and random 256-byte values. Keys are mapped to servers using consistent hashing.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabularx}{0.75\linewidth}{c|c|c|c}
+    & Key Selection
+    & \multicolumn{2}{c}{Operations} \\
+    & Distribution
+    & Read-Only Tran.
+    & Update Tran. \\ \hline
+    A & Zipfian & 4 Reads & 2 Reads, 2 Updates \\
+    B & Uniform & 4 Reads & 3 Reads, 1 Update \\
+    C & Uniform & 2 Reads & 1 Read, 1 Update \\
+    D & Uniform & 3 Reads & 3 Reads, 1 Update \\
+\end{tabularx}
+\end{center}
+\caption{Workload Types \todo{Remove unused workloads}}
+\label{fig:workload-types}
+\end{figure}
+
 \todo{Maybe we don't need these many subsections, and can summarise some of them in separate paragraphs}
 
-\subsection{Experimental Setup}
-
-\todo{Details of computers: Xeon E2186G, 6 cores, 12 threads. 3.80-4.70GHz, 32GB memory, 1GbE ethernet. For each server machine we use a client machine. Latency was added using tc. Preloaded with 1 million keys, payload of 256 bytes}
-
-% Links (also see email)
-% https://ark.intel.com/content/www/us/en/ark/products/134855/intel-xeon-e-2186g-processor-12m-cache-up-to-4-70-ghz.html
-
-% https://www.supermicro.com/en/products/system/3U/5039/SYS-5039MC-H12TRF.cfm
-
-\subsection{Throughput Micro-benchmark}
+\subsection{Throughput Micro--benchmark}
 
 \subsection{Dynamic Workloads}
 

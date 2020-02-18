@@ -313,6 +313,7 @@ Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit upd
 }
 
 \subsection{Transaction Execution}
+\label{prot-tr-ex}
 
 \begin{figure}[h]
 \begin{algorithm}[H]
@@ -484,6 +485,8 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
     }
   }
 
+  \smallskip
+
   % Queue head
   \SubAlgo{\Upon $\langle T, \ready, \localWS, \commitVC\rangle =
     \cqhead()$\label{alg:queue_start}}{
@@ -496,7 +499,7 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
     $\cladd(T, \mrvc)$\;\label{alg:queue_clog_add}
   }
 \end{algorithm}
-\caption{Commit protocol of a transaction and two-phase commit at server $s_i$}
+\caption{Commit protocol of a transaction at server $s_i$}
 \end{figure}
 
 We now describe how a server $s_i$ computes its vote on a transaction (line~\ref{alg:conflict_check}). The vote for a transaction $\tx$ ensures the following property, used to validate the \Wconflict axiom of PSI: \todo{Reference back to the model in previous chapter}
@@ -514,3 +517,7 @@ The client waits until it receives $\VOTE$ messages from all involved servers (l
 Upon receiving the decision on a transaction $\tx$ (line~\ref{alg:decide_start}), a server updates the entry associated with $\tx$ in $\CommitQueue$, to change its status to $\ready$ and record its commit vector. If the transaction is aborted, the server removes $\tx$ from the queue.
 
 Committed transactions are applied to the database in their order in $\CommitQueue$, i.e., the commit order. When a $\ready$ transaction $\tx$ gets to the head of the queue (line~\ref{alg:queue_start}), the server dequeues it and adds its writes to $\VersionLog$, tagged with its commit vector. The server then joins $\tx$'s commit vector to $\LocalTime$, and adds the transaction to $\CommitLog$, along with $\LocalTime$ as its aggregate vector.
+
+\section{Read Aborts}
+
+\todo{What can we mention here? Maybe put an example of how a read abort happens (see readabort.txt)}
