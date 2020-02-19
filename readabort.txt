@@ -1,6 +1,6 @@
 In the report, we show a figure (ch4_snapshot.pdf) (b) as a way to show an example of how a read abort might occur. The problem with the diagram is that, in the protocol, there's no "unified" view of the causal order of transactions. Instead, each partition "views" a specific commit order. Also, commit order might not represent read causality, so it's an over-approximation.
 
-For example, one might think that, since $T_2$ is before $T_4$ at $i$, that $T_4$ "sees" $T_2$'s writes. But it might be that the order is introduces at commit time, and $T_4$ was never aware of $T_2$'s existence.
+For example, one might think that, since $T_2$ is before $T_4$ at $i$, that $T_4$ "sees" $T_2$'s writes. But it might be that the order is introduced at commit time, and $T_4$ was never aware of $T_2$'s existence.
 
 To create a situation where a transaction $T$ picks a snapshot at $j$ excluding $T_1$ and another at $k$ that includes $T_3$, both $i$ and $k$ need to disagree on their view of the commit order of $T_2$ and $T_4$. A disagreement needs a minimum of two partitions involved.
 
@@ -36,7 +36,7 @@ end.
 Fork = fun() ->
     %% To make a read abort possible, we need to make a forked history visible
     %% to a transaction. The fork will happen at P1 and P2
-    
+
     %% Concurrent prepare, interleaving order
     {ok, P1, 1} = antidote_pvc_protocol:prepare(P1, psi, Tx2, #{1 => 1}, 0),
     {ok, P1, 2} = antidote_pvc_protocol:prepare(P1, psi, Tx3, #{1+RingSize => 1}, 0),
@@ -44,7 +44,7 @@ Fork = fun() ->
     ok = antidote_pvc_protocol:decide(P1, Tx2, {ok, #{P0 => 1, P1 => 1}}),
     ok = antidote_pvc_protocol:decide(P1, Tx3, {ok, #{P1 => 2, P2 => 1}}),
     ok = antidote_pvc_protocol:decide(P2, Tx3, {ok, #{P1 => 2, P2 => 1}}),
-    
+
     %% Here, Tx4 reads from P2 and observes Tx3, but not Tx2
     {ok, P2, 2} = antidote_pvc_protocol:prepare(P2, psi, Tx4, #{2 => 2}, 1),
     antidote_pvc_protocol:decide(P2, Tx4, {ok, #{P1 => 2, P2 => 2}})
