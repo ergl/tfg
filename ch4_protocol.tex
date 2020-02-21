@@ -421,7 +421,7 @@ A client executing a transaction $\tx$ tries to commit it by calling a {\tt comm
 
 In more detail, to commit a transaction $\tx$, the client first sends a $\PREPARE$ message to all servers storing the objects written by the transaction (line~\ref{alg:commit_send_loop}). The message contains $\tx$'s write-set and its dependency vector $\tx.\VCdep$. When a server $s_i$ receives this message (line~\ref{alg:prepare_start}), it \emph{validates} the transaction, deciding whether it can commit or abort due to conflicting concurrent transactions. The server then replies to the client with a \emph{vote} representing its decision. Based on the votes, the client determines the final decision on the transaction---the transaction commits if all votes are positive---and distributes the decision to the relevant servers.
 
-\begin{figure}[htb!]
+\begin{figure}[h]
 \begin{algorithm}[H]
   % Commit
   \SubAlgo{\Fun ${\tt commit}(T)$\label{alg:commit_start}}{
@@ -518,6 +518,17 @@ Upon receiving the decision on a transaction $\tx$ (line~\ref{alg:decide_start})
 
 Committed transactions are applied to the database in their order in $\CommitQueue$, i.e., the commit order. When a $\ready$ transaction $\tx$ gets to the head of the queue (line~\ref{alg:queue_start}), the server dequeues it and adds its writes to $\VersionLog$, tagged with its commit vector. The server then joins $\tx$'s commit vector to $\LocalTime$, and adds the transaction to $\CommitLog$, along with $\LocalTime$ as its aggregate vector.
 
+\clearpage
+
 \section{Read Aborts}
 
 \todo{What can we mention here? Maybe put an example of how a read abort happens (see readabort.txt)}
+
+\begin{figure}[t]
+  \centering
+  \vspace{-1cm}
+  \includegraphics[width=0.6\textwidth]{figures/ch4_abort_execution.pdf}
+  \vspace{-0.5cm}
+\caption{Example read abort execution. Bold horizontal lines represent executions of transactions over time (left to right), and the big circles represent the commit times of the transactions at different servers. The cross in the execution of $\tx_3$ marks its abort time. }
+\label{fig:read_abort}
+\end{figure}
