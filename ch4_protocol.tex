@@ -87,7 +87,7 @@ Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit upd
   Queue containing information about update transactions trying to commit
   at the server.
 \\
-  \hline
+  \hline\hline
   \multicolumn{3}{|c|}{\textbf{Context for a transaction $T$ at a client $c_i$}} \\
   \hline
   $T.\WS$ & ${\sf WriteSet}$ & Write-set of $T$.
@@ -273,7 +273,7 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
   \smallskip
 
   % Prepare
-  \SubAlgo{\WhenReceived $\PREPARE(\tx, \localWS, \localVdep)$ \KwFrom
+  \SubAlgo{\WhenReceived $\PREPARE(T, \localWS, \localVdep)$ \KwFrom
     $c_j$\label{alg:prepare_start}}{
     \uIf{$(\exists T'.\
       (\langle T', \pending, \localWS' \rangle \in \cqueue \vee \langle T',
@@ -291,9 +291,9 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
   \smallskip
 
   % Decide
-  \SubAlgo{\WhenReceived $\DECIDE(\tx, \commitVC, \mathit{decision})$ \KwFrom
-    $\partj$\label{alg:decide_start}}{
-    \uIf{$\mathit{decision} = \commit$\label{alg:decide_if}}{
+  \SubAlgo{\WhenReceived $\DECIDE(T, \commitVC, \outcome)$ \KwFrom
+    $c_j$\label{alg:decide_start}}{
+    \uIf{$\outcome = \commit$\label{alg:decide_if}}{
       $\cqupdate(\langle \tx, \ready, \_, \commitVC\rangle)$\;\label{arg:queue_update}
     }
     \Else{
