@@ -133,6 +133,7 @@ Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit upd
 \begin{figure}[h]
 \begin{algorithm}[H]
   \setcounter{AlgoLine}{0}
+  % Start
   \SubAlgo{\Fun ${\tt start}()$\label{alg:start_tx_start}}{
     \Return{$\KwSty{new}\ \transtype(\WS= \emptyset, \hasRead =
       \vec{\bot}, \VCaggr = \vec{0}, \VCdep =
@@ -140,6 +141,7 @@ Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit upd
 
   \smallskip
 
+  % Write
   \SubAlgo{\Fun ${\tt write}(T, x, v)$\label{alg:write_start}}{
     $\tx.\WS \leftarrow \left(\tx.\WS\ \backslash\ \{\langle x, \_ \rangle\}\right) \cup \{\langle x,v\rangle\}$\;\label{alg:write_end}
   }
@@ -176,7 +178,10 @@ When the transaction $\tx$ reads an object from a partition $j$ for the first ti
       \Return{$v$}\;\label{alg:read_end}
     }
   }
+
   \smallskip
+
+  % ReadRequest
   \SubAlgo{\WhenReceived $\READREQUEST(x, \argVCaggr, \argHasRead)$ \KwFrom $c_j$\label{alg:read_req_start}}{
     \uIf{$\argHasRead[i]$\label{alg:read_req_read_check}} {
       $V \leftarrow \argVCaggr$\;\label{alg:read_req_read_maxvc}
