@@ -2,6 +2,155 @@
 \chapter{Comparison Implementations Pseudocode}
 \label{appendix:code}
 
+\section{Serialisable}
+\label{appendix:ser}
+
+\begin{figure}[h]
+\begin{algorithm}[H]
+  \setcounter{AlgoLine}{0}
+  % Start
+  \SubAlgo{\Fun ${\tt start}()$}{
+    \Return{$\KwSty{new}\ \transtype(
+      \WS= \emptyset,
+      \RS= \emptyset,
+      \hasRead = \vec{\bot},
+      \VCaggr = \vec{0},
+      \VCdep = \vec{0})$
+    };
+  }
+
+  \smallskip
+
+  % Write
+  \SubAlgo{\Fun ${\tt write}(T, x, v)$}{
+    $\tx.\WS \leftarrow \left(\tx.\WS\ \backslash\ \{\langle x, \_ \rangle\}\right) \cup \{\langle x,v\rangle\}$\;
+  }
+\end{algorithm}
+\caption{Initialisation of a transaction and update of an object \emph{x} at client $c_i$}
+\end{figure}
+
+\begin{figure}[h]
+\begin{algorithm}[H]
+  % Read
+  \SubAlgo{\Fun ${\tt read}(T, x)$}{
+    \If{$\langle x, v \rangle \in \tx.\WS$}{
+      \Return{$v$}\;
+    }
+
+    $j \leftarrow \partitionof(x)$\;
+    \Send{$\READREQUEST(x, T.\VCaggr, T.\hasRead)$} \KwTo $s_j$\;
+    \Receive{$\READRETURN(m)$} \KwFrom $s_j$\;
+    \uIf{$m = \abort$} {
+      \Throw{$\abort$}\;
+    }
+    \ElseIf{$m = \langle v,\localVdep,\localVaggr \rangle$}{
+      $\tx.\hasRead[j] \leftarrow \true$\;
+      $\tx.\RS \leftarrow
+        \left(\tx.\RS\ \backslash\ \{\langle x, \_ \rangle\}\right)
+        \cup
+        \{\langle x, \localVdep[j] \rangle\}$\;\label{alg:ser_rs_update}
+      $\tx.\VCdep \leftarrow \max(\tx.\VCdep,\localVdep)$\;
+      $\tx.\VCaggr \leftarrow \max(\tx.\VCaggr,\localVaggr)$\;
+      \Return{$v$}\;
+    }
+  }
+
+  \smallskip
+
+  % ReadRequest
+  \SubAlgo{\WhenReceived $\READREQUEST(x, \argVCaggr, \argHasRead)$ \KwFrom $c_j$}{
+    \uIf{$\argHasRead[i]$} {
+      $V \leftarrow \argVCaggr$\;
+    }
+    \Else{
+      \Until{$\mrvc[i] \ge \argVCaggr[i]$}\;
+      $r \leftarrow \max\{r \in \CommitLog \mid \forall j.\, \argHasRead[j] {\implies} \left(r.\Vaggr[j] \le \argVCaggr[j]\right)\}$\;
+      \If{$r.\Vaggr[i] < \argVCaggr[i]$}{
+        \Send{$\READRETURN(\abort)$} \KwTo $c_j$\;
+        \Return\;
+      }
+      $V \leftarrow r.\Vaggr$\;
+    }
+    $\ver = \max\{\ver \in \VersionLog \mid ver.\Vcomm[i] \le V[i]\}$\;
+    \Send{$\READRETURN(\ver.\val, \ver.\Vcomm,V)$} \KwTo $c_j$\;
+  }
+\end{algorithm}
+\caption{Serialisable local and remote read of object \emph{x}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{algorithm}[H]
+  % Commit
+  \SubAlgo{\Fun ${\tt commit}(T)$\label{alg:commit_start}}{
+    \ForAll{$\partj \in \partitions(\tx.\RS \cup \tx.\WS)$}{
+      \Send{$\PREPARE(T, T.\RS, T.\WS, \VCdep)$} \KwTo $\partj$\;
+    }
+
+    $\commitVC \leftarrow \tx.\VCdep$\;
+    $\outcome \leftarrow \commit$\;
+
+    \ForAll{$\partj \in \partitions(\tx.\RS \cup \tx.\WS)$}{
+      \Receive{$\VOTE(m)$} \KwFrom $\partj$\;
+      \uIf{$m = \langle T, \abort \rangle$}{
+        $\outcome \leftarrow \abort$\;
+        \Break\;
+      }
+      \ElseIf{$m = \langle T, \commit, k \rangle$}{
+        $\commitVC[j] \leftarrow k$\;
+      }
+    }
+
+    \ForAll{$\partj \in \partitions(\tx.\RS \cup \tx.\WS)$}{
+      \Send{$\DECIDE(\tx, \commitVC,\outcome)$} \KwTo $\partj$\;
+    }
+
+    \Return{$\outcome$}\;
+  }
+
+  \smallskip
+
+  % Prepare
+  \SubAlgo{\WhenReceived $\PREPARE(T, \localWS, \localVdep)$ \KwFrom $c_j$}{
+    \uIf{{\sf TODO PUT LOGIC HERE, maybe split}}{
+      \Send{$\VOTE(t, \abort)$} \KwTo $c_j$\;
+    }
+    \Else{
+      $\lastprep \leftarrow \lastprep + 1$\;
+      $\cqput(\tx, \pending, \localWS)$\;
+      \Send{$\VOTE(\tx, \commit, \lastprep)$} \KwTo $c_j$\;
+    }
+  }
+
+  \smallskip
+
+  % Decide
+  \SubAlgo{\WhenReceived $\DECIDE(T, \commitVC, \outcome)$ \KwFrom $c_j$}{
+    \uIf{$\outcome = \commit$}{
+      $\cqupdate(\langle \tx, \ready, \_, \commitVC\rangle)$\;
+    }
+    \Else{
+      $\cqremove(\tx)$\;
+    }
+  }
+
+  \smallskip
+
+  % Queue head
+  \SubAlgo{\Upon $\langle T, \ready, \localWS, \commitVC\rangle = \cqhead()$}{
+    $\cqremove(T)$\;
+    \ForAll{$\{\langle x , v \rangle \mid \langle x , v \rangle \in \localWS \wedge \partitionof(x) = i\}$} {
+        $\vlapply(\langle x , v , \commitVC \rangle)$\;
+    }
+
+    $\mrvc \leftarrow \max(\mrvc,\commitVC)$\;
+    $\cladd(T, \mrvc)$\;
+  }
+\end{algorithm}
+\caption{Serialisable termination protocol at server $s_i$}
+\end{figure}
+
+\clearpage
+
 \section{Read Committed}
 \label{appendix:rc}
 
