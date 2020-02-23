@@ -1,0 +1,194 @@
+% TODO(borja): Clean up unused macros
+
+% Chapter ??
+\newcommand{\Wconflict}{\text{\sc Conflict}\xspace}
+
+% Pseudocode (Common)
+
+\newcommand{\Obj}{{\sf Obj}}
+\newcommand{\partitions}{\ensuremath{\mathsf{partitions}}}
+\newcommand{\TxVars}{\ensuremath{\mathsf{TxVars}}}
+\newcommand{\Tvar}{\ensuremath{\mathsf{T}}}
+\newcommand{\Svar}{\ensuremath{\mathsf{S}}}
+\newcommand{\Clients}{\ensuremath{\mathsf{Clients}}}
+\newcommand{\Partitions}{\ensuremath{\mathsf{Partitions}}}
+\newcommand{\VCSet}{\ensuremath{\mathsf{VerVector}}}
+\newcommand{\VCType}{\ensuremath{\mathit{V}}}
+\newcommand{\WSType}{\ensuremath{\mathit{WS}}}
+
+\newcommand{\MsgLabel}{\ensuremath{\mathsf{MessageLabels}}}
+\newcommand{\Messages}{\ensuremath{\mathsf{Messages}}}
+
+\newcommand{\localWS}{\ensuremath{\mathit{WS}}}
+\newcommand{\partitionOf}{\ensuremath{\mathsf{partition}}}
+\newcommand{\WS}{\ensuremath{\mathsf{WS}}}
+\newcommand{\WriteSets}{\ensuremath{\mathsf{WriteSets}}}
+
+\newcommand{\Tx}{\ensuremath{\mathsf{Tx}}}
+\newcommand{\VCdep}{\ensuremath{\mathsf{Vdep}}}
+\newcommand{\VCaggr}{\ensuremath{\mathsf{Vsnap}}}
+\newcommand{\Vaggr}{\ensuremath{\mathsf{Vaggr}}}
+\newcommand{\Value}{\ensuremath{\mathsf{Value}}}
+\newcommand{\CommitTime}{\ensuremath{\mathsf{CommitTime}}}
+\newcommand{\Vcomm}{\ensuremath{\mathsf{Vcomm}}}
+
+\newcommand{\Versions}{\ensuremath{\mathsf{Versions}}}
+\newcommand{\pending}{\text{\sc pending}}
+\newcommand{\ready}{\text{\sc decided}}
+\newcommand{\CQentries}{\ensuremath{\mathsf{CQentries}}}
+\newcommand{\CLogs}{\ensuremath{\mathsf{CLogs}}}
+\newcommand{\VLogs}{\ensuremath{\mathsf{Vlogs}}}
+\newcommand{\PState}{\ensuremath{\mathsf{PState}}}
+
+\newcommand{\CommitLog}{\ensuremath{\mathsf{CommitLog}}}
+\newcommand{\CommitQueue}{\ensuremath{\mathsf{CommitQueue}}}
+\newcommand{\VersionLog}{\ensuremath{\mathsf{VersionLog}}}
+\newcommand{\LastTransactionProcessed}{\ensuremath{\mathsf{LastPrep}}}
+\newcommand{\LocalTime}{\ensuremath{\mathsf{Vtotal}}}
+\newcommand{\LocalEntry}{\ensuremath{\mathit{MVC}}}
+\newcommand{\hasRead}{\ensuremath{\mathsf{HasRead}}}
+
+\newcommand{\VCzero}{\ensuremath{\mathbf{0}_V}}
+\newcommand{\dom}{\ensuremath{\mathsf{dom}}}
+
+\newcommand{\Cevent}{\ensuremath{\mathsf{ConcEvents}}}
+\newcommand{\actionOf}{\ensuremath{\mathsf{ActionOf}}}
+\newcommand{\Act}{\ensuremath{\mathsf{Act}}}
+\newcommand{\actstart}{\ensuremath{\mathsf{start}}}
+\newcommand{\actwrite}{\ensuremath{\mathsf{write}}}
+\newcommand{\actread}{\ensuremath{\mathsf{read}}}
+\newcommand{\actreadreturn}{\ensuremath{\mathsf{read}\_\mathsf{return}}}
+\newcommand{\actabort}{\ensuremath{\mathsf{abort}}}
+\newcommand{\actreadrequest}{\ensuremath{\mathsf{read}\_\mathsf{request}}}
+\newcommand{\actwritetolog}{\ensuremath{\mathsf{writeToVlog}}}
+\newcommand{\actcommit}{\ensuremath{\mathsf{commit}}}
+\newcommand{\actcommitreturn}{\ensuremath{\mathsf{commit}\_\mathsf{return}}}
+\newcommand{\actprepare}{\ensuremath{\mathsf{prepare}}}
+\newcommand{\actdecide}{\ensuremath{\mathsf{decide}}}
+\newcommand{\actupdate}{\ensuremath{\mathsf{update}}}
+
+\newcommand{\TxNew}{\ensuremath{\mathsf{TxNew}}}
+\newcommand{\TxWrite}{\ensuremath{\mathsf{TxWrite}}}
+\newcommand{\TxFirstRead}{\ensuremath{\mathsf{TxFirstRead}}}
+\newcommand{\TxOtherRead}{\ensuremath{\mathsf{TxOtherRead}}}
+\newcommand{\TxReadAbort}{\ensuremath{\mathsf{TxReadAbort}}}
+\newcommand{\TxReadSuccessful}{\ensuremath{\mathsf{TxReadSuccess}}}
+\newcommand{\TxReadRequestOld}{\ensuremath{\mathsf{TxOldReadRequest}}}
+\newcommand{\TxReadRequestNew}{\ensuremath{\mathsf{TxNewReadRequest}}}
+\newcommand{\TxReadRequestAbort}{\ensuremath{\mathsf{TxAbortReadRequest}}}
+\newcommand{\TxReadOnlyCommit}{\ensuremath{\mathsf{TxReadOnlyCommit}}}
+\newcommand{\TxStartCommit}{\ensuremath{\mathsf{TxStartCommit}}}
+\newcommand{\TxEndCommit}{\ensuremath{\mathsf{TxEndCommit}}}
+\newcommand{\TxWriteConflictConcurrent}{\ensuremath{\mathsf{TxWWConfConcurrent}}}
+\newcommand{\TxWriteConflictCommitted}{\ensuremath{\mathsf{TxWWConfCommitted}}}
+\newcommand{\TxNoWriteConflict}{\ensuremath{\mathsf{TxNoWWConf}}}
+\newcommand{\TxDecideTrue}{\ensuremath{\mathsf{TxDecideTrue}}}
+\newcommand{\TxDecideFalse}{\ensuremath{\mathsf{TXDecideFalse}}}
+\newcommand{\TxUpdate}{\ensuremath{\mathsf{TxUpdate}}}
+
+\newcommand{\msgreadrequest}{\ensuremath{\mathsf{READREQUEST}}}
+\newcommand{\msgreadreturn}{\ensuremath{\mathsf{READRETURN}}}
+\newcommand{\msgprepare}{\ensuremath{\mathsf{PREPARE}}}
+\newcommand{\msgdecide}{\ensuremath{\mathsf{DECIDE}}}
+\newcommand{\msgvote}{\ensuremath{\mathsf{VOTE}}}
+
+\newcommand{\lastCompatibleVersion}{\ensuremath{\mathsf{lastCompatible}}}
+\newcommand{\fixSnapshot}{\ensuremath{\mathsf{fixSnapshot}}}
+\newcommand{\updateCommitVC}{\ensuremath{\mathsf{CommitVC}}}
+
+\newcommand{\CommitVector}{\ensuremath{\mathsf{CommitVC}}}
+
+\newcommand{\abort}{\text{\sc abort}}
+\newcommand{\commit}{\text{\sc commit}}
+
+\newcommand{\access}{\ensuremath{\mathsf{Access}}}
+
+\newcommand{\TO}{\ensuremath{\mathsf{to}}}
+
+\newcommand{\startEvent}{\ensuremath{\mathsf{startEvent}}}
+
+\newcommand{\readmessages}{\ensuremath{\mathsf{readMessages}}}
+\newcommand{\commitmessages}{\ensuremath{\mathsf{commitMessages}}}
+\newcommand{\updatemessages}{\ensuremath{\mathsf{updateMessages}}}
+
+\newcommand{\vlsubseteq}{\ensuremath{\sqsubseteq_{\mathsf{VL}}}}
+\newcommand{\dvsubseteq}{\ensuremath{\sqsubseteq_{\mathsf{VC}}}}
+
+\newcommand{\lastVC}{\ensuremath{\mathsf{lastVC}}}
+
+\newcommand{\at}{\ensuremath{@}}
+
+\newcommand{\localVaggr}{\mathit{Vaggr}}
+\newcommand{\localVdep}{\mathit{Vdep}}
+\newcommand{\argVCaggr}{\ensuremath{\mathit{Vsnap}}}
+\newcommand{\argVCdep}{\ensuremath{\mathit{Vdep}}}
+\newcommand{\argHasRead}{\mathit{HasRead}}
+\newcommand{\maxVC}{\ensuremath{\mathit{MaxVC}}}
+\newcommand{\argMaxVC}{\ensuremath{\mathit{MaxVC}}}
+\newcommand{\argVLog}{\ensuremath{\mathit{VersionLog}}}
+
+\newcommand{\READREQUEST}{{\tt READREQUEST}}
+\newcommand{\READRETURN}{{\tt READRETURN}}
+\newcommand{\PREPARE}{{\tt PREPARE}}
+\newcommand{\DECIDE}{{\tt DECIDE}}
+\newcommand{\VOTE}{{\tt VOTE}}
+\newcommand{\ABORT}{{\tt ABORT}}
+
+\newcommand{\outcome}{\mathit{decision}}
+\newcommand{\false}{\bot}
+\newcommand{\true}{\top}
+
+\newcommand{\cqueue}{\CommitQueue}
+\newcommand{\cqhead}{\CommitQueue.{\sf head}}
+\newcommand{\cqupdate}{\CommitQueue.{\sf update}}
+\newcommand{\cqremove}{\CommitQueue.{\sf remove}}
+\newcommand{\cqput}{\CommitQueue.{\sf put}}
+
+\newcommand{\cladd}{\CommitLog.{\sf add}}
+
+\newcommand{\vlapply}{\VersionLog.{\sf add}}
+\newcommand{\vllast}{\VersionLog.{\sf last}}
+\newcommand{\last}{{\rm last}}
+\newcommand{\ver}{\mathit{ver}}
+
+\newcommand{\mrvc}{\LocalTime}
+
+\newcommand{\lastprep}{\LastTransactionProcessed}
+
+\newcommand{\parti}{\mathit{p_i}}
+\newcommand{\partj}{\mathit{s_j}}
+
+\newcommand{\transtype}{{\sf Tx}}
+\newcommand{\keytype}{{\sf Object}}
+\newcommand{\valuetype}{{\sf Value}}
+\newcommand{\vctype}{{\sf VerVector}}
+
+\newcommand{\val}{{\sf val}}
+
+\newcommand{\tx}{\ensuremath{\mathit{T}}}
+
+\newcommand{\commitVC}{\mathit{Vcomm}}
+
+\newcommand{\localkey}{{\sf k}}
+\newcommand{\localval}{{\sf v}}
+\newcommand{\partitionof}{{\sf partition}}
+
+% Read Committed
+\newcommand{\kvapply}{{\sf Database}_i.{\sf apply}}
+\newcommand{\kvget}{{\sf Database}_i.{\sf get}}
+\newcommand{\ws}{t.{\sf ws}}
+
+\SetKwBlock{SubAlgoBlock}{}{end}
+\newcommand{\SubAlgo}[2]{#1 \SubAlgoBlock{#2}}
+
+\SetKw{Upon}{upon}
+\SetKw{WhenReceived}{when received}
+\SetKw{Send}{send}
+\SetKw{Receive}{wait receive}
+\SetKw{Until}{wait until}
+\SetKw{KwFrom}{from}
+\SetKw{KwTo}{to}
+\SetKw{Throw}{throw}
+\SetKw{Fun}{function}
+\SetKw{Break}{break}
+\SetKw{New}{new}
