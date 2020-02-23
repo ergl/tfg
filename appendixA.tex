@@ -1,6 +1,138 @@
 \cleardoublepage
-
 \chapter{Comparison Implementations Pseudocode}
 \label{appendix:code}
 
-\todo{Pseudocode goes here}
+\section{Read Committed}
+
+\begin{figure}[htb!]
+\noindent\adjustbox{max width=\paperwidth}{\footnotesize
+\begin{tabularx}{\linewidth}{|c|p{5.5cm}|X|}
+  \hline
+  \multicolumn{3}{|c|}{\textbf{Variables at a server $s_i$}} \\
+  \hline
+  \textbf{Name} & \textbf{Domain} & \textbf{Description} \\
+  \hline
+  $\CommitQueue$
+
+  & Sequence$[\langle \transtype, {\sf State}, {\sf WriteSet} \rangle]$ where ${\sf State}=\{\pending,\ready\}$
+
+  & Queue containing information about update transactions trying to commit at the server. \\
+  \hline
+  Database
+
+  & Set$[\langle {\sf Object} ,{\sf Value}\rangle]$
+
+  & Set representing the key-value store as a mapping from objects to values. \\
+  \hline\hline
+  \multicolumn{3}{|c|}{\textbf{Context for a transaction $T$ at a client $c_i$}} \\
+  \hline
+  $T.\WS$ & ${\sf WriteSet}$ & Write-set of $T$. \\
+  \hline
+\end{tabularx}
+}
+\caption{List of variables used in the Read Committed protocol, where ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$.}
+\end{figure}
+
+\begin{figure}[h]
+\begin{algorithm}[H]
+  \setcounter{AlgoLine}{0}
+
+  % Initialise
+  \SubAlgo{\Fun ${\tt initialize}()$}{
+    \ForAll{$\{x \mid \partitionof(x) = i\}$} {
+      $\kvapply(x, \bot)$\;
+    }
+  }
+
+  %  Start
+  \SubAlgo{\Fun ${\tt start}()$}{
+    \Return{$\KwSty{new}\ \transtype(\WS= \emptyset)$};
+  }
+
+  \smallskip
+
+  % Write
+  \SubAlgo{\Fun ${\tt write}(T, x, v)$}{
+    $\tx.\WS \leftarrow \left(\tx.\WS\ \backslash\ \{\langle x, \_ \rangle\}\right) \cup \{\langle x, v \rangle\}$\;
+  }
+
+  \smallskip
+
+  % Read
+  \SubAlgo{\Fun ${\tt read}(T, x)$}{
+    \If{$\langle x, v \rangle \in \tx.\WS$}{
+      \Return{$v$}\;
+    }
+
+    $j \leftarrow \partitionof(x)$\;
+    \Send{$\READREQUEST(x)$} \KwTo $s_j$\;
+    \Receive{$\READRETURN(v)$} \KwFrom $s_j$\;
+    \Return{$v$}\;
+  }
+
+  \smallskip
+
+  % ReadRequest
+  \SubAlgo{\WhenReceived $\READREQUEST(x)$ \KwFrom $c_j$}{
+    \Send{$\READRETURN(\kvget(x))$} \KwTo $c_j$\;
+  }
+\end{algorithm}
+\caption{Read Committed local and remote read of object \emph{x}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{algorithm}[H]
+    % Commit
+  \SubAlgo{\Fun ${\tt commit}(T)$}{
+    \If{$\ws = \emptyset$}{
+      \Return{$\commit$}\;
+    }
+
+    \ForAll{$\partj \in \partitions(\tx.\WS)$}{
+      \Send{$\PREPARE(T)$} \KwTo $\partj$\;
+    }
+
+    $\outcome \leftarrow \commit$\;
+    \ForAll{$\partj \in \partitions(\tx.\WS)$}{
+      \Receive{$\VOTE(m)$} \KwFrom $\partj$\;
+      \If{$m = \langle T, \abort\rangle$}{
+        $\outcome \leftarrow \abort$\;
+        \Break\;
+      }
+    }
+
+    \ForAll{$\partj \in \partitions(\tx.\WS)$}{
+      \Send{$\DECIDE(\tx, \outcome)$} \KwTo $\partj$\;
+    }
+
+    \Return{$\outcome$}\;
+  }
+
+    % Prepare
+  \SubAlgo{\WhenReceived $\PREPARE(T)$ \KwFrom $c_j$}{
+    $\cqput(T, \pending, \WS)$\;
+    \Send{$\VOTE(T, \commit)$} \KwTo $c_j$\;
+  }
+
+  % Decide
+  \SubAlgo{\WhenReceived $\DECIDE(T, \outcome)$ \KwFrom $c_j$}{
+    \uIf{$\outcome = \commit$}{
+      $\cqupdate(\langle T, \ready, \_ \rangle)$\;
+    }
+    \Else{
+      $\cqremove(T)$\;
+    }
+  }
+
+  \smallskip
+
+  % Queue head
+  \SubAlgo{\Upon $\langle T, \ready, \localWS\rangle = \cqhead()$}{
+    \ForAll{$\{\langle x, v\rangle \mid \langle x, v \rangle \in \localWS \wedge \partitionof(x) = i\}$}{
+      $\kvapply(x, v)$\;
+    }
+  $\cqremove(T)$\;
+  }
+\end{algorithm}
+\caption{Read Committed termination protocol at server $s_i$}
+\end{figure}
