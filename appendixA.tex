@@ -56,9 +56,9 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
   \hline\hline
   \multicolumn{3}{|c|}{\textbf{Context for a transaction $T$ at a client $c_i$}} \\
   \hline
-  $T.\RS$ & ${\sf Set}[\langle \keytype, {\sf Integer}\rangle]$ & Read-set of $T$. \\
+  $T.\RS$ & ${\sf ReadSet}$ & Read-set of $T$. \\
   \hline
-  $T.\WS$ & ${\sf Set}[\langle \keytype, \valuetype \rangle]$ & Write-set of $T$. \\
+  $T.\WS$ & ${\sf WriteSet}$ & Write-set of $T$. \\
   \hline
   $T.\hasRead$ & ${\sf Vector}[{\sf Bool}]$ & Mapping showing whether $T$  has
   read a given partition.
@@ -75,7 +75,7 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
   \hline
 \end{tabularx}
 }
-\caption{List of variables used in the Serialisable protocol.}
+\caption{List of variables used in the Serialisable protocol, where ${\sf ReadSet} = {\sf Set}[\langle \keytype, {\sf Integer}\rangle]$ and ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$}
 \label{fig:ser-prot-ds-table}
 \end{figure}
 
@@ -263,11 +263,11 @@ Read Committed (RC) is the weakest consistency criterion that satisfies the \emp
   \hline\hline
   \multicolumn{3}{|c|}{\textbf{Context for a transaction $T$ at a client $c_i$}} \\
   \hline
-  $T.\WS$ & ${\sf Set}[\langle \keytype, \valuetype \rangle]$ & Write-set of $T$. \\
+  $T.\WS$ & ${\sf WriteSet}$ & Write-set of $T$. \\
   \hline
 \end{tabularx}
 }
-\caption{List of variables used in the Read Committed protocol.}
+\caption{List of variables used in the Read Committed protocol, where ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$.}
 \label{fig:rc-prot-ds-table}
 \end{figure}
 
