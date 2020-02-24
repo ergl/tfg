@@ -2,8 +2,24 @@
 \chapter{Comparison Implementations Pseudocode}
 \label{appendix:code}
 
-\section{Serialisable}
+\todo{Write some words here, describe the most important changes. Consider highlighting the changes.}
+
+\section{Serialisability}
 \label{appendix:ser}
+
+\todo{Check how much of this we already mentioned in chapter 2.}
+
+\todo{SER requires a total order, but is that among conflicting txs, or even in non-conflicting? => there needs to be a serial execution of committed txs, so transactions that will abort can observe bad data, as long as they don't commit. Does our implementation satisify this?}
+
+\todo{Re-read Making PSI Serialisable}
+
+To implement a protocol that satisfies Serialisability, we expand the protocol explained in Chapter~\ref{protocol_chapter} with the following changes:
+
+\begin{itemize}
+  \item When a client receives a $\READRETURN$ message after issuing a read of an object $x$ on behalf of a transaction $\tx$, it incorporates the commit time of $x$ in $\tx$'s \emph{read-set}, $\tx.\RS$ (line~\ref{alg:ser_rs_update}). It suffices to store the $j$-th entry of $x$'s \emph{commit vector}, that is, the \emph{sequence number} assigned to the transaction that wrote the version of $x$ read by $\tx$. The read-set of a transaction is initialised to the empty set (line~\ref{alg:ser_start_tx}) and is kept on the transaction context.
+  \item Read-only transactions are also certified using two-phase commit.
+  \item The decision wether to commit or abort a given transaction $\tx$ ....
+\end{itemize}
 
 \begin{figure}[htb!]
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
