@@ -27,7 +27,7 @@
   transactions in $\CommitLog$.\\
   \hline
   $\VersionLog$ & ${\sf Map}[\keytype,$ ${\sf
-    Set}[\langle \valuetype\ \val, \vctype\ \Vcomm\rangle]]$ & Database:
+    Set}[\langle \valuetype\ \val, \vctype\ V_c \rangle]]$ & Database:
   a mapping from objects to lists of pairs of a value and the
   commit vector of the transaction that wrote it. The lists are ordered
   by the $i$-th component of the commit vectors.\\
@@ -59,7 +59,7 @@
   \hline
 \end{tabularx}
 }
-\caption{List of variables used in the Serialisable protocol, where ${\sf ReadSet} = {\sf Set}[\langle \keytype, {\sf Integer}\rangle]$ and ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$.}
+\caption{List of variables used in the Serialisability protocol, where ${\sf ReadSet} = {\sf Set}[\langle \keytype, {\sf Integer}\rangle]$ and ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$.}
 \label{fig:ser-prot-ds-table}
 \end{figure}
 
@@ -74,7 +74,7 @@
       \hasRead = \vec{\bot},
       \VCaggr = \vec{0},
       \VCdep = \vec{0})$
-    };
+    };\label{alg:ser_start_tx}
   }
 
   \smallskip
@@ -223,7 +223,9 @@
 \section{Read Committed}
 \label{appendix:rc}
 
-\begin{figure}[htb!]
+Read Committed (RC) is the weakest consistency criterion that satisfies the \emph{isolation} property required by ACID transactions. It forbids concurrent transactions from observing any data that has not been committed. It doesn't place any restriction on the ordering of transactions, and doesn't preclude write-write conflicts. Thus, transactions may be ordered in any way. Figure~\ref{fig:rc-prot-ds-table} shows a summary of the data structures involved in the protocol.
+
+\begin{figure}[h]
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
 \begin{tabularx}{\linewidth}{|c|p{5.5cm}|X|}
   \hline
@@ -253,6 +255,10 @@
 \label{fig:rc-prot-ds-table}
 \end{figure}
 
+Since transactions only need to observe the last committed version of an object, it is sufficient to store only one version per key. In addition, transactions don't need to observe a consistent snapshot of the state of a partition, and therefore we can remove all data structures related to computing a snapshot. This is reflected in the execution of a transaction, as can be seen in Figure~\ref{fig:rc_tx_exection}. A server $s_i$ executing a remote read on behalf of a transaction $\tx$ simply fetches the currently available value of the requested object, and returns it to the client (line~\ref{alg:rc_db_get}).
+
+A protocol satisfying Read Committed still needs to offer atomic visibility. To do so, our implementation uses two-phase commit, guaranteeing that a transaction commits at every partition (line~\ref{alg:rc_commit_start}). Servers that participate during the commit phase will always vote $\commit$ (line~\ref{alg:rc_send_vote}), since RC doesn't preclude write-write conflicts. After a successful commit phase, all partitions incorporate the transaction updates to its storage state (line~\ref{alg:rc_kv_apply}).
+
 \begin{figure}[h]
 \begin{algorithm}[H]
   \setcounter{AlgoLine}{0}
@@ -268,10 +274,10 @@
     $\tx.\WS \leftarrow \left(\tx.\WS\ \backslash\ \{\langle x, \_ \rangle\}\right) \cup \{\langle x, v \rangle\}$\;
   }
 \end{algorithm}
-\caption{Initialisation of a transaction and update of an object \emph{x} at client $c_i$}
+\caption{Transaction initialisation under Read Committed.}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[t]
 \begin{algorithm}[H]
 
   % Read
@@ -290,16 +296,13 @@
 
   % ReadRequest
   \SubAlgo{\WhenReceived $\READREQUEST(x)$ \KwFrom $c_j$}{
-    \Send{$\READRETURN(\kvget(x))$} \KwTo $c_j$\;
+    \Send{$\READRETURN(\kvget(x))$} \KwTo $c_j$\;\label{alg:rc_db_get}
   }
-\end{algorithm}
-\caption{Read Committed local and remote read of object \emph{x}}
-\end{figure}
 
-\begin{figure}[h]
-\begin{algorithm}[H]
+  \smallskip
+
     % Commit
-  \SubAlgo{\Fun ${\tt commit}(T)$}{
+  \SubAlgo{\Fun ${\tt commit}(T)$\label{alg:rc_commit_start}}{
     \If{$\ws = \emptyset$}{
       \Return{$\commit$}\;
     }
@@ -327,7 +330,7 @@
     % Prepare
   \SubAlgo{\WhenReceived $\PREPARE(T)$ \KwFrom $c_j$}{
     $\cqput(T, \pending, \WS)$\;
-    \Send{$\VOTE(T, \commit)$} \KwTo $c_j$\;
+    \Send{$\VOTE(T, \commit)$} \KwTo $c_j$\;\label{alg:rc_send_vote}
   }
 
   % Decide
@@ -345,10 +348,11 @@
   % Queue head
   \SubAlgo{\Upon $\langle T, \ready, \localWS\rangle = \cqhead()$}{
     \ForAll{$\{\langle x, v\rangle \mid \langle x, v \rangle \in \localWS \wedge \partitionof(x) = i\}$}{
-      $\kvapply(x, v)$\;
+      $\kvapply(x, v)$\;\label{alg:rc_kv_apply}
     }
   $\cqremove(T)$\;
   }
 \end{algorithm}
-\caption{Read Committed termination protocol at server $s_i$}
+\caption{Read Committed execution protocol at server $s_i$}
+\label{fig:rc_tx_exection}
 \end{figure}
