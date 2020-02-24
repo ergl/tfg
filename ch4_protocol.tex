@@ -64,7 +64,7 @@ Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit upd
 \\
   \hline
   $\CommitLog$
-  & ${\sf Sequence}[\langle\transtype\ {\sf T},$ $\vctype\ \Vcomm, \vctype\ \Vaggr \rangle]$
+  & ${\sf Sequence}[\langle\transtype\ T,$ $\vctype\ V_c, \vctype\ V_a \rangle]$
   & Log of update transactions $T$ committed at the server, ordered by
   $V_c[i]$. Here $V_c$ is the commit vector of $T$ and $V_a$ is the aggregate
   vector of $T$: the join of the commit vectors of all transactions up to $T$ in

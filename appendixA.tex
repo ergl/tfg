@@ -5,6 +5,64 @@
 \section{Serialisable}
 \label{appendix:ser}
 
+\begin{figure}[htb!]
+\noindent\adjustbox{max width=\paperwidth}{\footnotesize
+\begin{tabularx}{\linewidth}{|c|p{6cm}|X|}
+  \hline
+  \multicolumn{3}{|c|}{\textbf{Variables at a server $s_i$}} \\
+  \hline
+  \textbf{Name} & \textbf{Domain} & \textbf{Description} \\
+  \hline
+  $\lastprep$ & {\sf Integer} & The number of update transactions that tried to
+  commit at the server.\\
+  \hline
+  $\CommitLog$
+  & ${\sf Sequence}[\langle\transtype\ T,$ $\vctype\ V_c, \vctype\ V_a \rangle]$
+  & Log of update transactions $T$ committed at the server, ordered by
+  $V_c[i]$. Here $V_c$ is the commit vector of $T$ and $V_a$ is the aggregate
+  vector of $T$: the join of the commit vectors of all transactions up to $T$ in
+  $\CommitLog$.\\
+  \hline
+  $\LocalTime$ & $\vctype$ & The join of the commit vectors of all
+  transactions in $\CommitLog$.\\
+  \hline
+  $\VersionLog$ & ${\sf Map}[\keytype,$ ${\sf
+    Set}[\langle \valuetype\ \val, \vctype\ \Vcomm\rangle]]$ & Database:
+  a mapping from objects to lists of pairs of a value and the
+  commit vector of the transaction that wrote it. The lists are ordered
+  by the $i$-th component of the commit vectors.\\
+  \hline
+  $\CommitQueue$
+
+  & Sequence$[\langle \transtype, {\sf State}, {\sf ReadSet}, {\sf WriteSet} \rangle]$ where ${\sf State}=\{\pending,\ready\}$
+
+  & Queue containing information about update transactions trying to commit at the server. \\
+  \hline\hline
+  \multicolumn{3}{|c|}{\textbf{Context for a transaction $T$ at a client $c_i$}} \\
+  \hline
+  $T.\RS$ & ${\sf ReadSet}$ & Read-set of $T$. \\
+  \hline
+  $T.\WS$ & ${\sf WriteSet}$ & Write-set of $T$. \\
+  \hline
+  $T.\hasRead$ & ${\sf Vector}[{\sf Bool}]$ & Mapping showing whether $T$  has
+  read a given partition.
+\\
+  \hline
+  $T.\VCaggr$ & $\vctype$ & Snapshot vector: determines snapshots fixed at
+  partitions $T$ has read from and possible causal dependencies at all other
+  partitions.
+  \\
+  \hline
+  $T.\VCdep$ & $\vctype$ & Dependency vector, representing all causal
+  dependencies developed by $T$ during its execution.
+\\
+  \hline
+\end{tabularx}
+}
+\caption{List of variables used in the Serialisable protocol, where ${\sf ReadSet} = {\sf Set}[\langle \keytype, {\sf Integer}\rangle]$ and ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$.}
+\label{fig:ser-prot-ds-table}
+\end{figure}
+
 \begin{figure}[h]
 \begin{algorithm}[H]
   \setcounter{AlgoLine}{0}
@@ -192,6 +250,7 @@
 \end{tabularx}
 }
 \caption{List of variables used in the Read Committed protocol, where ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$.}
+\label{fig:rc-prot-ds-table}
 \end{figure}
 
 \begin{figure}[h]
