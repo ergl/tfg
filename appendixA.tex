@@ -23,7 +23,7 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
 
 \begin{figure}[htb!]
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
-\begin{tabularx}{\linewidth}{|c|p{6cm}|X|}
+\begin{tabularx}{\linewidth}{|c|p{6.5cm}|X|}
   \hline
   \multicolumn{3}{|c|}{\textbf{Variables at a server $s_i$}} \\
   \hline
@@ -33,8 +33,8 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
   commit at the server.\\
   \hline
   $\CommitLog$
-  & ${\sf Sequence}[\langle\transtype\ T,$ $\vctype\ V_c, \vctype\ V_a \rangle]$
-  & Log of update transactions $T$ committed at the server, ordered by
+  & ${\sf Sequence}[\langle\transtype,$ $\vctype\ V_c, \vctype\ V_a \rangle]$
+  & Log of update transactions committed at the server, ordered by
   $V_c[i]$. Here $V_c$ is the commit vector of $T$ and $V_a$ is the aggregate
   vector of $T$: the join of the commit vectors of all transactions up to $T$ in
   $\CommitLog$.\\
@@ -56,9 +56,9 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
   \hline\hline
   \multicolumn{3}{|c|}{\textbf{Context for a transaction $T$ at a client $c_i$}} \\
   \hline
-  $T.\RS$ & ${\sf ReadSet}$ & Read-set of $T$. \\
+  $T.\RS$ & ${\sf Set}[\langle \keytype, {\sf Integer}\rangle]$ & Read-set of $T$. \\
   \hline
-  $T.\WS$ & ${\sf WriteSet}$ & Write-set of $T$. \\
+  $T.\WS$ & ${\sf Set}[\langle \keytype, \valuetype \rangle]$ & Write-set of $T$. \\
   \hline
   $T.\hasRead$ & ${\sf Vector}[{\sf Bool}]$ & Mapping showing whether $T$  has
   read a given partition.
@@ -75,7 +75,7 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
   \hline
 \end{tabularx}
 }
-\caption{List of variables used in the Serialisability protocol, where ${\sf ReadSet} = {\sf Set}[\langle \keytype, {\sf Integer}\rangle]$ and ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$.}
+\caption{List of variables used in the Serialisable protocol.}
 \label{fig:ser-prot-ds-table}
 \end{figure}
 
@@ -100,7 +100,7 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
     $\tx.\WS \leftarrow \left(\tx.\WS\ \backslash\ \{\langle x, \_ \rangle\}\right) \cup \{\langle x,v\rangle\}$\;
   }
 \end{algorithm}
-\caption{Initialisation of a transaction and update of an object \emph{x} at client $c_i$}
+\caption{Initialisation of a transaction and update of an object \emph{x} at client $c_i$ under Serialisability.}
 \end{figure}
 
 \begin{figure}[h]
@@ -263,11 +263,11 @@ Read Committed (RC) is the weakest consistency criterion that satisfies the \emp
   \hline\hline
   \multicolumn{3}{|c|}{\textbf{Context for a transaction $T$ at a client $c_i$}} \\
   \hline
-  $T.\WS$ & ${\sf WriteSet}$ & Write-set of $T$. \\
+  $T.\WS$ & ${\sf Set}[\langle \keytype, \valuetype \rangle]$ & Write-set of $T$. \\
   \hline
 \end{tabularx}
 }
-\caption{List of variables used in the Read Committed protocol, where ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$.}
+\caption{List of variables used in the Read Committed protocol.}
 \label{fig:rc-prot-ds-table}
 \end{figure}
 
@@ -290,7 +290,7 @@ A protocol satisfying Read Committed still needs to offer atomic visibility. To 
     $\tx.\WS \leftarrow \left(\tx.\WS\ \backslash\ \{\langle x, \_ \rangle\}\right) \cup \{\langle x, v \rangle\}$\;
   }
 \end{algorithm}
-\caption{Transaction initialisation under Read Committed.}
+\caption{Initialisation of a transaction and update of an object \emph{x} at client $c_i$ under Read Committed.}
 \end{figure}
 
 \begin{figure}[t]
