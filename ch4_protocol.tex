@@ -280,18 +280,23 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
   % Prepare
   \SubAlgo{\WhenReceived $\PREPARE(T, \localWS, \localVdep)$ \KwFrom
     $c_j$\label{alg:prepare_start}}{
-    \uIf{$(\exists T'.\
-      (\langle T', \pending, \localWS' \rangle \in \cqueue \vee \langle T',
-      \ready, \_, \_ \rangle \in \cqueue)
-        \wedge{}$ $\localWS' \cap \localWS \ne
-        \emptyset) \vee (\exists x.\, x \in \localWS \wedge
-        \left(\VersionLog[x].\last.\Vcomm[i] > \localVdep[i]\right)$\label{alg:conflict_check}}{
+    \If{$(\exists T'.\ (\langle T', \pending, \localWS' \rangle \in \cqueue$
+      \begin{tabularx}{\linewidth}{l}
+        \quad\quad\quad$\vee\ \langle T', \ready, \_, \_ \rangle \in \cqueue)$\\
+        \quad\quad\quad$\wedge\
+        (\localWS' \cap \localWS \ne \emptyset)$\\
+        $\vee \left(
+          \exists x. \ x \in \localWS
+          \wedge (\VersionLog[x].\last.\Vcomm[i] > \localVdep[i])\right)$\\
+      \end{tabularx}\label{alg:conflict_check}
+    }{
       \Send{$\VOTE(t, \abort)$} \KwTo $c_j$\; \label{alg:send_abort}
-    }\Else{
+      \Return\;
+    }
     $\lastprep \leftarrow \lastprep + 1$\;\label{alg:lastprep_incr}
     $\cqput(\tx, \pending, \localWS)$\;\label{alg:queue_put}
     \Send{$\VOTE(\tx, \commit, \lastprep)$} \KwTo $c_j$\;\label{alg:prepare_end}
-  }}
+  }
 
   \smallskip
 
@@ -311,13 +316,13 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
   % Queue head
   \SubAlgo{\Upon $\langle T, \ready, \localWS, \commitVC\rangle =
     \cqhead()$\label{alg:queue_start}}{
-    $\cqremove(T)$\;\label{alg:queue_end}
     \ForAll{$\{\langle x , v \rangle \mid \langle x , v \rangle \in \localWS \wedge \partitionof(x) = i\}$} { \label{alg:queue_loopws}
         $\vlapply(\langle x , v , \commitVC \rangle)$\;\label{alg:queue_vapply}
     }
 
     $\mrvc \leftarrow \max(\mrvc,\commitVC)$\;\label{alg:queue_mrvc}
     $\cladd(T, \mrvc)$\;\label{alg:queue_clog_add}
+    $\cqremove(T)$\;\label{alg:queue_end}
   }
 \end{algorithm}
 \caption{Commit protocol of a transaction at server $s_i$}

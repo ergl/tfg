@@ -110,15 +110,26 @@
   \smallskip
 
   % Prepare
-  \SubAlgo{\WhenReceived $\PREPARE(T, \localWS, \localVdep)$ \KwFrom $c_j$}{
-    \uIf{{\sf TODO PUT LOGIC HERE, maybe split}}{
+  \SubAlgo{\WhenReceived $\PREPARE(T, \localRS, \localWS, \localVdep)$ \KwFrom $c_j$}{
+    \If{$
+      (\exists T'.\ (\langle T', \pending, \localRS', \localWS' \rangle \in \cqueue$
+      \begin{tabularx}{\linewidth}{l}
+        \quad\quad\quad$\vee\ \langle T', \ready, \_, \_, \_ \rangle \in \cqueue)$\\
+        \quad\quad\quad$\wedge\
+        (\localWS' \cap \localRS \ne \emptyset
+          \wedge \localRS' \cap \localWS \ne \emptyset)$\\
+        $\vee \left(
+          \exists x. \ \langle x, vsn \rangle \in \localRS
+          \wedge (\VersionLog[x].\last.\Vcomm[i] > vsn)\right)$\\
+      \end{tabularx}
+    }{
       \Send{$\VOTE(t, \abort)$} \KwTo $c_j$\;
+      \Return\;
     }
-    \Else{
-      $\lastprep \leftarrow \lastprep + 1$\;
-      $\cqput(\tx, \pending, \localWS)$\;
-      \Send{$\VOTE(\tx, \commit, \lastprep)$} \KwTo $c_j$\;
-    }
+
+    $\lastprep \leftarrow \lastprep + 1$\;
+    $\cqput(\tx, \pending, \localRS, \localWS)$\;
+    \Send{$\VOTE(\tx, \commit, \lastprep)$} \KwTo $c_j$\;
   }
 
   \smallskip
@@ -126,7 +137,7 @@
   % Decide
   \SubAlgo{\WhenReceived $\DECIDE(T, \commitVC, \outcome)$ \KwFrom $c_j$}{
     \uIf{$\outcome = \commit$}{
-      $\cqupdate(\langle \tx, \ready, \_, \commitVC\rangle)$\;
+      $\cqupdate(\langle \tx, \ready, \_, \_, \commitVC\rangle)$\;
     }
     \Else{
       $\cqremove(\tx)$\;
@@ -136,14 +147,14 @@
   \smallskip
 
   % Queue head
-  \SubAlgo{\Upon $\langle T, \ready, \localWS, \commitVC\rangle = \cqhead()$}{
-    $\cqremove(T)$\;
+  \SubAlgo{\Upon $\langle T, \ready, \_, \localWS, \commitVC\rangle = \cqhead()$}{
     \ForAll{$\{\langle x , v \rangle \mid \langle x , v \rangle \in \localWS \wedge \partitionof(x) = i\}$} {
         $\vlapply(\langle x , v , \commitVC \rangle)$\;
     }
 
     $\mrvc \leftarrow \max(\mrvc,\commitVC)$\;
     $\cladd(T, \mrvc)$\;
+    $\cqremove(T)$\;
   }
 \end{algorithm}
 \caption{Serialisable termination protocol at server $s_i$}
