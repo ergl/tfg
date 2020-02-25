@@ -1,11 +1,22 @@
 % TODO(borja): Clean up unused macros
 
+% Preliminaries
+\newcommand{\Obj}{{\sf Obj}}
+\newcommand{\Op}{{\sf Op}}
+\newcommand{\EId}{{\sf EventId}}
+\newcommand{\Event}{{\sf Event}}
+
+\newcommand{\poS}[1][]{{\sf po}}
+\newcommand{\po}[1][]{<^{#1}_{\poS}}
+
+\newcommand{\pord}[2]{(#1,{#2})}
+\newcommand{\trans}[2]{\pord{#1}{#2}}
+
 % Chapter ??
 \newcommand{\Wconflict}{\text{\sc Conflict}\xspace}
 
 % Pseudocode (Common)
 
-\newcommand{\Obj}{{\sf Obj}}
 \newcommand{\partitions}{\ensuremath{\mathsf{partitions}}}
 \newcommand{\TxVars}{\ensuremath{\mathsf{TxVars}}}
 \newcommand{\Tvar}{\ensuremath{\mathsf{T}}}

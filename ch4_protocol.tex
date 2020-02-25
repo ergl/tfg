@@ -325,7 +325,7 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
     $\cqremove(T)$\;\label{alg:queue_end}
   }
 \end{algorithm}
-\caption{Commit protocol of a transaction at server $s_i$}
+\caption{Commit protocol of a transaction at server $s_i$. \todo{Rethink: too big for a single page}}
 \end{figure}
 
 We now describe how a server $s_i$ computes its vote on a transaction (line~\ref{alg:conflict_check}). The vote for a transaction $\tx$ ensures the following property, used to validate the \Wconflict axiom of PSI: \todo{Reference back to the model in previous chapter}

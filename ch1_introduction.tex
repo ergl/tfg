@@ -9,6 +9,8 @@ Mention previous work (NMSI), and how we differ from them (vector clocks vs depe
 Overview of what we're covering in the thesis: explanation of the model (PSI/NSMI), an implementation of the protocol, and a comparative evaluation. Link to the code on github.
 
 Tip: We can be a bit ``handwavy'' with terminology here (meaning use something without defining it too formally). We can dive deeper into terms in the preliminaries section.
+
+Ref Gray's paper on transactions.
 }
 
 The rise of ubiquitous, globally-available services on the Internet, paired with the ever-increasing amount of data being uploaded to these services, presents two problems: on the one hand, no one service can store all its data in a single computer; on the other hand, users expect that these services operate in a responsive and reliable manner. The solutions are \emph{distribution}, which involves dividing large amounts of data in \emph{shards} or \emph{partitions} among multiple computers; and \emph{replication}, which allows to place identical copies of data in multiple geographical regions. Modern cloud applications use a combination of the two: for example, a social media site might decide to partition its data by user location, placing their data in geographical regions closest to these locations, so that users can access their data without incurring a high latency penalty. In addition, the site might replicate these partitions to other geographical regions to achieve fault-tolerance: no single faulty region can result in data being unavailable.

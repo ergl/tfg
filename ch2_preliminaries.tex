@@ -1,13 +1,57 @@
 \cleardoublepage
 \chapter{Preliminaries}
 
-\todo{
+% \todo{
 
-ACID vs CAP. What's consistency? What's isolation? What is a consistency guarantee?
+% ACID vs CAP. What's consistency? What's isolation? What is a consistency guarantee?
 
-Causal consistency. Vector clocks? Happens-before relationship
+% Causal consistency. Vector clocks? Happens-before relationship
 
-What's a transaction. Follow \textsection 3 in GMU paper
+% What's a transaction. Follow \textsection 3 in GMU paper
 
-Explain the different levels of consistency (at least mention RC and SER, so we can talk about them during the evaluation) with the framework presented in Andrea/Alexey's CONCUR'15 paper (A Framework for Transactional Consistency Models with Atomic Visibility), using anomalies and abstract executions.
-}
+% Explain the different levels of consistency (at least mention RC and SER, so we can talk about them during the evaluation) with the framework presented in Andrea/Alexey's CONCUR'15 paper (A Framework for Transactional Consistency Models with Atomic Visibility), using anomalies and abstract executions.
+
+% Re: rationale. The reason for our prefix is so that we could build static analysis on top. (see the `Robustness against...' paper for this.)
+% }
+
+We begin with an introduction to the notation and basic concepts used throughout this thesis. We also review several \emph{strong} and \emph{weak} consistency criteria, based on the anomalies that are observable in each criterion. Finally, we discuss several protocols implementing some of these criteria, representing the previous work against which we compare our approach.
+
+\section{Notation}
+
+In this section, we define the elements we use throughout this chapter, such as transactions, histories, and relations. We follow previous models by using abstract executions over histories~\citep{concur_framework, adya_thesis}.
+
+% Adya~\citep{adya_thesis} and Bernstein et al.~\citep{2pc-intro}.
+
+\subsection{Objects and Events}
+
+Consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, which we assume to be integer-valued. Clients interact with the database by issuing ${\tt read}$ and ${\tt write}$ operations on the objects. We let $\Op = \{{\tt read}(x, n),\ {\tt write}(x, n) \mid x \in \Obj, n \in \mathbb{Z} \}$ describe the possible operation invocations: reading some value $n$ from an object $x$, or writing $n$ to $x$.
+
+More generally, every operation invocation can be denoted by an {\bf\em event} $(\iota, o)$ where $\iota$ is an identifier from a denumerable set $\EId$, and $o \in \Op$ describes the operation invoked and its outcome. The set of all possible events is denoted by $\Event$.
+
+\subsection{Transactions and Histories}
+
+%% Talk of orderings here
+% \subsection{Replication} Maybe not needed, left to the introduction, since we do not cover this
+
+Clients typically issue events on the database grouped into \emph{transactions}. We define a \textbf{\em transaction} $T, S, \dots$ as a \emph{totally-ordered} set of events. More formally, we represent a transaction by a pair $\trans{ E }{ \po }$, where $E \subseteq \Event$ is a finite, non-empty set of events with distinct identifiers, and the \textbf{\em program order} $\po$ is a total order over $E$.
+
+A transaction, thus, records the set of operations and the order in which the client program invoked them. For simplicity, we only consider committed transactions. We also assume that a transaction always reads an object before writing to it, i.e., it does not perform \emph{blind updates}. A transaction is called \textbf{\em read-only} if it does not include writes, and \textbf{\em read-only} otherwise.
+
+... \todo{Reconsider \emph{exactly} what's needed for later, can we get away with just Adya's model?}
+
+\section{Consistency Criteria}
+
+In this section, we define what a consistency criterion is, along with several related concepts. We distinguish between \emph{strong} and \emph{weak} criteria, and give definitions for both classes. We give an overview of several criteria, and compare them in terms of their undesirable effects.
+
+A consistency criterion is a \emph{safety} property that constrains how transactions interleave~\citep{ardekani_thesis}. Informally speaking, a safety property specifies that nothing bad happens~\citep{lamport_safety}. When talking of databases, this safety property is named isolation level (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We will use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
+
+\subsection{Serialisability}
+\subsection{Snapshot Isolation}
+\subsection{Parallel Snapshot Isolation}
+\subsection{Non-Monotonic Snapshot Isolation}
+\subsection{Read Committed}
+
+\section{Catalog of Protocols}
+\subsection{Walter}
+\subsection{Jessy}
+% \subsection{GMU} Tentative, since we don't talk about US in previous section
