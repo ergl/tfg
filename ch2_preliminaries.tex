@@ -18,26 +18,17 @@ We begin with an introduction to the notation and basic concepts used throughout
 
 \section{Notation}
 
-In this section, we define the elements we use throughout this chapter, such as transactions, histories, and relations. We follow previous models by using abstract executions over histories~\citep{concur_framework, adya_thesis}.
+In this section, we define the elements we use throughout this chapter, such as transactions, histories, and relations. We follow the models used by Ardekani~\citep{ardekani_thesis}, Adya~\citep{adya_thesis} and Bernstein et al.~\citep{2pc-intro}.
 
-% Adya~\citep{adya_thesis} and Bernstein et al.~\citep{2pc-intro}.
+\subsection{Objects and Transactions}
 
-\subsection{Objects and Events}
+We consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, which we assume to be integer-valued. Clients interact with the database via \textbf{\em transactions} $\Trans = \{\tx_i \mid i \in \mathbb{N}\}$. A transaction is a totally ordered sequence of read or write operations, followed by a \emph{terminating} operation: either commit or abort. Given an object $x$ and a transaction $\tx_i$, we call $x_i$ to the \emph{version} $i$ of $x$ written by $\tx_i$. We denote by $w_i(x_i)$ when a transaction $\tx_i$ writes a version $i$ of $x$, and $r_i(x_i)$ when $\tx_i$ reads a version $i$ of $x$. Finally, we denote by $c_i$ when $\tx_i$ commits, and $a_i$ when it aborts. We assume an initial transaction $\tx_0$ writes the initial versions of every object in the database, and that for every transaction. Without loss of generality, we also assume that no transaction performs \emph{blind updates}, that is, for every write operation $w_i(x_i)$ performed by $\tx_i$, there's always a preceding read operation $r_i(x_i)$. We say that a transaction is \textbf{\em read-only} if its set of operations does not include writes, and \textbf{\em update} otherwise.
 
-Consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, which we assume to be integer-valued. Clients interact with the database by issuing ${\tt read}$ and ${\tt write}$ operations on the objects. We let $\Op = \{{\tt read}(x, n),\ {\tt write}(x, n) \mid x \in \Obj, n \in \mathbb{Z} \}$ describe the possible operation invocations: reading some value $n$ from an object $x$, or writing $n$ to $x$.
-
-More generally, every operation invocation can be denoted by an {\bf\em event} $(\iota, o)$ where $\iota$ is an identifier from a denumerable set $\EId$, and $o \in \Op$ describes the operation invoked and its outcome. The set of all possible events is denoted by $\Event$.
-
-\subsection{Transactions and Histories}
+\subsection{Histories}
 
 %% Talk of orderings here
 % \subsection{Replication} Maybe not needed, left to the introduction, since we do not cover this
 
-Clients typically issue events on the database grouped into \emph{transactions}. We define a \textbf{\em transaction} $T, S, \dots$ as a \emph{totally-ordered} set of events. More formally, we represent a transaction by a pair $\trans{ E }{ \po }$, where $E \subseteq \Event$ is a finite, non-empty set of events with distinct identifiers, and the \textbf{\em program order} $\po$ is a total order over $E$.
-
-A transaction, thus, records the set of operations and the order in which the client program invoked them. For simplicity, we only consider committed transactions. We also assume that a transaction always reads an object before writing to it, i.e., it does not perform \emph{blind updates}. A transaction is called \textbf{\em read-only} if it does not include writes, and \textbf{\em read-only} otherwise.
-
-... \todo{Reconsider \emph{exactly} what's needed for later, can we get away with just Adya's model?}
 
 \section{Consistency Criteria}
 
