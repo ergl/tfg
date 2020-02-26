@@ -130,7 +130,6 @@
 
 @inproceedings{psi-intro,
     title = {Transactional storage for geo-replicated systems},
-    abstract = {We describe the design and implementation of Walter, a key-value store that supports transactions and replicates data across distant sites. A key feature behind Walter is a new property called Parallel Snapshot Isolation (PSI). PSI allows Walter to replicate data asynchronously, while providing strong guarantees within each site. PSI precludes write-write conﬂicts, so that developers need not worry about conﬂict-resolution logic. To prevent write-write conﬂicts and implement PSI, Walter uses two new and simple techniques: preferred sites and counting sets. We use Walter to build a social networking application and port a Twitter-like application.},
     language = {en},
     urldate = {2019-04-30},
     booktitle = {Proceedings of the {Twenty}-{Third} {ACM} {Symposium} on {Operating} {Systems} {Principles} - {SOSP} '11},
@@ -140,15 +139,10 @@
 
 @inproceedings{sql-critique,
     title = {A {Critique} of {ANSI} {SQL} {Isolation} {Levels}},
-    doi = {10.1145/223784.223785},
-    abstract = {ANSI SQL-92 [MS, ANSI] defines Isolation Levels in terms of phenomena: Dirty Reads, Non-Repeatable Reads, and Phantoms. This paper shows these phenomena and the ANSI SQL definitions fail to characterize several popular isolation levels, including the standard locking implementations of the levels.
-
-Investigating the ambiguities of the phenomena leads to clearer definitions; in addition new phenomena that better characterize isolation types are introduced. An important multiversion isolation type, Snapshot Isolation, is defined.},
     language = {en},
     booktitle = {Proceedings of the 1995 {ACM} {SIGMOD} international conference on {Management} of data - {SIGMOD} '95},
     author = {Berenson, Hal and Bernstein, Phil and Gray, Jim and Melton, Jim and O’Neil, Elizabeth and O'Neil, Patrick},
-    year = {1995},
-    pages = {13}
+    year = {1995}
 }
 
 @inproceedings{antidote-db,

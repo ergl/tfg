@@ -24,9 +24,17 @@ In this section, we define the elements we use throughout this chapter, such as 
 
 We consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, which we assume to be integer-valued. Clients interact with the database via \textbf{\em transactions} $\Trans = \{\tx_i \mid i \in \mathbb{N}\}$, with $i$ being the \emph{transaction identifier} of $\tx$. A transaction is a totally ordered sequence of read or write operations, followed by a \emph{terminating} operation: either commit or abort. This order follows the order in which the client invoked such operations. Given an object $x$ and a transaction $\tx_i$, we call $x_i$ to the \textbf{\em version} $i$ of $x$ written by $\tx_i$. We denote by $w_i(x_i)$ when a transaction $\tx_i$ writes a version $i$ of $x$, and $r_i(x_i)$ when $\tx_i$ reads a version $i$ of $x$. Finally, we denote by $c_i$ when $\tx_i$ commits, and $a_i$ when it aborts. We assume an initial transaction $\tx_0$ writes the initial versions of every object in the database, and that for every transaction. Without loss of generality, we also assume that no transaction performs \emph{blind updates}, that is, for every write operation $w_i(x_i)$ performed by $\tx_i$, there's always a preceding read operation $r_i(x_i)$. We say that a transaction is \textbf{\em read-only} if its set of operations does not include writes, and \textbf{\em update} otherwise.
 
-\subsection{Histories}
+\subsection{Histories and Executions}
+
+We call a \textbf{\em history} $\Hist$ to the finite set of all transactions with disjoint identifiers issued against a database. An \textbf{\em execution} is a tuple $\Exe = (\Hist, \hb)$, where $\Hist$ is a history, and \textbf{\em happens-before} $\hb$ is a strict partial order over $\Hist$.
+
+Thus, a history records all the client-database interactions that occur during a particular program. For simplicity, we consider only finite histories. An execution enriches a history with a happens-before order, describing how the database processes transactions. Intuitively $\tx_i \hb \tx_j$ means that $\tx_j$ is aware of the updates performed by $\tx_i$, and thus the outcome of the operations in $\tx_j$ may depend on the effects of $\tx_i$. In this case, we also say that $T_i$ is a \textbf{\em causal dependency} of $\tx_j$.
+
+
+... \todo{Do we need this?}
 
 %% Talk of orderings here
+% Visibility, happens-before, causality, etc
 % \subsection{Replication} Maybe not needed, left to the introduction, since we do not cover this
 
 
@@ -34,7 +42,31 @@ We consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, w
 
 In this section, we define what a consistency criterion is, along with several related concepts. We distinguish between \emph{strong} and \emph{weak} criteria, and give definitions for both classes. We give an overview of several criteria, and compare them in terms of their undesirable effects.
 
-A consistency criterion is a \emph{safety} property that constrains how transactions interleave~\citep{ardekani_thesis}. Informally speaking, a safety property specifies that nothing bad happens~\citep{lamport_safety}. When talking of databases, this safety property is named isolation level (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We will use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
+A consistency criteria can be defined as a \emph{safety} property that constraints the possible histories of transactions observed by the system. That is, it constrains how the operations of the different transactions interleave~\citep{ardekani_thesis}. Informally speaking, a safety property specifies that nothing bad happens~\citep{lamport_safety}. In the context of databases, the definition of a consistency criterion maps to the concept of an \emph{isolation level} (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We will use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
+
+Traditionally, the different consistency criteria have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabularx}{\linewidth}{ >{\centering}p{8cm} | *{5}{>{\centering}X}}
+    & \multicolumn{5}{c}{Consistency Criteria} \tabularnewline \cline{2-6}
+    \emph{Anomalies} & SER & SI & PSI & NMSI & RC \tabularnewline \hline
+    Dirty Reads & x & x & x & x & x \tabularnewline
+    Non-Repeatable Reads & x & x & x & x & - \tabularnewline
+    Read Skew & x & x & x & x & \checkmark \tabularnewline
+    \hline
+    Dirty Write & x & x & x & x & x \tabularnewline
+    Lost Updates & x & x & x & x & \checkmark \tabularnewline
+    Write Skew & x & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
+    Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
+    \hline
+    Non-Monotonic Snapshot & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
+    Real-Time Violation & \checkmark & x & \checkmark & \checkmark & \checkmark \tabularnewline
+\end{tabularx}
+\end{center}
+\caption{Anomaly Comparison of Consistency Criteria \emph{(x}:disallowed\emph{)}. Adapted from \em{Ardekani et al.~\citep{ardekani-nsmi}}}
+\label{fig:Anomalies}
+\end{figure}
 
 \subsection{Serialisability}
 \subsection{Snapshot Isolation}
