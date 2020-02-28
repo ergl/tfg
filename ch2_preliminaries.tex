@@ -14,7 +14,7 @@ Explain the different levels of consistency (at least mention RC and SER, so we 
 Re: rationale. The reason for our prefix is so that we could build static analysis on top. (see the `Robustness against...' paper for this.)
 }
 
-We begin with an introduction to the notation and basic concepts used throughout this thesis. We also review several \emph{strong} and \emph{weak} consistency criteria, based on the anomalies that are observable in each criterion. Finally, we discuss several protocols implementing some of these criteria, representing the previous work against which we compare our approach.
+We begin with an introduction to the notation and basic concepts used throughout this thesis. We also review several \emph{strong} and \emph{weak} consistency models, based on the anomalies that are observable in each model. Finally, we discuss several protocols implementing some of these models, representing the previous work against which we compare our approach.
 
 \section{Notation}
 
@@ -26,7 +26,7 @@ We consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, w
 
 \subsection{Histories}
 
-We call a \textbf{\em history} $h$ to the finite set of all transactions with disjoint identifiers issued against a database. For some history $h$, $\prec_h$ denotes a \textbf{\em happens-before} strict partial order over $h$, such that for any two transactions $\tx_i$ and $\tx_j$, if $w_i(x_i)$ and $r_j(x_i)$, $\tx_i \prec_h \tx_j$ (that is, $\tx_j$ reads the version $i$ of $x$ written by $\tx_i$). Intuitively $\tx_i \prec_h \tx_j$ means that $\tx_j$ is aware of the updates performed by $\tx_i$, and thus the outcome of the operations in $\tx_j$ may depend on the effects of $\tx_i$. In this case, we say that $\tx_i$ is a \textbf{\em causal dependency} of $\tx_j$. We can represent the history and the relations between operations and transactions as a graph, following Bernstein et al~\citep{bernstein_concurrency}.
+We call a \textbf{\em history} $h$ to the finite set of all transactions with disjoint identifiers issued against a database. We denote the set of all possible histories by $\Hist$. For some history $h$, $\hb_h$ denotes a \textbf{\em happens-before} strict partial order over $h$, such that for any two transactions $\tx_i$ and $\tx_j$, if $w_i(x_i)$ and $r_j(x_i)$, $\tx_i \hb_h \tx_j$ (that is, $\tx_j$ reads the version $i$ of $x$ written by $\tx_i$). Intuitively $\tx_i \hb_h \tx_j$ means that $\tx_j$ is aware of the updates performed by $\tx_i$, and thus the outcome of the operations in $\tx_j$ may depend on the effects of $\tx_i$. In this case, we say that $\tx_i$ is a \textbf{\em causal dependency} of $\tx_j$. We can represent the history and the relations between operations and transactions as a graph, following Bernstein et al~\citep{bernstein_concurrency}.
 
 \begin{figure}[h]
   \centering
@@ -37,20 +37,22 @@ We call a \textbf{\em history} $h$ to the finite set of all transactions with di
   \label{fig:history}
 \end{figure}
 
-Figure~\ref{fig:history} above shows an example, with $\tx_1 \prec_h \tx_3$ and $\tx_1 \prec_h \tx_2$. We say that two transactions $\tx_i$ and $\tx_j$ are \textbf{\em concurrent} in $h$ (denoted by $\tx_i \parallel \tx_j$) if neither $\tx_i \prec_h \tx_j$ nor $\tx_j \prec_h \tx_j$. In the figure above, $\tx_2$ and $\tx_3$ are concurrent.
+Figure~\ref{fig:history} above shows an example, with $\tx_1 \hb_h \tx_3$ and $\tx_1 \hb_h \tx_2$. We say that two transactions $\tx_i$ and $\tx_j$ are \textbf{\em concurrent} in $h$ (denoted by $\tx_i \parallel \tx_j$) if neither $\tx_i \hb_h \tx_j$ nor $\tx_j \hb_h \tx_j$. In the figure above, $\tx_2$ and $\tx_3$ are concurrent.
 
-\section{Consistency Criteria}
+\section{Consistency Models}
 
-In this section, we define what a consistency criterion is, along with several related concepts. We distinguish between \emph{strong} and \emph{weak} criteria, and give definitions for both classes. We give an overview of several criteria, and compare them in terms of their undesirable effects.
+In this section, we define what a consistency model is, along with several related concepts. We distinguish between \emph{strong} and \emph{weak} models, and give definitions for both classes. We give an overview of several models, and compare them in terms of their undesirable effects.
 
-A consistency criteria can be defined as a \emph{safety} property that constraints the possible histories of transactions observed by the system. That is, it constrains how the operations of the different transactions interleave~\citep{ardekani_thesis}. Informally speaking, a safety property specifies that nothing bad happens~\citep{lamport_safety}. In the context of databases, the definition of a consistency criterion maps to the concept of an \emph{isolation level} (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We will use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
+We define a consistency model as a set of histories $\Cons$, such that $\Cons \subseteq \Hist$. Intuitively, a consistency model \emph{constrains} the set of possible histories by specifying how operations interleave in any given history. We say that a given history $h$ \emph{satisfies} a consistency model $\Cons$ if $h \in \Cons$, and that $h$ \emph{violates} $\Cons$.
 
-Traditionally, the different consistency criteria have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system.
+In the context of databases, the definition of a consistency model maps to the concept of an \emph{isolation level} (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We will use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
+
+Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system.
 
 \begin{figure}[h]
 \begin{center}
 \begin{tabularx}{\linewidth}{ >{\centering}p{8cm} | *{5}{>{\centering}X}}
-    & \multicolumn{5}{c}{Consistency Criteria} \tabularnewline \cline{2-6}
+    & \multicolumn{5}{c}{Consistency Models} \tabularnewline \cline{2-6}
     \emph{Anomalies} & SER & SI & PSI & NMSI & RC \tabularnewline \hline
     Dirty Reads & x & x & x & x & x \tabularnewline
     Non-Repeatable Reads & x & x & x & x & \checkmark \tabularnewline
@@ -65,7 +67,7 @@ Traditionally, the different consistency criteria have been defined in terms of 
     Real-Time Violation & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
 \end{tabularx}
 \end{center}
-\caption{Anomaly Comparison of Consistency Criteria \emph{(x}:disallowed\emph{)}. Adapted from \em{Ardekani et al.~\citep{ardekani-nsmi}}}
+\caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed\emph{)}. Adapted from \em{Ardekani et al.~\citep{ardekani-nsmi}}}
 \label{fig:Anomalies}
 \end{figure}
 
