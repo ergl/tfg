@@ -26,12 +26,18 @@ We consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, w
 
 \subsection{Histories}
 
-We call a \textbf{\em history} $h$ to the finite set of all transactions with disjoint identifiers issued against a database. For some history $h$, $\prec_h$ denotes a \textbf{\em happens-before} strict partial order over $h$, such that for any two transactions $\tx_i$ and $\tx_j$, if $w_i(x_i)$ and $r_j(x_i)$, $\tx_i \prec_h \tx_j$ (that is, $\tx_j$ reads the version $i$ of $x$ written by $\tx_i$). Intuitively $\tx_i \prec_h \tx_j$ means that $\tx_j$ is aware of the updates performed by $\tx_i$, and thus the outcome of the operations in $\tx_j$ may depend on the effects of $\tx_i$. In this case, we say that $\tx_i$ is a \textbf{\em causal dependency} of $\tx_j$.
+We call a \textbf{\em history} $h$ to the finite set of all transactions with disjoint identifiers issued against a database. For some history $h$, $\prec_h$ denotes a \textbf{\em happens-before} strict partial order over $h$, such that for any two transactions $\tx_i$ and $\tx_j$, if $w_i(x_i)$ and $r_j(x_i)$, $\tx_i \prec_h \tx_j$ (that is, $\tx_j$ reads the version $i$ of $x$ written by $\tx_i$). Intuitively $\tx_i \prec_h \tx_j$ means that $\tx_j$ is aware of the updates performed by $\tx_i$, and thus the outcome of the operations in $\tx_j$ may depend on the effects of $\tx_i$. In this case, we say that $\tx_i$ is a \textbf{\em causal dependency} of $\tx_j$. We can represent the history and the relations between operations and transactions as a graph, following Bernstein et al~\citep{bernstein_concurrency}.
 
-%% Talk of orderings here
-% Visibility, happens-before, causality, etc
-% \subsection{Replication} Maybe not needed, left to the introduction, since we do not cover this
+\begin{figure}[h]
+  \centering
+  \vspace{-0.4cm}
+  \includegraphics[width=0.7\textwidth]{figures/history.pdf}
+  \vspace{-1cm}
+  \caption{Example of history represented as a graph. Arrows represent the causal dependencies between operations. Adapted from \em{Ardekani et al.~\citep{ardekani-nsmi}}}
+  \label{fig:history}
+\end{figure}
 
+Figure~\ref{fig:history} above shows an example, with $\tx_1 \prec_h \tx_3$ and $\tx_1 \prec_h \tx_2$. We say that two transactions $\tx_i$ and $\tx_j$ are \textbf{\em concurrent} in $h$ (denoted by $\tx_i \parallel \tx_j$) if neither $\tx_i \prec_h \tx_j$ nor $\tx_j \prec_h \tx_j$. In the figure above, $\tx_2$ and $\tx_3$ are concurrent.
 
 \section{Consistency Criteria}
 
