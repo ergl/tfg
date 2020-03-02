@@ -53,17 +53,16 @@ Traditionally, the different consistency models have been defined in terms of \e
 \begin{figure}[h]
 \begin{center}
 \begin{tabularx}{\linewidth}{ >{\centering}p{8cm} | *{5}{>{\centering}X}}
-    & \multicolumn{5}{c}{Consistency Models} \tabularnewline \cline{2-6}
-    \emph{Anomalies} & SER & SI & PSI & NMSI & RC \tabularnewline \hline
+    \multirow{2}{*}{\em Anomalies} & \multicolumn{5}{c}{Consistency Models} \tabularnewline \cline{2-6}
+    & SER & SI & PSI & NMSI & RC \tabularnewline \hline
     Dirty Write & x & x & x & x & x \tabularnewline
     Dirty Read & x & x & x & x & x \tabularnewline
-    \hline
+    \hline % Distinguish between ACID or not
     Non-Repeatable Read & x & x & x & x & \checkmark \tabularnewline
     Lost Update & x & x & x & x & \checkmark \tabularnewline
+    \hline % Distinguish between weak and strong
     Write Skew & x & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
     Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
-    \hline
-    Read Skew & x & x & x & x & \checkmark \tabularnewline
     Non-Monotonic Snapshot & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
 \end{tabularx}
 \end{center}
