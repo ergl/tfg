@@ -97,7 +97,16 @@ We now review several well-known strong consistency models, along with a weak mo
 
 \subsection{Serialisability}
 
-Serialisability restricts the set of possible histories to those equivalent to some \emph{serial} execution. That is to say, under a traditional system offering Serialisability, the happens-before relation we introduced in~\ref{sect:histories} is a \emph{strict total order} \todo{does it need to be strict?}. A history such as the one in Figure~\ref{fig:history} is serialisable, because we can order $\tx_2$ to occur before $\tx_3$ (or vice versa); while the one shown in Figure~\ref{fig:non_ser_history} is not.
+Serialisability restricts the set of possible histories to those equivalent to some \emph{serial} execution. That is to say, under a traditional system offering Serialisability, the happens-before relation we introduced in~\ref{sect:histories} is strengthened with a \emph{strict total order} over the transactions in a history \todo{does it need to be strict?}. A history such as the one in Figure~\ref{fig:history} is serialisable, because we can order $\tx_2$ to occur before $\tx_3$ (or vice versa); while the one depicted in Figure~\ref{fig:non_ser_history} is not.
+
+\begin{figure}[h]
+  \centering
+  \vspace{-1cm}
+  \includegraphics[width=\textwidth]{figures/non_ser_hist.pdf}
+  \vspace{-1cm}
+  \caption{Example of a non-serialisable history. $\tx_4$ observes version $y_3$ written by $\tx_3$, but fails to observe version $x_2$ written by $\tx_1$. This result can't be obtained by executing the transactions in any sequence, and thus the history is not serialisable.}
+  \label{fig:non_ser_history}
+\end{figure}
 
 \subsection{Snapshot Isolation}
 \subsection{Parallel Snapshot Isolation}
