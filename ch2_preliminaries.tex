@@ -27,7 +27,7 @@ We consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, w
 
 \subsection{Histories}
 
-We call a \textbf{\em history} $h$ to the finite set of all transactions with disjoint identifiers issued against a database. We denote the set of all possible histories by $\Hist$. For some history $h$, $\hb_h$ denotes a \textbf{\em happens-before} strict partial order over $h$, such that for any two transactions $\tx_i$ and $\tx_j$, if $w_i(x_i)$ and $r_j(x_i)$, $\tx_i \hb_h \tx_j$ (that is, $\tx_j$ reads the version $i$ of $x$ written by $\tx_i$). Intuitively $\tx_i \hb_h \tx_j$ means that $\tx_j$ is aware of the updates performed by $\tx_i$, and thus the outcome of the operations in $\tx_j$ may depend on the effects of $\tx_i$. In this case, we say that $\tx_i$ is a \textbf{\em causal dependency} of $\tx_j$. We can represent the history and the relations between operations and transactions as a graph, following Bernstein et al~\citep{bernstein_concurrency}.
+We call a \textbf{\em history} $h$ to the finite set of all transactions with disjoint identifiers issued against a database. We denote the set of all possible histories by $\Hist$. For some history $h$, $\hb_h$ denotes a \textbf{\em happens-before} strict partial order over $h$, such that for any two transactions $\tx_i$ and $\tx_j$, if $w_i(x_i)$ and $r_j(x_i)$, $\tx_i \hb_h \tx_j$ (that is, $\tx_j$ reads the version $i$ of $x$ written by $\tx_i$). Intuitively $\tx_i \hb_h \tx_j$ means that $\tx_j$ is aware of the updates performed by $\tx_i$, and thus the outcome of the operations in $\tx_j$ may depend on the effects of $\tx_i$. In this case, we say that $\tx_i$ is a \textbf{\em causal dependency} of $\tx_j$. A transaction $\tx_i$ is \textbf{\em pending} in $h$ if $(c_i \vee a_i) \notin h$. We can represent the history and the relations between operations and transactions as a graph, following Bernstein et al~\citep{bernstein_concurrency}.
 
 \begin{figure}[h]
   \centering
@@ -46,30 +46,29 @@ In this section, we define what a consistency model is, along with several relat
 
 We define a consistency model as a set of histories $\Cons$, such that $\Cons \subseteq \Hist$. Intuitively, a consistency model \emph{constrains} the set of possible histories by specifying how operations interleave in any given history. We say that a given history $h$ \emph{satisfies} a consistency model $\Cons$ if $h \in \Cons$, and that $h$ \emph{violates} $\Cons$.
 
-In the context of databases, the definition of a consistency model maps to the concept of an \emph{isolation level} (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We will use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
+In the context of databases, the definition of a consistency model maps to the concept of an \emph{isolation level} (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
 
-Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system.
+Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system. Intuitively, we can distinguish between \emph{strong} and \emph{weak} consistency models depending on the number of anomalies they disallow, with strong models restricting the set of possible histories more than weak ones. In the sections that follow, we give a brief overview of the traditional anomalies following the definitions advanced by Berenson et al.~\citep{sql-critique}, as well as different consistency models that preclude them. Figure~\ref{fig:anomalies} shows a quick summary of the models and anomalies we cover.
 
 \begin{figure}[h]
 \begin{center}
 \begin{tabularx}{\linewidth}{ >{\centering}p{8cm} | *{5}{>{\centering}X}}
     & \multicolumn{5}{c}{Consistency Models} \tabularnewline \cline{2-6}
     \emph{Anomalies} & SER & SI & PSI & NMSI & RC \tabularnewline \hline
-    Dirty Reads & x & x & x & x & x \tabularnewline
-    Non-Repeatable Reads & x & x & x & x & \checkmark \tabularnewline
-    Read Skew & x & x & x & x & \checkmark \tabularnewline
-    \hline
     Dirty Write & x & x & x & x & x \tabularnewline
-    Lost Updates & x & x & x & x & \checkmark \tabularnewline
+    Dirty Read & x & x & x & x & x \tabularnewline
+    \hline
+    Non-Repeatable Read & x & x & x & x & \checkmark \tabularnewline
+    Lost Update & x & x & x & x & \checkmark \tabularnewline
     Write Skew & x & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
     Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
     \hline
+    Read Skew & x & x & x & x & \checkmark \tabularnewline
     Non-Monotonic Snapshot & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
-    Real-Time Violation & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
 \end{tabularx}
 \end{center}
-\caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed\emph{)}. Adapted from \em{Ardekani et al.~\citep{ardekani-nsmi}}}
-\label{fig:Anomalies}
+\caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Ardekani et al.~\citep{ardekani-nsmi}}}
+\label{fig:anomalies}
 \end{figure}
 
 \subsection{Serialisability}
