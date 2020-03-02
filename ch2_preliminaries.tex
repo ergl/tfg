@@ -42,13 +42,13 @@ Figure~\ref{fig:history} above shows an example, with $\tx_1 \hb_h \tx_3$ and $\
 
 \section{Consistency Models}
 
-In this section, we define what a consistency model is, along with several related concepts. We distinguish between \emph{strong} and \emph{weak} models, and give definitions for both classes. We give an overview of several models, and compare them in terms of their undesirable effects.
+In this section, we define what a consistency model is, distinguishing between \emph{strong} and \emph{weak} models. We give an overview of several models, and compare them in terms of their undesirable effects.
 
 We define a consistency model as a set of histories $\Cons$, such that $\Cons \subseteq \Hist$. Intuitively, a consistency model \emph{constrains} the set of possible histories by specifying how operations interleave in any given history. We say that a given history $h$ \emph{satisfies} a consistency model $\Cons$ if $h \in \Cons$, and that $h$ \emph{violates} $\Cons$.
 
 In the context of databases, the definition of a consistency model maps to the concept of an \emph{isolation level} (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
 
-Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system. Intuitively, we can distinguish between \emph{strong} and \emph{weak} consistency models depending on the number of anomalies they disallow, with strong models restricting the set of possible histories more than weak ones. In the sections that follow, we give a brief overview of the traditional anomalies following the definitions advanced by Berenson et al.~\citep{sql-critique}, as well as different consistency models that preclude them. Figure~\ref{fig:anomalies} shows a quick summary of the models and anomalies we cover.
+Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system. Intuitively, we can distinguish between \emph{strong} and \emph{weak} consistency models depending on the number of anomalies they disallow, with stronger models restricting the set of possible histories more than weak ones. In the sections that follow, we give a brief overview of the traditional anomalies following the definitions advanced by Berenson et al.~\citep{sql-critique}, as well as different consistency models that preclude them. Figure~\ref{fig:anomalies} shows a quick summary of the models and anomalies we cover.
 
 \begin{figure}[h]
 \begin{center}
@@ -70,6 +70,30 @@ Traditionally, the different consistency models have been defined in terms of \e
 \caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Ardekani et al.~\citep{ardekani-nsmi}}}
 \label{fig:anomalies}
 \end{figure}
+
+\begin{definition}[Dirty Write]
+A \emph{Dirty Write} occurs in a history $h$ when a transaction $\tx_i$ modifies an object $x$ that was previously modified by another pending transaction $\tx_j$. If any of the two transactions commit or abort, it is not clear what value the object $x$ should have. A Dirty Write can be represented by a history such as $w_1(x_1).w_2(x_2).(c_1 \vee a_1).(c_2 \vee a_2)$, where the termination order of the transactions can be arbitrary. The anomaly occurs even if any of the transactions aborts.
+\end{definition}
+
+\begin{definition}[Dirty Read]
+A \emph{Dirty Read} occurs in a history $h$ when a transaction $\tx_i$ reads an object $x$ modified by a pending transaction $\tx_j$. If $\tx_j$ ultimately aborts in $h$, the value observed by a $\tx_i$ was never supposed to occur in $h$. This is represented by a history such as $r_1(x_0)\ldots w_1(x_1)\ldots r_2(x_1)\ldots c_2\ldots a_1$.
+\end{definition}
+
+Both of these anomalies can be prevented by making a transaction's changes visible only after it commits. For example, updates can be buffered locally in the context of a transaction. All the consistency models we describe in the sections that follow preclude dirty writes and reads. Transactions executing under such models offer \emph{atomicity} (A in \underline{A}CID).
+
+\begin{definition}[Non-Repeatable Read]
+A non-repeatable read---also called a \emph{fuzzy read}--occurs whenever a transaction $\tx_i$ observes different values for an object $x$ on subsequent read operations when interleaved by a commit by another transaction, $\tx_j$. This can be seen in $r_1(x_0)\ldots r_2(x_0).w_2(x_2).c_2 \ldots r_1(x_2)$. Here, $\tx_1$ observers two different values of $x$: the initial version $x_0$ and the version $x_2$ written by $\tx_2$.
+\end{definition}
+
+The non-repeatable read anomaly can also be prevented in an easy way: a transaction can keep a cache of already read values. Subsequent read operations can return values from this read cache.
+
+\begin{definition}[Lost Update]
+A \emph{Lost Update} occurs in a history $h$ when two concurrent transactions update the same object $x$ and successfully commit. In this case, the update written by whichever transaction commits first is ``lost'' after the second transaction commits. This can be seen in a history such as $r_1(x_0)\ldots r_2(x_0).w_2(x_2) \ldots w_1(x_1).c_1\ldots c_2$. After $\tx_2$ commits, version $x_1$ will no longer be visible to subsequent transactions.
+\end{definition}
+
+For the purposes of this thesis, and following the definition proposed in Ardekani et al.~\citep{ardekani_thesis}, we say that a consistency model is \emph{strong} if it prevents concurrent transactions to modify the same object. That is to say, a strong consistency model preclude dirty writes and reads, along with lost update anomaly. A model that allows concurrent transactions to modify the same object is \emph{weak}.
+
+We now review several well-known strong consistency models, along with a weak model that will serve as a baseline comparison in the following chapters.
 
 \subsection{Serialisability}
 \subsection{Snapshot Isolation}
