@@ -273,7 +273,7 @@ Read Committed (RC) is the weakest consistency criterion that satisfies the \emp
 
 Since transactions only need to observe the last committed version of an object, it is sufficient to store only one version per key. In addition, transactions don't need to observe a consistent snapshot of the state of a partition, and therefore we can remove all data structures related to computing a snapshot. This is reflected in the execution of a transaction, as can be seen in Figure~\ref{fig:rc_tx_exection}. A server $s_i$ executing a remote read on behalf of a transaction $\tx$ simply fetches the currently available value of the requested object, and returns it to the client (line~\ref{alg:rc_db_get}).
 
-A protocol satisfying Read Committed still needs to offer atomic visibility. To do so, our implementation uses two-phase commit, guaranteeing that a transaction commits at every partition (line~\ref{alg:rc_commit_start}). Servers that participate during the commit phase will always vote $\commit$ (line~\ref{alg:rc_send_vote}), since RC doesn't preclude write-write conflicts. After a successful commit phase, all partitions incorporate the transaction updates to its storage state (line~\ref{alg:rc_kv_apply}).
+A protocol satisfying Read Committed still needs to offer atomic visibility. To do so, our implementation uses two-phase commit, guaranteeing that a transaction commits at every partition (line~\ref{alg:rc_commit_start}). Servers that participate during the commit phase always vote $\commit$ (line~\ref{alg:rc_send_vote}), since RC doesn't preclude write-write conflicts. After a successful commit phase, all partitions incorporate the transaction updates to its storage state (line~\ref{alg:rc_kv_apply}).
 
 \begin{figure}[h]
 \begin{algorithm}[H]
