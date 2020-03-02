@@ -2,16 +2,17 @@
 \chapter{Preliminaries}
 
 \todo{
+Why's the prefix needed for static analysis? => Is it because of the graph representation? (with a prefix, the visibility relation becomes transitive). See the robustness paper. Should we mention what robustness is? Then, the justification for our protocol is that it's the first PSI/NMSI impl amenable to analyse with robustness in mind.\\
 
-ACID vs CAP. What's consistency? What's isolation? What is a consistency guarantee?
+Tentative contents:
 
-Causal consistency. Vector clocks? Happens-before relationship
+- ACID vs CAP. What's consistency? What's isolation? What is a consistency guarantee?
 
-What's a transaction. Follow \textsection 3 in GMU paper
+- Causal consistency. Vector clocks? Happens-before relationship
 
-Explain the different levels of consistency (at least mention RC and SER, so we can talk about them during the evaluation) with the framework presented in Andrea/Alexey's CONCUR'15 paper (A Framework for Transactional Consistency Models with Atomic Visibility), using anomalies and abstract executions.
+- What's a transaction. Follow \textsection 3 in GMU paper
 
-Re: rationale. The reason for our prefix is so that we could build static analysis on top. (see the `Robustness against...' paper for this.)
+- Explain the different levels of consistency (at least mention RC and SER, so we can talk about them during the evaluation) with the framework presented in Andrea/Alexey's CONCUR'15 paper (A Framework for Transactional Consistency Models with Atomic Visibility), using anomalies and abstract executions.
 }
 
 We begin with an introduction to the notation and basic concepts used throughout this thesis. We also review several \emph{strong} and \emph{weak} consistency models, based on the anomalies that are observable in each model. Finally, we discuss several protocols implementing some of these models, representing the previous work against which we compare our approach.
