@@ -112,18 +112,26 @@ Serialisability restricts the set of possible histories to those equivalent to s
 
 \subsection{Snapshot Isolation}
 
-\begin{definition}[Write Skew]
-A \emph{Write Skew} occurs whenever two transactions concurrently update a disjoint set of objects that were originally related by an external constraint. Suppose that objects $x$ and $y$ are related by a constraint such that $x + y < N$, with two concurrent transactions $\tx_i$ and $\tx_j$ originally observing a consistent state. $\tx_i$ proceeds to update $x$, while satisfying the original constraint. $\tx_j$ does the same by updating $y$. After both $\tx_i$ and $\tx_j$ commit, it might be the case that the original constraint no longer holds. Figure~\ref{fig:write_skew_history} shows an example of such a history.
-\end{definition}
+Proposed by Bernstein et al.~\citep{sql-critique}, Snapshot Isolation (SI) relaxes the total ordering guarantees of Serialisability by requiring only a partial order among committed transactions. To preclude the Lost Update anomaly, SI introduces the concept of a \emph{snapshot}: a copy of the committed data, private to a particular transaction. This snapshot is created at the time the transaction starts, called its \emph{start timestamp}. A transaction $\tx$ is not able to see updates made by other transactions that commit after $\tx$'s start timestamp. When a transaction $\tx$ is ready to commit, it gets assigned a \emph{commit timestamp}, larger than any previous start or commit timestamp. Transaction $\tx$ commits successfully only if no other concurrent transaction updated the same objects as $\tx$. Under SI, two transactions are concurrent if their start-commit timestamps intervals overlap, and read-only transactions always commit. When two transactions update a non-disjoint set of objects, we say they \textbf{\em write-conflict}.
 
-\begin{figure}[h]
-  \centering
-  \vspace{-0.5cm}
-  \includegraphics[width=0.6\textwidth]{figures/skew_history.pdf}
-  \vspace{-0.6cm}
-  \caption{Example of a history showing the write skew anomaly. Both $\tx_2$ and $\tx_3$ observe a consistent state of objects $x$ and $y$, but the versions diverge after both transactions commit.}
-  \label{fig:write_skew_history}
-\end{figure}
+The partial order among committed transactions, along with the condition that concurrent transactions only abort if their set of updated objects overlap, under Snapshot Isolation a system is able observe the so-called \emph{Write Skew} anomaly. This anomaly occurs when an external invariant is violated as a result of concurrent non-conflicting transactions. As an example, suppose that objects $x$ and $y$ are related by a constraint such that $x + y \le 10$, with $x = 5$ and $y = 2$ as the initial state. In such a setting, a history such as the following can violate the invariant: $h = r_1(x=5).r_1(y=2).r_2(x=5).r_2(y=2).w_1(x=7).w_2(y=4).c_1.c_2$. Both $\tx_1$ and $\tx_2$ start their execution and observe a consistent state that upholds the invariant. Then, $\tx_1$ updates the object $x$ to the value $7$, which still maintains the invariant, as $7 + 2 \le 10$. Concurrently, $\tx_2$ proceeds as $\tx_1$, updating $y$ to $4$, which also maintains the original invariant ($5 + 4 \le 10$). However, as the result of both $\tx_1$ and $\tx_2$ successfully committing, the invariant is violated, with $7 + 4 \not\le 10$.
+
+%  Figure~\ref{fig:write_skew_history} shows an example of such a history.
+
+% Reads and updates are performed against the transaction snapshot (precluding non-repeatable reads) and made visible after the transaction commits (precluding dirty reads and writes).
+
+% \begin{figure}[h]
+%   \centering
+%   \vspace{-0.4cm}
+%   \includegraphics[width=0.6\textwidth]{figures/skew_history.pdf}
+%   \vspace{-0.6cm}
+%   \caption{Example of a history showing the write skew anomaly. Both $\tx_2$ and $\tx_3$ observe a consistent state of objects $x$ and $y$, but the versions diverge after both transactions commit.}
+%   \label{fig:write_skew_history}
+% \end{figure}
+
+\begin{definition}[Write Skew]\todo{Revise}
+A \emph{Write Skew} occurs whenever two non-conflicting transactions update objects related with an external invariant, successfully commit, and as a result violate the original invariant.
+\end{definition}
 
 \subsection{Parallel Snapshot Isolation}
 \subsection{Non-Monotonic Snapshot Isolation}
