@@ -108,7 +108,23 @@ Serialisability restricts the set of possible histories to those equivalent to s
   \label{fig:non_ser_history}
 \end{figure}
 
+\todo{Mention something about serial order being hard to achieve in a distributed setting?}
+
 \subsection{Snapshot Isolation}
+
+\begin{definition}[Write Skew]
+A \emph{Write Skew} occurs whenever two transactions concurrently update a disjoint set of objects that were originally related by an external constraint. Suppose that objects $x$ and $y$ are related by a constraint such that $x + y < N$, with two concurrent transactions $\tx_i$ and $\tx_j$ originally observing a consistent state. $\tx_i$ proceeds to update $x$, while satisfying the original constraint. $\tx_j$ does the same by updating $y$. After both $\tx_i$ and $\tx_j$ commit, it might be the case that the original constraint no longer holds. Figure~\ref{fig:write_skew_history} shows an example of such a history.
+\end{definition}
+
+\begin{figure}[h]
+  \centering
+  \vspace{-0.5cm}
+  \includegraphics[width=0.6\textwidth]{figures/skew_history.pdf}
+  \vspace{-0.6cm}
+  \caption{Example of a history showing the write skew anomaly. Both $\tx_2$ and $\tx_3$ observe a consistent state of objects $x$ and $y$, but the versions diverge after both transactions commit.}
+  \label{fig:write_skew_history}
+\end{figure}
+
 \subsection{Parallel Snapshot Isolation}
 \subsection{Non-Monotonic Snapshot Isolation}
 \subsection{Read Committed}
