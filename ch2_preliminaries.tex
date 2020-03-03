@@ -1,19 +1,7 @@
 \cleardoublepage
 \chapter{Preliminaries}
 
-\todo{
-Why's the prefix needed for static analysis? => Is it because of the graph representation? (with a prefix, the visibility relation becomes transitive). See the robustness paper. Should we mention what robustness is? Then, the justification for our protocol is that it's the first PSI/NMSI impl amenable to analyse with robustness in mind.\\
-
-Tentative contents:
-
-- ACID vs CAP. What's consistency? What's isolation? What is a consistency guarantee?
-
-- Causal consistency. Vector clocks? Happens-before relationship
-
-- What's a transaction. Follow \textsection 3 in GMU paper
-
-- Explain the different levels of consistency (at least mention RC and SER, so we can talk about them during the evaluation) with the framework presented in Andrea/Alexey's CONCUR'15 paper (A Framework for Transactional Consistency Models with Atomic Visibility), using anomalies and abstract executions.
-}
+\todo{Why's the prefix needed for static analysis? => Is it because of the graph representation? (with a prefix, the visibility relation becomes transitive). See the robustness paper. Should we mention what robustness is? Then, the justification for our protocol is that it's the first PSI/NMSI impl amenable to analyse with robustness in mind.}
 
 We begin with an introduction to the notation and basic concepts used throughout this thesis. We also review several \emph{strong} and \emph{weak} consistency models, based on the anomalies that are observable in each model. Finally, we discuss several protocols implementing some of these models, representing the previous work against which we compare our approach.
 
@@ -114,7 +102,7 @@ Serialisability restricts the set of possible histories to those equivalent to s
 
 \subsection{Snapshot Isolation}
 
-Proposed by Bernstein et al.~\citep{sql-critique}, Snapshot Isolation (SI) relaxes the total ordering guarantees of Serialisability by requiring only a partial order among committed transactions. To preclude the Lost Update anomaly, SI introduces the concept of a \emph{snapshot}: a copy of the committed data, private to a particular transaction. This snapshot is created at the time the transaction starts, called its \emph{start timestamp}. A transaction $\tx$ is not able to see updates made by other transactions that commit after $\tx$'s start timestamp. When a transaction $\tx$ is ready to commit, it gets assigned a \emph{commit timestamp}, larger than any previous start or commit timestamp. Transaction $\tx$ commits successfully only if no other concurrent transaction updated the same objects as $\tx$. Under SI, two transactions are concurrent if their start-commit timestamps intervals overlap, and read-only transactions always commit. When two transactions update a non-disjoint set of objects, we say they \textbf{\em write-conflict}.
+Proposed by Berenson et al.~\citep{sql-critique}, Snapshot Isolation (SI) relaxes the total ordering guarantees of Serialisability by requiring only a partial order among committed transactions. To preclude the Lost Update anomaly, SI introduces the concept of a \emph{snapshot}: a copy of the committed data, private to a particular transaction. This snapshot is created at the time the transaction starts, called its \emph{start timestamp}. A transaction $\tx$ is not able to see updates made by other transactions that commit after $\tx$'s start timestamp. When a transaction $\tx$ is ready to commit, it gets assigned a \emph{commit timestamp}, larger than any previous start or commit timestamp. Transaction $\tx$ commits successfully only if no other concurrent transaction updated the same objects as $\tx$. Under SI, two transactions are concurrent if their start-commit timestamps intervals overlap, and read-only transactions always commit. When two transactions update a non-disjoint set of objects, we say they \textbf{\em write-conflict}.
 
 The partial order among committed transactions, along with the condition that concurrent transactions only abort if their set of updated objects overlap, under Snapshot Isolation a system is able observe the so-called \emph{Write Skew} anomaly. This anomaly occurs when an external invariant is violated as a result of concurrent non-conflicting transactions. As an example, suppose that objects $x$ and $y$ are related by a constraint such that $x + y \le 10$, with $x = 5$ and $y = 2$ as the initial state. In such a setting, a history such as the following can violate the invariant: $h = r_1(x=5).r_1(y=2).r_2(x=5).r_2(y=2).w_1(x=7).w_2(y=4).c_1.c_2$. Both $\tx_1$ and $\tx_2$ start their execution and observe a consistent state that upholds the invariant. Then, $\tx_1$ updates the object $x$ to the value $7$, which still maintains the invariant, as $7 + 2 \le 10$. Concurrently, $\tx_2$ proceeds as $\tx_1$, updating $y$ to $4$, which also maintains the original invariant ($5 + 4 \le 10$). However, as the result of both $\tx_1$ and $\tx_2$ successfully committing, the invariant is violated, with $7 + 4 \not\le 10$.
 
