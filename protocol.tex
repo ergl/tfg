@@ -18,7 +18,7 @@ In this chapter, we describe how our protocol \todo{name} works. First, we prese
 
 Our protocol consists of three components: \emph{client} and \emph{server} processes that provide the system interface for managing transactions and its individual operations, respectively; and \emph{partitions}, managed by a server, and which manage individual data objects. Figure~\ref{fig:execution} shows an overview of an example execution of the protocol.
 
-Both client and server processes are considered reliable, and connected by reliable channels. Processes communicate with each other using an asynchronous message-passing system. Fault-tolerance concerns are orthogonal to the problem we address\todo{Mention Blotter, Walter etc for approaches via replication}. We denote the server processes as a set $\mathcal{S} = \{s_1, \dots, s_N\}$, and clients as $\mathcal{C} = \{c_1, \dots, c_M\}$. Data objects are denoted by a set $\Obj$, split into $N$ partitions, each stored by a server process. We let $\partitionOf(x)$ be the index of the partition the object $x$ belongs to, so that it is managed by server $s_{\partitionOf(x)}$.
+Both client and server processes are considered reliable, and connected by reliable channels. Processes communicate with each other using an asynchronous message-passing system. Fault-tolerance concerns are orthogonal to the problem we address \todo{Mention Blotter, Walter etc for approaches via replication}. We denote the server processes as a set $\mathcal{S} = \{s_1, \dots, s_N\}$, and clients as $\mathcal{C} = \{c_1, \dots, c_M\}$. Data objects are denoted by a set $\Obj$, split into $N$ partitions, each stored by a server process. We let $\partitionOf(x)$ be the index of the partition the object $x$ belongs to, so that it is managed by server $s_{\partitionOf(x)}$.
 
 \emph{Clients} provide the transactional interface of our protocol, namely \texttt{start}, \texttt{read}, \texttt{write} and \texttt{commit}. Clients execute transactions by communicating with servers. Transactions can be \emph{interactive}, i.e., when a transaction starts, the client does not know which operations it will perform in advance. Clients refer to transactions by their identifier from a set $\transtype$. In addition, our protocol uses optimistic concurrency control, and therefore the \texttt{start} and \texttt{write} operations are local to the client. \texttt{Read} operations are issued to servers, which in turn communicate with its partitions and return the values and metadata associated with the objects the client requested. At \texttt{commit} time, the client acts a coordinator of a \emph{two-phase commit protocol (2PC)}~\citep{bernstein_concurrency} among all the participating servers, issuing \texttt{prepare} and \texttt{decide} operations. The written values buffered locally are transmitted to the servers at \texttt{prepare} time, together with the accumulated metadata for the objects that the client read. The decision to commit or abort a transaction is taken based on this metadata.
 
@@ -121,12 +121,6 @@ Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit upd
 
 \todo{Figure what to do with the example}
 
-\todo{
-  \begin{itemize}
-    \item Think if \emph{causal dependency} is already defined in a previous section
-  \end{itemize}
-}
-
 \subsection{Transaction Execution}
 \label{prot-tr-ex}
 
@@ -202,7 +196,7 @@ When the transaction $\tx$ reads an object from a partition $j$ for the first ti
 \caption{Local and remote read of object \emph{x}}
 \end{figure}
 
-\todo{First mention of causal dependency} Thus, the entries of the snapshot vector for partitions that $\tx$ has not yet read from delimit all the possible causal dependencies $\tx$ may develop at these partitions if it keeps reading objects from the snapshots it has already fixed.
+Thus, the entries of the snapshot vector for partitions that $\tx$ has not yet read from delimit all the possible causal dependencies $\tx$ may develop at these partitions if it keeps reading objects from the snapshots it has already fixed.
 
 Both $\tx.\VCaggr$ and $\tx.\hasRead$ are supplied by the client when issuing a read operation on object $x$, by using them as parameters to the $\READREQUEST$ message sent to a server $s_i$. When the server receives this message (line~\ref{alg:read_req_start}), it first checks, using the $\hasRead$ mapping, if the transaction has read from it before (line~\ref{alg:read_req_read_check}). In this case, the snapshot is determined by $\VCaggr[i]$, and the server returns the latest version $\mathit{ver}$ of the object $x$ written by a transaction in the snapshot, i.e., with a sequence number no higher than $\VCaggr[i]$ (line~\ref{alg:chose-version}). This version is determined by examining the $i$-th entry of the commit vectors in $\VersionLog$. The server then replies to the client with a $\READRETURN$ message containing the value of the chosen version and its associated version vector, as well as the unmodified snapshot vector provided by the client: since the server used a previously fixed snapshot, no updates to the vector are required.
 
@@ -216,7 +210,7 @@ Both $\tx.\VCaggr$ and $\tx.\hasRead$ are supplied by the client when issuing a 
 % \label{fig:fig:snapshot_fork}
 % \end{figure}
 
-We now consider the case when the client is reading from the server $s_i$ for the first time (line~\ref{alg:read_req_read_check_else}), in which case, we have to fix the snapshot for the transaction $\tx$ at this server. Choosing a suitable snapshot is complicated by the fact that we allow transactions to be interactive---that is, we do not know in advance which objects will read in the future. We hence fix the snapshot in such a way that \emph{any} later read from this snapshot will be \emph{causally consistent} \todo{check usage, define in chapter 2 or 3} with any reads (past or future) from the snapshots that $\tx$ has already read, as specified by $\hasRead$ and $\VCaggr$. To ensure this, the snapshot we select has to satisfy two requirements.
+We now consider the case when the client is reading from the server $s_i$ for the first time (line~\ref{alg:read_req_read_check_else}), in which case, we have to fix the snapshot for the transaction $\tx$ at this server. Choosing a suitable snapshot is complicated by the fact that we allow transactions to be interactive---that is, we do not know in advance which objects will read in the future. We hence fix the snapshot in such a way that \emph{any} later read from this snapshot will be \emph{causally consistent} with any reads (past or future) from the snapshots that $\tx$ has already read, as specified by $\hasRead$ and $\VCaggr$. To ensure this, the snapshot we select has to satisfy two requirements.
 
 \begin{figure}[t]
 \includegraphics[width=\textwidth]{figures/ch4_snapshot.pdf}
@@ -328,7 +322,7 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
 \caption{Commit protocol of a transaction at server $s_i$. \todo{Rethink: too big for a single page}}
 \end{figure}
 
-We now describe how a server $s_i$ computes its vote on a transaction (line~\ref{alg:conflict_check}). The vote for a transaction $\tx$ ensures the following property, used to validate the \Wconflict axiom of PSI: \todo{Reference back to the model in previous chapter}
+We now describe how a server $s_i$ computes its vote on a transaction (line~\ref{alg:conflict_check}). The vote for a transaction $\tx$ ensures the following property, used to validate the \Wconflict axiom of PSI: \todo{Reword this, not using axioms}
 
 \begin{itemize}
     \item \emph{For any pair of distinct transactions $\tx_1$ and $\tx_2$ writing to an object $x$, if $\tx_1$ precedes $\tx_2$ in the commit order, then $\tx_2$ will se the version of $x$ at least as up-to-date as the one written by $\tx_1$.}
