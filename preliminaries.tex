@@ -70,19 +70,21 @@ A \emph{Dirty Read} occurs in a history $h$ when a transaction $\tx_i$ reads an 
 
 Both of these anomalies can be prevented by making a transaction's changes visible only after it commits. For example, updates can be buffered locally in the context of a transaction. All the consistency models we describe in the sections that follow preclude dirty writes and reads. Transactions executing under such models offer \emph{atomicity} (A in \underline{A}CID).
 
+\subsection{Read Committed (RC)}
+
+Read Committed is the weakest consistency model that satisfies the atomicity guarantee of ACID transactions, by preventing dirty reads and writes. Although this model specifies that all or none of the updates by a transaction are applied to the database, it does not prevent concurrent transactions from observing only a subset of those updates. As a result of the the simplicity of this model, systems operating under Read Committed might observe anomalous behaviour, such as non-repeatable reads or lost updates, as described below.
+
 \begin{definition}[Non-Repeatable Read]
 A non-repeatable read---also called a \emph{fuzzy read}--occurs whenever a transaction $\tx_i$ observes different values for an object $x$ on subsequent read operations when interleaved by a commit by another transaction, $\tx_j$. This can be seen in $r_1(x_0)\ldots r_2(x_0).w_2(x_2).c_2 \ldots r_1(x_2)$. Here, $\tx_1$ observers two different values of $x$: the initial version $x_0$ and the version $x_2$ written by $\tx_2$.
 \end{definition}
 
-The non-repeatable read anomaly can also be prevented in an easy way: a transaction can keep a cache of already read values. Subsequent read operations can return values from this read cache.
+The non-repeatable read anomaly can be prevented in an easy way: a transaction can keep a cache of already read values. Subsequent read operations can return values from this read cache.
 
 \begin{definition}[Lost Update]
 A \emph{Lost Update} occurs in a history $h$ when two concurrent transactions update the same object $x$ and successfully commit. In this case, the update written by whichever transaction commits first is ``lost'' after the second transaction commits. This can be seen in a history such as $r_1(x_0)\ldots r_2(x_0).w_2(x_2) \ldots w_1(x_1).c_1\ldots c_2$. After $\tx_2$ commits, version $x_1$ is no longer visible to subsequent transactions.
 \end{definition}
 
 For the purposes of this thesis, and following the definition used by Saeida Ardekani~\citep{ardekani_thesis}, we say that a consistency model is \emph{strong} if it prevents concurrent transactions to modify the same object. That is to say, a strong consistency model preclude dirty writes and reads, along with lost update anomaly. A model that allows concurrent transactions to modify the same object is \emph{weak}.
-
-We now review several well-known strong consistency models, along with a weak model that will serve as a baseline comparison in the following chapters.
 
 \subsection{Serialisability (SER)}
 
@@ -154,10 +156,6 @@ A \emph{Long Fork} occurs whenever a transaction is able to observe different or
 \todo{Specification of NMSI (PSI timestamp is fixed at tx.start() time (base freshness), which causes stale transactions in geo-replicated settings.) How big of a deal are anomalies in the applications that we target?}
 
 \todo{From \textit{Making PSI serialisable}: Saeida Ardekani et al. have proposed a variant of PSI called non-monotonic snapshot isolation (NMSI). It is possible to prove that PSI and NMSI produce the same set of anomalies, provided that database clients cannot observe the real-time order between operations: the difference between them lies only in the concurrency control algorithm used. Hence, our results are equally applicable to NMSI.}
-
-\subsection{Read Committed (RC)}
-
-Read Committed is the weakest protocol that satisfies the atomicity guarantee of transactions, by preventing dirty reads and writes. Although this model specifies that all or none of the updates by a transaction are applied to the database, it does not prevent concurrent transactions from observing only a subset of those updates. In this thesis, we use Read Committed as a baseline against which we compare the protocols we implement. \todo{Anything else?}
 
 \subsection{Anomaly Comparison}
 
