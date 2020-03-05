@@ -39,26 +39,26 @@ We define a consistency model as a set of histories $\Cons$, such that $\Cons \s
 
 In the context of databases, the definition of a consistency model maps to the concept of an \emph{isolation level} (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
 
-Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system. Intuitively, we can distinguish between \emph{strong} and \emph{weak} consistency models depending on the number of anomalies they disallow, with stronger models restricting the set of possible histories more than weak ones. In the sections that follow, we give a brief overview of the traditional anomalies following the definitions advanced by Berenson et al.~\citep{sql-critique}, as well as different consistency models that preclude them. Figure~\ref{fig:anomalies} shows a quick summary of the models and anomalies we cover.
+Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system. Intuitively, we can distinguish between \emph{strong} and \emph{weak} consistency models depending on the number of anomalies they disallow, with stronger models restricting the set of possible histories more than weak ones. In the sections that follow, we give a brief overview of the traditional anomalies following the definitions advanced by Berenson et al.~\citep{sql-critique}, as well as different consistency models that preclude them. % Figure~\ref{fig:anomalies} shows a quick summary of the models and anomalies we cover.
 
-\begin{figure}[h]
-\begin{center}
-\begin{tabularx}{\linewidth}{ >{\centering}p{8cm} | *{5}{>{\centering}X}}
-    \multirow{2}{*}{\em Anomalies} & \multicolumn{5}{c}{Consistency Models} \tabularnewline \cline{2-6}
-    & SER & SI & PSI & NMSI & RC \tabularnewline \hline
-    Dirty Write & x & x & x & x & x \tabularnewline
-    Dirty Read & x & x & x & x & x \tabularnewline
-    \hline % Distinguish between ACID or not
-    Non-Repeatable Read & x & x & x & x & \checkmark \tabularnewline
-    Lost Update & x & x & x & x & \checkmark \tabularnewline
-    \hline % Distinguish between weak and strong
-    Write Skew & x & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
-    Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
-\end{tabularx}
-\end{center}
-\caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
-\label{fig:anomalies}
-\end{figure}
+% \begin{figure}[h]
+% \begin{center}
+% \begin{tabularx}{\linewidth}{ >{\centering}p{8cm} | *{5}{>{\centering}X}}
+%     \multirow{2}{*}{\em Anomalies} & \multicolumn{5}{c}{Consistency Models} \tabularnewline \cline{2-6}
+%     & SER & SI & PSI & NMSI & RC \tabularnewline \hline
+%     Dirty Write & x & x & x & x & x \tabularnewline
+%     Dirty Read & x & x & x & x & x \tabularnewline
+%     \hline % Distinguish between ACID or not
+%     Non-Repeatable Read & x & x & x & x & \checkmark \tabularnewline
+%     Lost Update & x & x & x & x & \checkmark \tabularnewline
+%     \hline % Distinguish between weak and strong
+%     Write Skew & x & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
+%     Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
+% \end{tabularx}
+% \end{center}
+% \caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
+% \label{fig:anomalies}
+% \end{figure}
 
 \begin{definition}[Dirty Write]
 A \emph{Dirty Write} occurs in a history $h$ when a transaction $\tx_i$ modifies an object $x$ that was previously modified by another pending transaction $\tx_j$. If any of the two transactions commit or abort, it is not clear what value the object $x$ should have. A Dirty Write can be represented by a history such as $w_1(x_1).w_2(x_2).(c_1 \vee a_1).(c_2 \vee a_2)$, where the termination order of the transactions can be arbitrary. The anomaly occurs even if any of the transactions aborts.
@@ -158,6 +158,29 @@ A \emph{Long Fork} occurs whenever a transaction is able to observe different or
 \subsection{Read Committed (RC)}
 
 Read Committed is the weakest protocol that satisfies the atomicity guarantee of transactions, by preventing dirty reads and writes. Although this model specifies that all or none of the updates by a transaction are applied to the database, it does not prevent concurrent transactions from observing only a subset of those updates. In this thesis, we use Read Committed as a baseline against which we compare the protocols we implement. \todo{Anything else?}
+
+\subsection{Anomaly Comparison}
+
+Figure~\ref{fig:anomalies} summarises the consistency models we reviewed together with the anomalies that they allow.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabularx}{\linewidth}{ >{\centering}p{8cm} | *{5}{>{\centering}X}}
+    \multirow{2}{*}{\em Anomalies} & \multicolumn{5}{c}{Consistency Models} \tabularnewline \cline{2-6}
+    & SER & SI & PSI & NMSI & RC \tabularnewline \hline
+    Dirty Write & x & x & x & x & x \tabularnewline
+    Dirty Read & x & x & x & x & x \tabularnewline
+    \hline % Distinguish between ACID or not
+    Non-Repeatable Read & x & x & x & x & \checkmark \tabularnewline
+    Lost Update & x & x & x & x & \checkmark \tabularnewline
+    \hline % Distinguish between weak and strong
+    Write Skew & x & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
+    Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
+\end{tabularx}
+\end{center}
+\caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
+\label{fig:anomalies}
+\end{figure}
 
 \section{Catalog of Protocols}
 \subsection{Walter}
