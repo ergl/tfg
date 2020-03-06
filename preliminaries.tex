@@ -11,7 +11,7 @@ In this section, we define the elements we use throughout this chapter, such as 
 
 \subsection{Objects and Transactions}
 
-We consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, which we assume to be integer-valued. Clients interact with the database via \textbf{\em transactions} $\Trans = \{\tx_i \mid i \in \mathbb{N}\}$, with $i$ being the \emph{transaction identifier} of $\tx$. A transaction is a totally ordered sequence of read or write operations, followed by a \emph{terminating} operation: either commit or abort. This order follows the order in which the client invoked such operations. Given an object $x$ and a transaction $\tx_i$, we call $x_i$ to the \textbf{\em version} $i$ of $x$ written by $\tx_i$. We denote by $w_i(x_i)$ when a transaction $\tx_i$ writes a version $i$ of $x$, and $r_i(x_i)$ when $\tx_i$ reads a version $i$ of $x$. Finally, we denote by $c_i$ when $\tx_i$ commits, and $a_i$ when it aborts. We assume an initial transaction $\tx_0$ writes the initial versions of every object in the database. Without loss of generality, we also assume that no transaction performs \emph{blind updates}, that is, for every write operation $w_i(x_i)$ performed by $\tx_i$, there's always a preceding read operation $r_i(x_i)$. We say that a transaction is \textbf{\em read-only} if its set of operations does not include writes, and \textbf{\em update} otherwise.
+Following the definitions of Cerone et al.~\citep{concur_framework} and Saeida Ardekani~\citep{ardekani_thesis}, we consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, which we assume to be integer-valued. Clients interact with the database via \textbf{\em transactions} $\Trans = \{\tx_i \mid i \in \mathbb{N}\}$, with $i$ being the \emph{transaction identifier} of $\tx$. A transaction is a totally ordered sequence of read or write operations, followed by a \emph{terminating} operation: either commit or abort. This order follows the order in which the client invoked such operations. Given an object $x$ and a transaction $\tx_i$, we call $x_i$ to the \textbf{\em version} $i$ of $x$ written by $\tx_i$. We denote by $w_i(x_i)$ when a transaction $\tx_i$ writes a version $i$ of $x$, and $r_i(x_i)$ when $\tx_i$ reads a version $i$ of $x$. Finally, we denote by $c_i$ when $\tx_i$ commits, and $a_i$ when it aborts. We assume an initial transaction $\tx_0$ writes the initial versions of every object in the database. Without loss of generality, we also assume that no transaction performs \emph{blind updates}, that is, for every write operation $w_i(x_i)$ performed by $\tx_i$, there's always a preceding read operation $r_i(x_i)$. We say that a transaction is \textbf{\em read-only} if its set of operations does not include writes, and \textbf{\em update} otherwise.
 
 \subsection{Histories}
 \label{sect:histories}
@@ -23,7 +23,7 @@ We call a \textbf{\em history} $h$ to the finite set of all transactions with di
   \vspace{-0.4cm}
   \includegraphics[width=0.7\textwidth]{figures/history.pdf}
   \vspace{-1cm}
-  \caption{Example of history represented as a graph. Arrows represent the causal dependencies between operations. Adapted from \em{Saeida Ardekani~\citep{ardekani_thesis}}.}
+  \caption{Example of history represented as a graph. Arrows represent the causal dependencies between operations. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
   \label{fig:history}
 \end{figure}
 
@@ -141,7 +141,7 @@ Allowing different commit orderings for non-conflicting transactions at differen
   \vspace{-0.5cm}
   \includegraphics[width=0.7\textwidth]{figures/long_fork_hist.pdf}
   \vspace{-0.5cm}
-  \caption{Example of a history showing the long fork anomaly. Transaction $\tx_3$ observes $\tx_1 \rightarrow \tx_2$ while $\tx_4$ observes $\tx_2 \rightarrow \tx_1$. Adapted from \em{Saeida Ardekani~\citep{ardekani_thesis}}.}
+  \caption{Example of a history showing the long fork anomaly. Transaction $\tx_3$ observes $\tx_1 \rightarrow \tx_2$ while $\tx_4$ observes $\tx_2 \rightarrow \tx_1$. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
   \label{fig:long_fork_history}
 \end{figure}
 
