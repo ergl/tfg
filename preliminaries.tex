@@ -153,9 +153,13 @@ A \emph{Long Fork} occurs whenever a transaction is able to observe different or
 
 \subsection{Non-Monotonic Snapshot Isolation (NMSI)}
 
-\todo{Specification of NMSI (PSI timestamp is fixed at tx.start() time (base freshness), which causes stale transactions in geo-replicated settings.) How big of a deal are anomalies in the applications that we target?}
+The Non-Monotonic Snapshot Isolation (NMSI) consistency model also alleviates the total commit order scalability problem in classical Snapshot Isolation. NMSI was proposed by Saeida Ardekani et al.~\citep{ardekani-nsmi} as an improvement over the previously described Parallel Snapshot Isolation model. In particular, PSI is described to have an scalability bottleneck due to \emph{base freshness}~\citep{ardekani_freshness}: a transaction $\tx$ is limited to read only object versions written by transactions that committed before $\tx$ started. In the geo-replicated scenario that PSI is designed for, this base freshness limitation---which is also found in Snapshot Isolation---leads to a high number of stale data reads. Consider the example of two sites $s_1$ and $s_2$ separated by a high latency link: if a transaction starts in $s_1$ and subsequently tries to read an object located at $s_2$, it might be the case that the version it is forced to read due to base freshness has already been overwritten by other transactions.
 
-\todo{From \textit{Making PSI serialisable}: Saeida Ardekani et al. have proposed a variant of PSI called non-monotonic snapshot isolation (NMSI). It is possible to prove that PSI and NMSI produce the same set of anomalies, provided that database clients cannot observe the real-time order between operations: the difference between them lies only in the concurrency control algorithm used. Hence, our results are equally applicable to NMSI.}
+In contrast, Non-Monotonic Snapshot Isolation exhibits \emph{forward freshness}~\citep{ardekani-nsmi}: a transaction $\tx$ is allowed to read versions written by transactions that committed after $\tx$ started, as long as those reads form a \emph{causally consistent snapshot}. A transaction $\tx$ observes a causally consistent snapshot if all the versions read by $\tx$ are written by its causal dependencies.
+
+\todo{Mention that PSI's choice of vector timestamps leads to global sync with all replicas? NMSI's PDV fix this issue}
+
+In spite of this, the set of possible anomalies produced by both Parallel Snapshot Isolation and Non-Monotonic Snapshot Isolation are the same, as can be seen in Figure~\ref{fig:anomalies}. In addition, both models can be proved to be equivalent, as shown by A. Cerone (2016, personal communication with the author), with the only difference being the choice of the concurrency control algorithm.
 
 \subsection{Anomaly Comparison}
 
