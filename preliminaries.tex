@@ -185,6 +185,20 @@ Figure~\ref{fig:anomalies} summarises the consistency models we reviewed togethe
 \end{figure}
 
 \section{Catalog of Protocols}
+
+\todo{Figure out how to proceed with next section: we've already covered previous work in terms of consistency models, but we need to refer to previous implementations and how we differ (and why). We also need to justify our work. Main differences:
+
+* We provide PSI/NMSI + strict per-partition snapshots. We use GMU's vector clocks to approach this.
+
+* The difference with Walter is that we have forward freshness, and that our timestamp mechanism doesn't need global sync.
+
+* The difference with Jessy is that we use 2PC, and GMU's reads instead of PDV. Why? => PDV's recursive definition is hard to follow. The original model with one entry per-key is simpler, but inefficient. In Jessy, the version compatibility check is done at they key level (does reading this specific version of an object break my causally consistent snapshot?) instead of at the partition level (like us).
+
+* The difference with Blotter is that they use Paxos commit. (Maybe we can omit it, and just point to it).
+
+* The G-DUR paper mentions a 2PC version of Jessy. What do we do about it?
+}
+
 \subsection{Walter}
 \subsection{Jessy}
 % \subsection{GMU} Tentative, since we don't talk about US in previous section
