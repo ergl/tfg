@@ -23,7 +23,7 @@ We call a \textbf{\em history} $h$ to the finite set of all transactions with di
   \vspace{-0.4cm}
   \includegraphics[width=0.7\textwidth]{figures/history.pdf}
   \vspace{-1cm}
-  \caption{Example of history represented as a graph. Arrows represent the causal dependencies between operations. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
+  \caption{Example of history represented as a graph. Arrows represent the causal dependencies between operations. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
   \label{fig:history}
 \end{figure}
 
@@ -56,7 +56,7 @@ Traditionally, the different consistency models have been defined in terms of \e
 %     Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
 % \end{tabularx}
 % \end{center}
-% \caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
+% \caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
 % \label{fig:anomalies}
 % \end{figure}
 
@@ -141,7 +141,7 @@ Allowing different commit orderings for non-conflicting transactions at differen
   \vspace{-0.5cm}
   \includegraphics[width=0.7\textwidth]{figures/long_fork_hist.pdf}
   \vspace{-0.5cm}
-  \caption{Example of a history showing the long fork anomaly. Transaction $\tx_3$ observes $\tx_1 \rightarrow \tx_2$ while $\tx_4$ observes $\tx_2 \rightarrow \tx_1$. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
+  \caption{Example of a history showing the long fork anomaly. Transaction $\tx_3$ observes $\tx_1 \rightarrow \tx_2$ while $\tx_4$ observes $\tx_2 \rightarrow \tx_1$. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
   \label{fig:long_fork_history}
 \end{figure}
 
@@ -153,9 +153,9 @@ A \emph{Long Fork} occurs whenever a transaction is able to observe different or
 
 \subsection{Non-Monotonic Snapshot Isolation (NMSI)}
 
-The Non-Monotonic Snapshot Isolation (NMSI) consistency model also alleviates the total commit order scalability problem in classical Snapshot Isolation. NMSI was proposed by Saeida Ardekani et al.~\citep{ardekani-nsmi} as an improvement over the previously described Parallel Snapshot Isolation model. In particular, PSI is described to have an scalability bottleneck due to \emph{base freshness}~\citep{ardekani_freshness}: a transaction $\tx$ is limited to read only object versions written by transactions that committed before $\tx$ started. In the geo-replicated scenario that PSI is designed for, this base freshness limitation---which is also found in Snapshot Isolation---leads to a high number of stale data reads. Consider the example of two sites $s_1$ and $s_2$ separated by a high latency link: if a transaction starts in $s_1$ and subsequently tries to read an object located at $s_2$, it might be the case that the version it is forced to read due to base freshness has already been overwritten by other transactions.
+The Non-Monotonic Snapshot Isolation (NMSI) consistency model also alleviates the total commit order scalability problem in classical Snapshot Isolation. NMSI was proposed by Saeida Ardekani et al.~\citep{ardekani_nmsi} as an improvement over the previously described Parallel Snapshot Isolation model. In particular, PSI is described to have an scalability bottleneck due to \emph{base freshness}~\citep{ardekani_freshness}: a transaction $\tx$ is limited to read only object versions written by transactions that committed before $\tx$ started. In the geo-replicated scenario that PSI is designed for, this base freshness limitation---which is also found in Snapshot Isolation---leads to a high number of stale data reads. Consider the example of two sites $s_1$ and $s_2$ separated by a high latency link: if a transaction starts in $s_1$ and subsequently tries to read an object located at $s_2$, it might be the case that the version it is forced to read due to base freshness has already been overwritten by other transactions.
 
-In contrast, Non-Monotonic Snapshot Isolation exhibits \emph{forward freshness}~\citep{ardekani-nsmi}: a transaction $\tx$ is allowed to read versions written by transactions that committed after $\tx$ started, as long as those reads form a \emph{causally consistent snapshot}. A transaction $\tx$ observes a causally consistent snapshot if all the versions read by $\tx$ are written by its causal dependencies.
+In contrast, Non-Monotonic Snapshot Isolation exhibits \emph{forward freshness}~\citep{ardekani_nmsi}: a transaction $\tx$ is allowed to read versions written by transactions that committed after $\tx$ started, as long as those reads form a \emph{causally consistent snapshot}. A transaction $\tx$ observes a causally consistent snapshot if all the versions read by $\tx$ are written by its causal dependencies.
 
 \todo{Mention that PSI's choice of vector timestamps leads to global sync with all replicas? NMSI's PDV fix this issue}
 
@@ -180,7 +180,7 @@ Figure~\ref{fig:anomalies} summarises the consistency models we reviewed togethe
     Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
 \end{tabularx}
 \end{center}
-\caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani-nsmi}}.}
+\caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
 \label{fig:anomalies}
 \end{figure}
 

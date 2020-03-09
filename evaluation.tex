@@ -15,7 +15,7 @@ To prevent unbounded state growth, we also implement a simple garbage collection
 
 \section{Evaluation}
 
-We evaluate the performance of \todo{protocol name} using the Yahoo! Cloud Serving Benchmark~\citep{ycsb}, modified to generate transactional workloads~\citep{ardekani-nsmi}. Figure~\ref{fig:workload-types} describes the workloads used. All experiments are run on a local cluster, and we always use six core machines with 3.80 GHz to 4.70 GHz Intel Xeon processors, and 32 GB of RAM. To simulate different sites with variable latency, we use the \texttt{tc} Linux command. The bandwidth between any host is of 1 Gbps.
+We evaluate the performance of \todo{protocol name} using the Yahoo! Cloud Serving Benchmark~\citep{ycsb}, modified to generate transactional workloads~\citep{ardekani_nmsi}. Figure~\ref{fig:workload-types} describes the workloads used. All experiments are run on a local cluster, and we always use six core machines with 3.80 GHz to 4.70 GHz Intel Xeon processors, and 32 GB of RAM. To simulate different sites with variable latency, we use the \texttt{tc} Linux command. The bandwidth between any host is of 1 Gbps.
 
 We divide the cluster in up to three different sites. Each site has four server machines and four client machines. Thus, there is no shared memory between clients and servers. In all our benchmarks, the system is loaded with one million random keys and random 256-byte values. Keys are mapped to servers using consistent hashing.
 
