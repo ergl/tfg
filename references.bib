@@ -86,6 +86,81 @@
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 
+@article{lamport_paxos,
+  author = {Lamport, Leslie},
+  title = {The Part-Time Parliament},
+  year = {1998},
+  issue_date = {May 1998},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {16},
+  number = {2},
+  issn = {0734-2071},
+  url = {https://doi.org/10.1145/279227.279229},
+  doi = {10.1145/279227.279229},
+  journal = {ACM Trans. Comput. Syst.},
+  month = may,
+  pages = {133–169},
+  numpages = {37},
+  keywords = {voting, three-phase commit, state machines}
+}
+
+@article{google_spanner,
+  author = {Corbett, James C. and Dean, Jeffrey and Epstein, Michael and Fikes, Andrew and Frost, Christopher and Furman, J. J. and Ghemawat, Sanjay and Gubarev, Andrey and Heiser, Christopher and Hochschild, Peter and et al.},
+  title = {Spanner: Google’s Globally Distributed Database},
+  year = {2013},
+  issue_date = {August 2013},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {31},
+  number = {3},
+  issn = {0734-2071},
+  url = {https://doi.org/10.1145/2491245},
+  doi = {10.1145/2491245},
+  journal = {ACM Trans. Comput. Syst.},
+  month = aug,
+  articleno = {Article 8},
+  numpages = {22},
+  keywords = {replication, transactions, Distributed databases, concurrency control, time management}
+}
+
+@inproceedings{thomson_calvin,
+  author = {Thomson, Alexander and Diamond, Thaddeus and Weng, Shu-Chun and Ren, Kun and Shao, Philip and Abadi, Daniel J.},
+  title = {Calvin: Fast Distributed Transactions for Partitioned Database Systems},
+  year = {2012},
+  isbn = {9781450312479},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/2213836.2213838},
+  doi = {10.1145/2213836.2213838},
+  booktitle = {Proceedings of the 2012 ACM SIGMOD International Conference on Management of Data},
+  pages = {1–12},
+  numpages = {12},
+  keywords = {determinism, distributed database systems, replication, transaction processing},
+  location = {Scottsdale, Arizona, USA},
+  series = {SIGMOD ’12}
+}
+
+@InProceedings{ardekani_si_limits,
+  author="Saeida Ardekani, Masoud
+  and Sutra, Pierre
+  and Shapiro, Marc
+  and Pregui{\c{c}}a, Nuno",
+  editor="Wolf, Felix
+  and Mohr, Bernd
+  and an Mey, Dieter",
+  title="On the Scalability of Snapshot Isolation",
+  booktitle="Euro-Par 2013 Parallel Processing",
+  year="2013",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="369--381",
+  abstract="Many distributed applications require transactions. However, transactional protocols that require strong synchronization are costly in large scale environments. Two properties help with scalability of a transactional system: genuine partial replication (GPR), which leverages the intrinsic parallelism of a workload, and snapshot isolation (SI), which decreases the need for synchronization. We show that under standard assumptions (data store accesses are not known in advance, and transactions may access arbitrary objects in the data store), it is impossible to have both SI and GPR. Our impossibility result is based on a novel decomposition of SI which proves that, like serializability, SI is expressible on plain histories.",
+  isbn="978-3-642-40047-6"
+}
+
+
+
 @article{carlos-causality,
   author    = {Carlos Baquero and
                Nuno M. Pregui{\c{c}}a},
