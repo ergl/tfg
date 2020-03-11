@@ -11,11 +11,13 @@ In this section, we define the elements we use throughout this chapter, such as 
 
 \subsection{Objects and Transactions}
 
+\todo{Maybe split into separate paragraphs, or use explicit definition}
 Following the definitions of Cerone et al.~\citep{concur_framework} and Saeida Ardekani~\citep{ardekani_thesis}, we consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, which we assume to be integer-valued. Clients interact with the database via \textbf{\em transactions} $\Trans = \{\tx_i \mid i \in \mathbb{N}\}$, with $i$ being the \emph{transaction identifier} of $\tx$. A transaction is a totally ordered sequence of read or write operations, followed by a \emph{terminating} operation: either commit or abort. This order follows the order in which the client invoked such operations. Given an object $x$ and a transaction $\tx_i$, we call $x_i$ to the \textbf{\em version} $i$ of $x$ written by $\tx_i$. We denote by $w_i(x_i)$ when a transaction $\tx_i$ writes a version $i$ of $x$, and $r_i(x_i)$ when $\tx_i$ reads a version $i$ of $x$. Finally, we denote by $c_i$ when $\tx_i$ commits, and $a_i$ when it aborts. We assume an initial transaction $\tx_0$ writes the initial versions of every object in the database. Without loss of generality, we also assume that no transaction performs \emph{blind updates}, that is, for every write operation $w_i(x_i)$ performed by $\tx_i$, there's always a preceding read operation $r_i(x_i)$. We say that a transaction is \textbf{\em read-only} if its set of operations does not include writes, and \textbf{\em update} otherwise.
 
 \subsection{Histories}
 \label{sect:histories}
 
+\todo{Maybe split into separate paragraphs, or use explicit definition. Define real-time order.}
 We call a \textbf{\em history} $h$ to the finite set of all transactions with disjoint identifiers issued against a database. We denote the set of all possible histories by $\Hist$. For some history $h$, $\hb_h$ denotes a \textbf{\em happens-before} strict partial order over $h$, such that for any two transactions $\tx_i$ and $\tx_j$, if $w_i(x_i)$ and $r_j(x_i)$, $\tx_i \hb_h \tx_j$ (that is, $\tx_j$ reads the version $i$ of $x$ written by $\tx_i$). Intuitively $\tx_i \hb_h \tx_j$ means that $\tx_j$ is aware of the updates performed by $\tx_i$, and thus the outcome of the operations in $\tx_j$ may depend on the effects of $\tx_i$. In this case, we say that $\tx_i$ is a \textbf{\em causal dependency} of $\tx_j$. A transaction $\tx_i$ is \textbf{\em pending} in $h$ if $(c_i \vee a_i) \notin h$. We can represent the history and the relations between operations and transactions as a graph, following Bernstein et al~\citep{bernstein_concurrency}.
 
 \begin{figure}[h]
@@ -23,7 +25,7 @@ We call a \textbf{\em history} $h$ to the finite set of all transactions with di
   \vspace{-0.4cm}
   \includegraphics[width=0.7\textwidth]{figures/history.pdf}
   \vspace{-1cm}
-  \caption{Example of history represented as a graph. Arrows represent the causal dependencies between operations. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
+  \caption{Example of history represented as a graph. Arrows represent the causal dependencies between operations, and boxes group operations into transactions. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
   \label{fig:history}
 \end{figure}
 
@@ -35,32 +37,13 @@ Figure~\ref{fig:history} above shows an example, with $\tx_1 \hb_h \tx_3$ and $\
 
 In this section, we define what a consistency model is, distinguishing between \emph{strong} and \emph{weak} models. We give an overview of several models, and compare them in terms of their undesirable effects.
 
-We define a consistency model as a set of histories $\Cons$, such that $\Cons \subseteq \Hist$. Intuitively, a consistency model \emph{constrains} the set of possible histories by specifying how operations interleave in any given history. We say that a given history $h$ \emph{satisfies} a consistency model $\Cons$ if $h \in \Cons$, and that $h$ \emph{violates} $\Cons$.
+We define a consistency model $\Cons$ as a subset of histories $\Hist$. Intuitively, a consistency model \emph{constrains} the set of possible histories by specifying how operations interleave in any given history. We say that a given history $h$ \emph{satisfies} a consistency model $\Cons$ if $h \in \Cons$, and that $h$ \emph{violates} $\Cons$ otherwise.
 
 In the context of databases, the definition of a consistency model maps to the concept of an \emph{isolation level} (I in AC\underline{I}D), which specifies the degree to which concurrent transactions in a database are aware of each other~\citep{adya_thesis}. We use the term consistency throughout this thesis, in accordance with Adya~\citep{adya_thesis}.
 
-Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system. Intuitively, we can distinguish between \emph{strong} and \emph{weak} consistency models depending on the number of anomalies they disallow, with stronger models restricting the set of possible histories more than weak ones. In the sections that follow, we give a brief overview of the traditional anomalies following the definitions advanced by Berenson et al.~\citep{sql-critique}, as well as different consistency models that preclude them. % Figure~\ref{fig:anomalies} shows a quick summary of the models and anomalies we cover.
+Traditionally, the different consistency models have been defined in terms of \emph{anomalies}~\citep{sql-critique}, that map to a set of undesirable histories that are observable by the system. Intuitively, we can distinguish between \emph{strong} and \emph{weak} consistency models depending on the number of anomalies they disallow, with stronger models restricting the set of possible histories more than weak ones. In the sections that follow, we give a brief overview of the traditional anomalies following the definitions advanced by Berenson et al.~\citep{sql-critique}, as well as different consistency models that preclude them.
 
-% \begin{figure}[h]
-% \begin{center}
-% \begin{tabularx}{\linewidth}{ >{\centering}p{8cm} | *{5}{>{\centering}X}}
-%     \multirow{2}{*}{\em Anomalies} & \multicolumn{5}{c}{Consistency Models} \tabularnewline \cline{2-6}
-%     & SER & SI & PSI & NMSI & RC \tabularnewline \hline
-%     Dirty Write & x & x & x & x & x \tabularnewline
-%     Dirty Read & x & x & x & x & x \tabularnewline
-%     \hline % Distinguish between ACID or not
-%     Non-Repeatable Read & x & x & x & x & \checkmark \tabularnewline
-%     Lost Update & x & x & x & x & \checkmark \tabularnewline
-%     \hline % Distinguish between weak and strong
-%     Write Skew & x & \checkmark & \checkmark & \checkmark & \checkmark \tabularnewline
-%     Long Fork & x & x & \checkmark & \checkmark & \checkmark \tabularnewline
-% \end{tabularx}
-% \end{center}
-% \caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
-% \label{fig:anomalies}
-% \end{figure}
-
-\begin{definition}[Dirty Write]
+\begin{definition}[Dirty Write]\todo{Use real-time order}
 A \emph{Dirty Write} occurs in a history $h$ when a transaction $\tx_i$ modifies an object $x$ that was previously modified by another pending transaction $\tx_j$. If any of the two transactions commit or abort, it is not clear what value the object $x$ should have. A Dirty Write can be represented by a history such as $w_1(x_1).w_2(x_2).(c_1 \vee a_1).(c_2 \vee a_2)$, where the termination order of the transactions can be arbitrary. The anomaly occurs even if any of the transactions aborts.
 \end{definition}
 
@@ -72,7 +55,7 @@ Both of these anomalies can be prevented by making a transaction's changes visib
 
 \subsection{Read Committed (RC)}
 
-Read Committed is the weakest consistency model that satisfies the atomicity guarantee of ACID transactions, by preventing dirty reads and writes. Although this model specifies that all or none of the updates by a transaction are applied to the database, it does not prevent concurrent transactions from observing only a subset of those updates. As a result of the the simplicity of this model, systems operating under Read Committed might observe anomalous behaviour, such as non-repeatable reads or lost updates, as described below.
+Read Committed is the weakest consistency model that satisfies the atomicity guarantee of ACID transactions, by preventing dirty reads and writes. Although this model specifies that all or none of the updates by a transaction are applied to the database, it does not prevent concurrent transactions from observing only a subset of those updates. As a result of the simplicity of this model, systems operating under Read Committed might observe anomalous behaviour, such as non-repeatable reads or lost updates, as described below.
 
 \begin{definition}[Non-Repeatable Read]
 A non-repeatable read---also called a \emph{fuzzy read}--occurs whenever a transaction $\tx_i$ observes different values for an object $x$ on subsequent read operations when interleaved by a commit by another transaction, $\tx_j$. This can be seen in $r_1(x_0)\ldots r_2(x_0).w_2(x_2).c_2 \ldots r_1(x_2)$. Here, $\tx_1$ observers two different values of $x$: the initial version $x_0$ and the version $x_2$ written by $\tx_2$.
@@ -84,7 +67,7 @@ The non-repeatable read anomaly can be prevented in an easy way: a transaction c
 A \emph{Lost Update} occurs in a history $h$ when two concurrent transactions update the same object $x$ and successfully commit. In this case, the update written by whichever transaction commits first is ``lost'' after the second transaction commits. This can be seen in a history such as $r_1(x_0)\ldots r_2(x_0).w_2(x_2) \ldots w_1(x_1).c_1\ldots c_2$. After $\tx_2$ commits, version $x_1$ is no longer visible to subsequent transactions.
 \end{definition}
 
-For the purposes of this thesis, and following the definition used by Saeida Ardekani~\citep{ardekani_thesis}, we say that a consistency model is \emph{strong} if it prevents concurrent transactions to modify the same object. That is to say, a strong consistency model preclude dirty writes and reads, along with lost update anomaly. A model that allows concurrent transactions to modify the same object is \emph{weak}.
+\todo{Already said that RC is weak, rethink} For the purposes of this thesis, and following the definition used by Saeida Ardekani~\citep{ardekani_thesis}, we say that a consistency model is \emph{strong} if it prevents concurrent transactions to modify the same object. That is to say, a strong consistency model preclude dirty writes and reads, along with lost update anomaly. A model that allows concurrent transactions to modify the same object is \emph{weak}.
 
 \subsection{Serialisability (SER)}
 
@@ -95,11 +78,11 @@ Serialisability restricts the set of possible histories to those equivalent to s
   \vspace{-0.3cm}
   \includegraphics[width=\textwidth]{figures/non_ser_hist.pdf}
   \vspace{-1cm}
-  \caption{Example of a non-serialisable history. $\tx_4$ observes version $y_3$ written by $\tx_3$, but fails to observe version $x_2$ written by $\tx_1$. This result can't be obtained by executing the transactions in any sequence, and thus the history is not serialisable.}
+  \caption{Example of a non-serialisable history. $\tx_4$ observes version $y_3$ written by $\tx_3$, but fails to observe version $x_2$ written by $\tx_2$. This result can't be obtained by executing the transactions in any sequence, and thus the history is not serialisable.}
   \label{fig:non_ser_history}
 \end{figure}
 
-\todo{Mention something about serial order being hard to achieve in a distributed setting?}
+\todo{Mention something about serial order being hard to achieve in a distributed setting}
 
 \subsection{Snapshot Isolation (SI)}
 \label{sect:si}
@@ -121,7 +104,7 @@ Due to partial ordering among committed transactions, along with the condition t
 %   \label{fig:write_skew_history}
 % \end{figure}
 
-\begin{definition}[Write Skew]\todo{Revise}
+\begin{definition}[Write Skew]
 A \emph{Write Skew} occurs whenever two non-conflicting transactions update objects related with an external invariant, successfully commit, and as a result violate the original invariant.
 \end{definition}
 
@@ -132,16 +115,14 @@ A \emph{Write Skew} occurs whenever two non-conflicting transactions update obje
 % From Sovran:
 % Snapshot isolation is inadequate for a system replicated at many sites, due to two issues. First, to define snapshots, snapshot isolation imposes a total ordering of the commit time of all transactions, even those that do not conflict. Establishing such an ordering when transactions execute at different sites is inefficient. Second, the writes of a committed transaction must be immediately visible to later transactions. Therefore a transaction can commit only after its writes have been propagated to all remote replicas, thereby precluding asynchronous propagation of its updates.
 
-Parallel Snapshot Isolation (PSI), proposed by Sovran et al.~\citep{psi-intro}, relaxes some of the guarantees offered by classical Snapshot Isolation. Recall from section~\ref{sect:si} that transactions in a system offering SI require monotonically-increasing \emph{start} and \emph{commit} timestamps. The presence of these timestamps require the system to maintain a total order among the commit time of transactions: a so-called total \textbf{\em commit order}. Total order guarantees are challenging to scale in the context of geographically replicated systems, which becomes the principal motivation for the introduction of Parallel Snapshot Isolation. Non-conflicting transactions executing under PSI are allowed to exhibit a relative commit order that varies between replicas. Conflicting transactions are not allowed, as in Snapshot Isolation.
+\todo{Move main limitations of SI to its section, maybe make them self-contained} Parallel Snapshot Isolation (PSI), proposed by Sovran et al.~\citep{psi-intro}, relaxes some of the guarantees offered by classical Snapshot Isolation. Recall from section~\ref{sect:si} that transactions in a system offering SI require monotonically-increasing \emph{start} and \emph{commit} timestamps. The presence of these timestamps require the system to maintain a total order among the commit time of transactions: a so-called total \textbf{\em commit order}. Total order guarantees are challenging to scale in the context of geographically replicated systems, which becomes the principal motivation for the introduction of Parallel Snapshot Isolation. Non-conflicting transactions executing under PSI are allowed to exhibit a relative commit order that varies between replicas. Conflicting transactions are not allowed, as in Snapshot Isolation.
 
-Allowing different commit orderings for non-conflicting transactions at different replicas (or \emph{sites}) makes PSI susceptible to the \emph{Long Fork} anomaly~\citep{psi-intro}. Consider the history depicted in Figure~\ref{fig:long_fork_history}. If transactions $\tx_3$ and $\tx_4$ are executing in different sites, they might observe different commit orderings for $\tx_1$ and $\tx_3$.
+Allowing different commit orderings for non-conflicting transactions at different replicas (or \emph{sites}) makes PSI susceptible to the \emph{Long Fork} anomaly~\citep{psi-intro}. Consider the history depicted in Figure~\ref{fig:long_fork_history}. If transactions $\tx_4$ and $\tx_5$ are executing in different sites, they might observe different commit orderings for $\tx_2$ and $\tx_3$.
 
 \begin{figure}[h]
   \centering
-  \vspace{-0.5cm}
   \includegraphics[width=0.7\textwidth]{figures/long_fork_hist.pdf}
-  \vspace{-0.5cm}
-  \caption{Example of a history showing the long fork anomaly. Transaction $\tx_3$ observes $\tx_1 \rightarrow \tx_2$ while $\tx_4$ observes $\tx_2 \rightarrow \tx_1$. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
+  \caption{Example of a history showing the long fork anomaly. Transaction $\tx_4$ observes $\tx_1 \prec \tx_2 \prec \tx_3$ while $\tx_5$ observes $\tx_1 \prec \tx_3 \prec \tx_2$.}
   \label{fig:long_fork_history}
 \end{figure}
 
