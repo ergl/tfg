@@ -1,9 +1,11 @@
 \cleardoublepage
-\chapter{The Protocol}
-\label{protocol_chapter}
+\chapter{The fastPSI protocol}
+\label{chapter:protocol}
 
 \todo{
 Add an ``overview'' section with a figure that explains the protocol at a high level, step by step. We can do it as an example, denoting the messages between client and server. We can also say how the state (assuming an initial one) evolves with each step.
+
+Reword overview to expand on SPSI=SI+PSI
 
 Another option is to use this figure in two places. In overview, the figure will explain the messages and steps. In the detailed section, use the figure as a running example.
 
@@ -12,11 +14,11 @@ Tradeoff of 2pc vs Saeida Ardekani et al. atomic multicast (the difference with 
 Design tradeoffs?
 }
 
-In this chapter, we describe how our protocol \todo{name} works. First, we present an overview of how the different participants interact. We follow with a formal description of the system model, and a description of the different data structures it encompasses. Next, we show how the protocol is implemented by going over the execution of a transaction.
+In this chapter, we describe how our protocol, fastPSI, works. First, we present an overview of how the different participants interact. We follow with a formal description of the system model, and a description of the different data structures it encompasses. Next, we show how the protocol is implemented by going over the execution of a transaction.
 
 \section{Overview and System Model}
 
-Our protocol consists of three components: \emph{client} and \emph{server} processes that provide the system interface for managing transactions and its individual operations, respectively; and \emph{partitions}, managed by a server, and which manage individual data objects. Figure~\ref{fig:execution} shows an overview of an example execution of the protocol.
+The fastPSI protocol consists of three components: \emph{client} and \emph{server} processes that provide the system interface for managing transactions and its individual operations, respectively; and \emph{partitions}, managed by a server, and which manage individual data objects. Figure~\ref{fig:execution} shows an overview of an example execution of the protocol.
 
 Both client and server processes are considered reliable, and connected by reliable channels. Processes communicate with each other using an asynchronous message-passing system. Fault-tolerance concerns are orthogonal to the problem we address \todo{Mention Blotter, Walter etc for approaches via replication}. We denote the server processes as a set $\mathcal{S} = \{s_1, \dots, s_N\}$, and clients as $\mathcal{C} = \{c_1, \dots, c_M\}$. Data objects are denoted by a set $\Obj$, split into $N$ partitions, each stored by a server process. We let $\partitionOf(x)$ be the index of the partition the object $x$ belongs to, so that it is managed by server $s_{\partitionOf(x)}$.
 

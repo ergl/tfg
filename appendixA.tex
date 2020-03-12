@@ -13,7 +13,7 @@
 
 \todo{Re-read Making PSI Serialisable}
 
-To implement a protocol that satisfies Serialisability, we expand the protocol explained in Chapter~\ref{protocol_chapter} with the following changes:
+To implement a protocol that satisfies Serialisability, we expand the protocol explained in Chapter~\ref{chapter:protocol} with the following changes:
 
 \begin{itemize}
   \item When a client receives a $\READRETURN$ message after issuing a read of an object $x$ on behalf of a transaction $\tx$, it incorporates the commit time of $x$ in $\tx$'s \emph{read-set}, $\tx.\RS$ (line~\ref{alg:ser_rs_update}). It suffices to store the $j$-th entry of $x$'s \emph{commit vector}, that is, the \emph{sequence number} assigned to the transaction that wrote the version of $x$ read by $\tx$. The read-set of a transaction is initialised to the empty set (line~\ref{alg:ser_start_tx}) and is kept on the transaction context.

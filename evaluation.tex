@@ -4,20 +4,17 @@
 
 \section{Implementation}
 
-The \todo{protocol name} implementation has a client-side library~\citep{pvc-client} and a server~\citep{pvc-server}, written as a plug-in transactional protocol for AntidoteDB~\citep{antidote-db}, a key-value database. Both implementations were written in the Erlang programming language, with a total of 6K lines of code. AntidoteDB provides the application programmer rich data types such as \todo{list, mention CRDTs}, supports both in-memory and disk-based storage, and implements \todo{full/partial} replication. In our implementation, we constrain ourselves to a simple in-memory, key-value storage using Last-Write-Wins registers (LWWs) \todo{cite?}. In addition, we disable replication, focusing only on the distribution problem. During normal operation, the client-side library communicates with the server using Google's Protocol Buffers~\citep{protobuf}. To enhance network efficiency, client messages are transmitted in periodic batches to the servers.
+Our implementation of the fastPSI protocol consists of a client-side library~\citep{pvc-client} and a server~\citep{pvc-server}, written as a plug-in transactional protocol for Antidote~\citep{antidote-db}, a reference platform for evaluating consistency protocols. Both the client library and the server were written in the Erlang programming language, with a total of 6K lines of code. The Antidote platform provides the application programmer rich data types such as \todo{list, mention CRDTs}, supports both in-memory and disk-based storage, and implements \todo{full/partial} replication. For simplicity, we constrain ourselves to a simple in-memory, key-value storage using Last-Write-Wins registers (LWWs) \todo{cite?}. In addition, we disable replication, focusing only on the distribution problem. During normal operation, the client-side library communicates with the server using Google's Protocol Buffers~\citep{protobuf}. To enhance network efficiency, client messages are transmitted in periodic batches to the servers. \todo{Expand on this, maybe? If we didn't talk about these levels in preliminaries put a paragraph about them here, with refs}
 
-\todo{Expand on this, maybe? If we didn't talk about these levels in preliminaries put a paragraph about them here, with refs}
+To validate the results of our evaluation, we also implemented two other consistency protocols: Read Committed and Serialisability (henceforth, RC and SER, respectively). Both were implemented on top of our original implementation and are as efficient as possible. The pseudocode for both implementations can be found in Appendix~\ref{appendix:code}.
 
-For comparison purposes, we also implemented two other isolation levels: Read Committed and Serialisability (henceforth, RC and SER, respectively). Both were implemented on top of our original implementation and are as efficient as possible. The pseudocode for both implementations can be found in Appendix~\ref{appendix:code}.
-
-\todo{Expand on this, maybe?}
-To prevent unbounded state growth, we also implement a simple garbage collection mechanism for both $\CommitLog$ and $\VersionLog$ at each partition.
+To prevent unbounded state growth, we also implement a simple garbage collection mechanism for both $\CommitLog$ and $\VersionLog$ at each partition. \todo{Expand on this, maybe?}
 
 \section{Evaluation}
 
-We evaluate the performance of \todo{protocol name} using the Yahoo! Cloud Serving Benchmark~\citep{ycsb}, modified to generate transactional workloads~\citep{ardekani_nmsi}. Figure~\ref{fig:workload-types} describes the workloads used. All experiments are run on a local cluster, and we always use six core machines with 3.80 GHz to 4.70 GHz Intel Xeon processors, and 32 GB of RAM. To simulate different sites with variable latency, we use the \texttt{tc} Linux command. The bandwidth between any host is of 1 Gbps.
+We evaluate the performance of fastPSI using the Yahoo! Cloud Serving Benchmark~\citep{ycsb}, modified to generate transactional workloads~\citep{ardekani_nmsi, ardekani_gdur}. Figure~\ref{fig:workload-types} describes the workloads used. All experiments are run on a cluster consisting of six core machines with 3.80 GHz to 4.70 GHz Intel Xeon processors, and 32 GB of RAM. We partition the cluster in up to three different sites, with four server machines and four client machines per site. Thus, there is no shared memory between clients and servers. Since all our machines are located in the same local network, we artificially add latency between sites using the \texttt{tc} Linux command. The bandwidth between machines is of 1 Gbps.
 
-We divide the cluster in up to three different sites. Each site has four server machines and four client machines. Thus, there is no shared memory between clients and servers. In all our benchmarks, the system is loaded with one million random keys and random 256-byte values. Keys are mapped to servers using consistent hashing.
+In all our benchmarks, the system is loaded with one million random keys and 256-byte random values. Keys are mapped to servers using consistent hashing. Clients are aware of the distribution of keys to servers, and can thus directly address all server machines directly. For the experiments that involve more than one site, the latency between different ones is of 10~ms.
 
 \begin{figure}[h]
 \begin{center}
@@ -39,7 +36,9 @@ We divide the cluster in up to three different sites. Each site has four server 
 
 \todo{Maybe we don't need these many subsections, and can summarise some of them in separate paragraphs}
 
-\subsection{Throughput Micro--benchmark}
+\subsection{Latency \& Throughput Trade-offs}
+
+We begin by investigating the overall performance profile of our implementations by measuring and comparing the throughput and latency of the different protocols. For this experiment, we vary the number of concurrent client threads until we reach the saturation point of the system: the maximum throughput it can handle
 
 \subsection{Dynamic Workloads}
 

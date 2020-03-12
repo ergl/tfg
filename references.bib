@@ -8,7 +8,8 @@
 }
 
 @article{cap-theorem,
-  author = {Gilbert, Seth and Lynch, Nancy},
+  author = {Gilbert, Seth and
+            Lynch, Nancy},
   title = {Brewer’s Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services},
   year = {2002},
   issue_date = {June 2002},
@@ -74,18 +75,6 @@
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 
-@inproceedings{concur_robustness,
-  author    = {Giovanni Bernardi and
-               Alexey Gotsman},
-  title     = {Robustness against Consistency Models with Atomic Visibility},
-  booktitle = {27th International Conference on Concurrency Theory, {CONCUR} 2016,
-               August 23-26, 2016, Qu{\'{e}}bec City, Canada},
-  year      = {2016},
-  timestamp = {Tue, 11 Feb 2020 15:52:14 +0100},
-  biburl    = {https://dblp.org/rec/conf/concur/0002G16.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
-}
-
 @article{lamport_paxos,
   author = {Lamport, Leslie},
   title = {The Part-Time Parliament},
@@ -106,7 +95,17 @@
 }
 
 @article{google_spanner,
-  author = {Corbett, James C. and Dean, Jeffrey and Epstein, Michael and Fikes, Andrew and Frost, Christopher and Furman, J. J. and Ghemawat, Sanjay and Gubarev, Andrey and Heiser, Christopher and Hochschild, Peter and et al.},
+  author = {Corbett, James C. and
+            Dean, Jeffrey and
+            Epstein, Michael and
+            Fikes, Andrew and
+            Frost, Christopher and
+            Furman, J. J. and
+            Ghemawat, Sanjay and
+            Gubarev, Andrey and
+            Heiser, Christopher and
+            Hochschild, Peter and
+            et al.},
   title = {Spanner: Google’s Globally Distributed Database},
   year = {2013},
   issue_date = {August 2013},
@@ -125,7 +124,12 @@
 }
 
 @inproceedings{thomson_calvin,
-  author = {Thomson, Alexander and Diamond, Thaddeus and Weng, Shu-Chun and Ren, Kun and Shao, Philip and Abadi, Daniel J.},
+  author = {Thomson, Alexander and
+            Diamond, Thaddeus and
+            Weng, Shu-Chun and
+            Ren, Kun and
+            Shao, Philip and
+            Abadi, Daniel J.},
   title = {Calvin: Fast Distributed Transactions for Partitioned Database Systems},
   year = {2012},
   isbn = {9781450312479},
@@ -142,13 +146,13 @@
 }
 
 @InProceedings{ardekani_si_limits,
-  author="Saeida Ardekani, Masoud
-  and Sutra, Pierre
-  and Shapiro, Marc
-  and Pregui{\c{c}}a, Nuno",
-  editor="Wolf, Felix
-  and Mohr, Bernd
-  and an Mey, Dieter",
+  author={Saeida Ardekani, Masoud and
+          Sutra, Pierre and
+          Shapiro, Marc and
+          Pregui{\c{c}}a, Nuno},
+  editor={Wolf, Felix and
+          Mohr, Bernd and
+          an Mey, Dieter},
   title="On the Scalability of Snapshot Isolation",
   booktitle="Euro-Par 2013 Parallel Processing",
   year="2013",
@@ -159,6 +163,165 @@
   isbn="978-3-642-40047-6"
 }
 
+@inproceedings{lloyd_cops,
+  author = {Lloyd, Wyatt and
+            Freedman, Michael J. and
+            Kaminsky, Michael and
+            Andersen, David G.},
+  title = {{Don’t} {Settle} for {Eventual}: {Scalable} {Causal} {Consistency} for {Wide-Area} {Storage} with {COPS}},
+  year = {2011},
+  isbn = {9781450309776},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/2043556.2043593},
+  doi = {10.1145/2043556.2043593},
+  booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems Principles},
+  pages = {401–416},
+  numpages = {16},
+  keywords = {read transactions, causal + consistency, scalable wide-area replication, ALPS systems, key-value storage},
+  location = {Cascais, Portugal},
+  series = {SOSP ’11}
+}
+
+@inproceedings{bailis_ramp,
+author = {Bailis, Peter and
+          Fekete, Alan and
+          Hellerstein, Joseph M. and
+          Ghodsi, Ali and
+          Stoica, Ion},
+title = {Scalable Atomic Visibility with {RAMP} Transactions},
+year = {2014},
+isbn = {9781450323765},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2588555.2588562},
+doi = {10.1145/2588555.2588562},
+booktitle = {Proceedings of the 2014 ACM SIGMOD International Conference on Management of Data},
+pages = {27–38},
+numpages = {12},
+keywords = {atomic visibility, non-blocking, transactions, read atomic, atomicity, scalability, performance},
+location = {Snowbird, Utah, USA},
+series = {SIGMOD ’14}
+}
+
+@article{fekete_ssi,
+  author = {Fekete, Alan and
+            Liarokapis, Dimitrios and
+            O’Neil, Elizabeth and
+            O’Neil, Patrick and
+            Shasha, Dennis},
+  title = {Making {Snapshot Isolation} {Serializable}},
+  year = {2005},
+  issue_date = {June 2005},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {30},
+  number = {2},
+  issn = {0362-5915},
+  url = {https://doi.org/10.1145/1071610.1071615},
+  doi = {10.1145/1071610.1071615},
+  journal = {ACM Trans. Database Syst.},
+  month = jun,
+  pages = {492–528},
+  numpages = {37},
+  keywords = {weak isolation, multiversion concurrency, consistency, snapshot isolation, anomaly, serializability, Concurrency control}
+}
+
+@inproceedings{fekete_isolation_levels,
+  author = {Fekete, Alan},
+  title = {{Allocating} {Isolation} {Levels} to {Transactions}},
+  year = {2005},
+  isbn = {1595930620},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/1065167.1065193},
+  doi = {10.1145/1065167.1065193},
+  booktitle = {Proceedings of the Twenty-Fourth ACM SIGMOD-SIGACT-SIGART Symposium on Principles of Database Systems},
+  pages = {206–215},
+  numpages = {10},
+  keywords = {consistency, anomaly, two-phase locking, serializability, concurrency control, snapshot isolation},
+  location = {Baltimore, Maryland},
+  series = {PODS ’05}
+}
+
+@inproceedings{concur_robustness,
+  author = {Giovanni Bernardi and
+             Alexey Gotsman},
+  title = {{Robustness against Consistency Models with Atomic Visibility}},
+  booktitle = {27th International Conference on Concurrency Theory (CONCUR 2016)},
+  pages = {7:1--7:15},
+  series = {Leibniz International Proceedings in Informatics (LIPIcs)},
+  ISBN = {978-3-95977-017-0},
+  ISSN = {1868-8969},
+  year = {2016},
+  volume = {59},
+  editor = {Jos{\'e}e Desharnais and Radha Jagadeesan},
+  publisher = {Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
+  address = {Dagstuhl, Germany},
+  URL = {http://drops.dagstuhl.de/opus/volltexte/2016/6165},
+  URN = {urn:nbn:de:0030-drops-61652},
+  doi = {10.4230/LIPIcs.CONCUR.2016.7},
+  annote = {Keywords: Robustness, Replication, Consistency models, Transactions}
+}
+
+@inproceedings{sudhir_static,
+  author = {Jorwekar, Sudhir and
+            Fekete, Alan and
+            Ramamritham, Krithi and
+            Sudarshan, S.},
+  title = {Automating the Detection of Snapshot Isolation Anomalies},
+  year = {2007},
+  isbn = {9781595936493},
+  publisher = {VLDB Endowment},
+  booktitle = {Proceedings of the 33rd International Conference on Very Large Data Bases},
+  pages = {1263–1274},
+  numpages = {12},
+  location = {Vienna, Austria},
+  series = {VLDB ’07}
+}
+
+@inproceedings{cise_tool,
+  author = {Najafzadeh, Mahsa and
+            Gotsman, Alexey and
+            Yang, Hongseok and
+            Ferreira, Carla and
+            Shapiro, Marc},
+  title = {The {CISE} {Tool}: {Proving} {Weakly-Consistent} {Applications} {Correct}},
+  year = {2016},
+  isbn = {9781450342964},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/2911151.2911160},
+  doi = {10.1145/2911151.2911160},
+  booktitle = {Proceedings of the 2nd Workshop on the Principles and Practice of Consistency for Distributed Data},
+  articleno = {Article 2},
+  numpages = {3},
+  keywords = {invariant, program analysis, consistency},
+  location = {London, United Kingdom},
+  series = {PaPoC ’16}
+}
+
+@inproceedings{moniz_blotter,
+  author = {Moniz, Henrique and
+            Leit\~{a}o, Jo\~{a}o and
+            Dias, Ricardo J. and
+            Gehrke, Johannes and
+            Pregui\c{c}a, Nuno and
+            Rodrigues, Rodrigo},
+  title = {Blotter: {Low} {Latency} {Transactions} for {Geo-Replicated} {Storage}},
+  year = {2017},
+  isbn = {9781450349130},
+  publisher = {International World Wide Web Conferences Steering Committee},
+  address = {Republic and Canton of Geneva, CHE},
+  url = {https://doi.org/10.1145/3038912.3052603},
+  doi = {10.1145/3038912.3052603},
+  booktitle = {Proceedings of the 26th International Conference on World Wide Web},
+  pages = {263–272},
+  numpages = {10},
+  keywords = {distributed database systems, concurrency control, paxos, distributed transactions, geo-replicated storage},
+  location = {Perth, Australia},
+  series = {WWW ’17}
+}
 
 
 @article{carlos-causality,
@@ -173,7 +336,16 @@
 }
 
 @article{version-vectors,
-  author = {Parker, D. S. and Popek, G. J. and Rudisin, G. and Stoughton, A. and Walker, B. J. and Walton, E. and Chow, J. M. and Edwards, D. and Kiser, S. and Kline, C.},
+  author = {Parker, D. S. and
+            Popek, G. J. and
+            Rudisin, G. and
+            Stoughton, A. and
+            Walker, B. J. and
+            Walton, E. and
+            Chow, J. M. and
+            Edwards, D. and
+            Kiser, S. and
+            Kline, C.},
   title = {Detection of Mutual Inconsistency in Distributed Systems},
   year = {1983},
   issue_date = {May 1983},
@@ -197,7 +369,15 @@
     number = {6},
     urldate = {2020-01-29},
     journal = {SIGOPS Oper. Syst. Rev.},
-    author = {DeCandia, Giuseppe and Hastorun, Deniz and Jampani, Madan and Kakulapati, Gunavardhan and Lakshman, Avinash and Pilchin, Alex and Sivasubramanian, Swaminathan and Vosshall, Peter and Vogels, Werner},
+    author = {DeCandia, Giuseppe and
+              Hastorun, Deniz and
+              Jampani, Madan and
+              Kakulapati, Gunavardhan and
+              Lakshman, Avinash and
+              Pilchin, Alex and
+              Sivasubramanian, Swaminathan and
+              Vosshall, Peter and
+              Vogels, Werner},
     month = oct,
     year = {2007},
     pages = {205}
@@ -208,7 +388,10 @@
     language = {en},
     urldate = {2019-04-30},
     booktitle = {Proceedings of the {Twenty}-{Third} {ACM} {Symposium} on {Operating} {Systems} {Principles} - {SOSP} '11},
-    author = {Sovran, Yair and Power, Russell and Aguilera, Marcos K. and Li, Jinyang},
+    author = {Sovran, Yair and
+              Power, Russell and
+              Aguilera, Marcos K. and
+              Li, Jinyang},
     year = {2011}
 }
 
@@ -216,12 +399,24 @@
     title = {A {Critique} of {ANSI} {SQL} {Isolation} {Levels}},
     language = {en},
     booktitle = {Proceedings of the 1995 {ACM} {SIGMOD} international conference on {Management} of data - {SIGMOD} '95},
-    author = {Berenson, Hal and Bernstein, Phil and Gray, Jim and Melton, Jim and O’Neil, Elizabeth and O'Neil, Patrick},
+    author = {Berenson, Hal and
+              Bernstein, Phil and
+              Gray, Jim and
+              Melton, Jim and
+              O’Neil, Elizabeth and
+              O'Neil, Patrick},
     year = {1995}
 }
 
 @inproceedings{antidote-db,
-  author = {Akkoorath, Deepthi Devaki and Tomsic, Alejandro Z. and Bravo, Manuel and Li, Zhongmiao and Crain, Tyler and Bieniusa, Annette and Preguica, Nuno and Shapiro, Marc},
+  author = {Akkoorath, Deepthi Devaki and
+            Tomsic, Alejandro Z. and
+            Bravo, Manuel and
+            Li, Zhongmiao and
+            Crain, Tyler and
+            Bieniusa, Annette and
+            Preguica, Nuno and
+            Shapiro, Marc},
   booktitle = {Proceedings of the 36th International Conference on Distributed Computing Systems (ICDCS 2016)},
   title = {{Cure: Strong Semantics Meets High Availability and Low Latency}},
   year = {2016}
@@ -259,7 +454,8 @@
   author = {Cooper, Brian F. and
             Silberstein, Adam and
             Tam, Erwin and
-            Ramakrishnan, Raghu and Sears, Russell},
+            Ramakrishnan, Raghu and
+            Sears, Russell},
   title = {Benchmarking Cloud Serving Systems with YCSB},
   year = {2010},
   address = {New York, NY, USA},
@@ -272,7 +468,8 @@
 
 @inproceedings{ardekani_nmsi,
   author={M. S. {Ardekani} and
-          P. {Sutra} and M. {Shapiro}},
+          P. {Sutra} and
+          M. {Shapiro}},
   booktitle={2013 IEEE 32nd International Symposium on Reliable Distributed Systems},
   title={Non-monotonic Snapshot Isolation: Scalable and Strong Consistency for Geo-replicated Transactional Systems},
   year={2013},
@@ -308,4 +505,26 @@
               transactional processing},
   location = {Bern, Switzerland},
   series = {HotCDP ’12}
+}
+
+@inproceedings{ardekani_gdur,
+  author = {Ardekani, Masoud Saeida and
+            Sutra, Pierre and
+            Shapiro, Marc},
+  title = {{G-DUR}: A Middleware for Assembling, Analyzing, and Improving Transactional Protocols},
+  year = {2014},
+  isbn = {9781450327855},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/2663165.2663336},
+  doi = {10.1145/2663165.2663336},
+  booktitle = {Proceedings of the 15th International Middleware Conference},
+  pages = {13–24},
+  numpages = {12},
+  keywords = {deferred update replication,
+              distributed transaction,
+              distributed data store,
+              consistency criterion},
+  location = {Bordeaux, France},
+  series = {Middleware ’14}
 }

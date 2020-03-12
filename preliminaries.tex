@@ -1,11 +1,10 @@
 \cleardoublepage
 \chapter{Preliminaries}
-
-\todo{Should we mention what robustness is? The justification for our protocol is that it's the first PSI/NMSI implementation with robustness in mind (SPSI=PSI + entity groups)}
+\label{chapter:preliminaries}
 
 \todo{Maybe split the text in~\ref{sect:obj_tx} and~\ref{sect:histories} into separate paragraphs, or use explicit definitions}
 
-\todo{Introduce distributed system in~\ref{sect:notation}? Or is it covered in chapter 1?}
+\todo{Introduce distributed system in~\ref{sect:notation}? Or is it covered in chapter~\ref{chapter:introduction}?}
 
 We begin with an introduction to the notation and basic concepts used throughout this thesis. We also review several \emph{strong} and \emph{weak} consistency models, based on the anomalies that are observable in each model. Finally, we discuss several protocols implementing some of these models, representing the previous work against which we compare our approach.
 
@@ -80,7 +79,7 @@ For the purposes of this thesis, and following the definition used by Saeida Ard
 \subsection{Serialisability (SER)}
 \label{sect:ser}
 
-Serialisability restricts the set of possible histories to those equivalent to some \emph{serial} execution. That is to say, under a traditional system offering Serialisability, the happens-before relation we introduced in~\ref{sect:histories} is strengthened with a \emph{strict total order} over the transactions in a history \todo{does it need to be strict?}. A history such as the one in Figure~\ref{fig:history} is serialisable, because we can order $\tx_2$ to occur before $\tx_3$ (or vice versa); while the one depicted in Figure~\ref{fig:non_ser_history} is not.
+Serialisability restricts the set of possible histories to those equivalent to some \emph{serial} execution. That is to say, under a traditional system offering Serialisability, the happens-before relation we introduced in~\ref{sect:histories} is strengthened with a \emph{strict total order} over the transactions in a history \todonote{does it need to be strict?}. A history such as the one in Figure~\ref{fig:history} is serialisable, because we can order $\tx_2$ to occur before $\tx_3$ (or vice versa); while the one depicted in Figure~\ref{fig:non_ser_history} is not.
 
 \begin{figure}[h]
   \centering
@@ -92,7 +91,7 @@ Serialisability restricts the set of possible histories to those equivalent to s
 \end{figure}
 
 % Maybe add FaunaDB, too: https://fauna-assets.s3.amazonaws.com/public/FaunaDB-Technical-Whitepaper.pdf, or reference the Calvin paper (thomson_calvin)
-Because of the CAP theorem, distributed database systems can't offer Serialisability without sacrificing availability~\citep{cap-brewer, cap-theorem}. Although some database systems offer it~\citep{google_spanner}, guaranteeing serialisability in geo-replicated systems is difficult, at the cost of global communication and consensus mechanisms, like Paxos~\citep{lamport_paxos}.
+Because of the CAP theorem, distributed database systems can't offer Serialisability without sacrificing availability~\citep{cap-brewer, cap-theorem}. Although some database systems offer it~\citep{google_spanner}, guaranteeing serialisability in geo-replicated systems is difficult, at the cost of requiring global communication and relying on consensus mechanisms, like Paxos~\citep{lamport_paxos}.
 
 \subsection{Snapshot Isolation (SI)}
 \label{sect:si}
@@ -172,6 +171,10 @@ Figure~\ref{fig:anomalies} summarises the consistency models we reviewed togethe
 \caption{Anomaly Comparison of Consistency Models \emph{(x}:disallowed, \checkmark:allowed\emph{)}. Adapted from \em{Saeida Ardekani et al.~\citep{ardekani_nmsi}}.}
 \label{fig:anomalies}
 \end{figure}
+
+\section{Entity Groups}
+
+\todo{Talk about entity groups? We mention what SPSI is: by selectively enforcing entity groups, we can achieve serialisability}
 
 \section{Catalog of Protocols}
 
