@@ -18,6 +18,8 @@ In this section, we define the elements we use throughout this chapter, such as 
 
 Following the definitions of Cerone et al.~\citep{concur_framework} and Saeida Ardekani~\citep{ardekani_thesis}, we consider a database storing \textbf{\em objects} $\Obj = \{x, y, \ldots\}$, which we assume to be integer-valued. Clients interact with the database via \textbf{\em transactions} $\Trans = \{\tx_i \mid i \in \mathbb{N}\}$, with $i$ being the \emph{transaction identifier} of $\tx$.
 
+% Objects may be arbitrarily grouped into \textbf{\em partitions} $\Pi = \{p_1, \ldots, p_n\}$, such that $p_i \in \Pi$ is a set of objects, and where $p_i \cap p_j = \emptyset$ for any two distinct partitions.
+
 A transaction is a totally ordered sequence of read or write operations, followed by a \emph{terminating} operation: either commit or abort. This order follows the order in which the client invoked such operations. Given an object $x$ and a transaction $\tx_i$, we call $x_i$ to the \textbf{\em version} $i$ of $x$ written by $\tx_i$. We denote by $w_i(x_i)$ when a transaction $\tx_i$ writes a version $i$ of $x$, and $r_i(x_i)$ when $\tx_i$ reads a version $i$ of $x$. Finally, we denote by $c_i$ when $\tx_i$ commits, and $a_i$ when it aborts. We assume an initial transaction $\tx_0$ writes the initial versions of every object in the database. Without loss of generality, we also assume that no transaction performs \emph{blind updates}, that is, for every write operation $w_i(x_i)$ performed by $\tx_i$, there's always a preceding read operation $r_i(x_i)$. We say that a transaction is \textbf{\em read-only} if its set of operations does not include writes, and \textbf{\em update} otherwise.
 
 \subsection{Histories}
@@ -39,6 +41,15 @@ We can represent the history and the relations between operations and transactio
 \end{figure}
 
 Figure~\ref{fig:history} above shows an example, with $\tx_1 \hb_h \tx_3$ and $\tx_1 \hb_h \tx_2$. We say that two transactions $\tx_i$ and $\tx_j$ are \textbf{\em concurrent} in $h$ (denoted by $\tx_i \parallel \tx_j$) if neither $\tx_i \hb_h \tx_j$ nor $\tx_j \hb_h \tx_j$. In the figure above, $\tx_2$ and $\tx_3$ are concurrent.
+
+% \section{CAP Theorem}
+
+% The CAP conjecture, first introduced by Brewer~\citep{cap-brewer} and later formulated as a theorem by Gilbert and Lynch~\citep{cap-theorem}, states that is impossible for a data store to provide at the same time all of the following guarantees: \textbf{\em consistency}, \textbf{\em availability} and \textbf{\em partition tolerance}. A system is \emph{consistent} if every every request of the value of an object
+
+% Is this needed?
+% \subsection{Replication}
+
+% Consider a system of independent processes $\Pi = \{p_1, \ldots p_n\}$ and a database $\mathcal{D} \subseteq \Obj$. Such a system offers \textbf{\em full replication} if every process in $\Pi$ holds a copy of the entire database $\mathcal{D}$, and \textbf{\em partial replication} if processes hold a subset of $\mathcal{D}$. Processes in a partially-replicated system might hold disjoint sets of $\mathcal{D}$, but is not necessary.
 
 \section{Consistency Models}
 
@@ -79,7 +90,7 @@ For the purposes of this thesis, and following the definition used by Saeida Ard
 \subsection{Serialisability (SER)}
 \label{sect:ser}
 
-Serialisability restricts the set of possible histories to those equivalent to some \emph{serial} execution. That is to say, under a traditional system offering Serialisability, the happens-before relation we introduced in~\ref{sect:histories} is strengthened with a \emph{strict total order} over the transactions in a history \todonote{does it need to be strict?}. A history such as the one in Figure~\ref{fig:history} is serialisable, because we can order $\tx_2$ to occur before $\tx_3$ (or vice versa); while the one depicted in Figure~\ref{fig:non_ser_history} is not.
+Serialisability restricts the set of possible histories to those equivalent to some \emph{serial} execution. That is to say, under a traditional system offering Serialisability, the happens-before relation we introduced in~\ref{sect:histories} is strengthened with a \emph{strict total order} over the transactions in a history \todonote{does it need to be strict? Should mention that an implementation is free to reorder executions}. A history such as the one in Figure~\ref{fig:history} is serialisable, because we can order $\tx_2$ to occur before $\tx_3$ (or vice versa); while the one depicted in Figure~\ref{fig:non_ser_history} is not.
 
 \begin{figure}[h]
   \centering
