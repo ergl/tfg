@@ -1,25 +1,19 @@
 \cleardoublepage
-\chapter{Comparison Implementations Pseudocode}
+\chapter{Serialisable and Read Committed Protocols}
 \label{appendix:code}
 
-\todo{Revise after finishing preliminaries chapter}
+In this appendix we give a quick overview of the protocols we implemented to compare against the fastPSI implementation. For simplicity, both protocols are minor modifications of the original one, although the implementations are still efficient. For each protocol, we summarise the most relevant changes with respect to fastPSI, and give the full pseudocode. The implementation for both protocols is freely available of GitHub~\citep{pvc-client, pvc-server}.
 
 \section{Serialisability}
 \label{appendix:ser}
 
-\todo{Check how much of this we already mentioned in chapter 2.}
+Recall from~\ref{sect:ser} that under serialisability transactions appear to execute one after the other. However, it does not guarantee a real-time order among them: this means that an implementation is free to reorder the commit order of transactions as long as the resulting execution still satisfies serialisability. Since our original protocol guarantees Parallel Snapshot Isolation, it is sufficient to prevent the write skew and the long fork anomalies. To do so, we expand fastPSI with several changes. A summary of the state of a server is reflected in Figure~\ref{fig:ser-prot-ds-table}, and the pseudocode of the protocol can be found in Figures~\ref{fig:ser_init}--~\ref{fig:ser_termination}.
 
-\todo{SER requires a total order, but is that among conflicting txs, or even in non-conflicting? => there needs to be a serial execution of committed txs, so transactions that will abort can observe bad data, as long as they don't commit. Does our implementation satisify this?}
+\paragraph{Track versions of read objects.} Read-only transactions need to observe consistent data that it's not too stale, or overwritten by concurrent transactions. In order to enforce this guarantee, we add a new piece of information to the transaction context: the \emph{read-set} of a transaction keeps track of the objects that it reads, along with the commit time of the version of the object read. When a client receives a $\READRETURN$ message after issuing a read of an object $x$ on behalf of a transaction $\tx$, it incorporates the commit time of $x$ in $\tx$'s read-set, $\tx.\RS$ (line~\ref{alg:ser_rs_update}). It suffices to store the $j$-th entry of $x$'s \emph{commit vector}, that is, the \emph{sequence number} assigned to the transaction that wrote the version of $x$ read by $\tx$. The read-set of a transaction is initialised to the empty set (line~\ref{alg:ser_start_tx}) when the transaction starts.
 
-\todo{Re-read Making PSI Serialisable}
+\paragraph{Avoid stale reads.} Recall Recall from Section~\ref{sect:psi} that the long fork anomaly occurs whenever concurrent transactions are able to observe different orderings of non-conflicting transactions. Such anomaly can be precluded by forcing transactions to observe the latest version of an object\todonote{Add example, can we reuse figure~\ref{fig:long_fork_history}?}. The protocol enforces this property during the certification of a transaction $T$. When a transaction $T$ prepares to commit, it performs a two-phase commit among the servers storing the objects read and written by the transaction (lines~\ref{alg:ser_send_prepare}--\ref{alg:ser_send_prepare_2}). Upon receiving a $\PREPARE$ message, a server $s_i$ checks that, for the objects that a $\tx$ read, the version of those objects is the most up-to-date in the database of $s_i$ (line~\ref{alg:ser_conflict_check}, last condition). It does so by comparing the version of the object stored in the transaction's read-set ($\localRS$) against the latest version as reflected by the $\VersionLog$ of the object ($\VersionLog[x].\last.\Vcomm$). The server also needs to perform the check against concurrently-committing transaction (line~\ref{alg:ser_conflict_check}, first condition): a server checks that the read-set of a transaction $\tx$ doesn't overlap with the write-set of any other concurrently-committing transactions, thereby making $\tx$'s read stale. If the version that $\tx$ read is stale, the server $s_i$ votes $\abort$ (line~\ref{alg:ser_vote_abort}). Since we assume that transactions read an object before writing to it (and thus, $\tx.\WS \subseteq \tx.\RS$) the stale read check also precludes stale writes.
 
-To implement a protocol that satisfies Serialisability, we expand the protocol explained in Chapter~\ref{chapter:protocol} with the following changes:
-
-\begin{itemize}
-  \item When a client receives a $\READRETURN$ message after issuing a read of an object $x$ on behalf of a transaction $\tx$, it incorporates the commit time of $x$ in $\tx$'s \emph{read-set}, $\tx.\RS$ (line~\ref{alg:ser_rs_update}). It suffices to store the $j$-th entry of $x$'s \emph{commit vector}, that is, the \emph{sequence number} assigned to the transaction that wrote the version of $x$ read by $\tx$. The read-set of a transaction is initialised to the empty set (line~\ref{alg:ser_start_tx}) and is kept on the transaction context.
-  \item Read-only transactions are also certified using two-phase commit.
-  \item The decision wether to commit or abort a given transaction $\tx$ ....
-\end{itemize}
+\paragraph{Avoid read-write conflicts.} We can preclude the write skew anomaly, introduced in Section~\ref{sect:si}, by forcing transactions to observe the writes of concurrent transactions as soon as those updates are reflected in the state of the database. A history that exhibits a write skew, such as $h = r_1(x_0).r_1(y_0).r_2(x_0).r_2(y_0).w_1(x_1).w_2(y_2).c_1.c_2$, can only be serialisable by aborting either $\tx_1$ or $\tx_2$. In the protocol, this is avoided by precluding \emph{read-write} conflicts: in the previous history, $\tx_2$ \emph{overwrites} the version of $y$ that $\tx_1$ read. Also, $\tx_1$ overwrites the version of $x$ that $\tx_2$ reads, which is considered a read-write conflict, too. Both examples of conflict can be precluded during the certification of a transaction (line~\ref{alg:ser_conflict_check}, first condition): a server checks that the write-set of a transaction $\tx$ doesn't overlap with the read-set of any other concurrently-committing transactions (thereby invalidating the read of such concurrent transaction). If any of the checks is true, the server votes $\abort$ (line~\ref{alg:ser_vote_abort}).
 
 \begin{figure}[htb!]
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
@@ -101,6 +95,7 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
   }
 \end{algorithm}
 \caption{Initialisation of a transaction and update of an object \emph{x} at client $c_i$ under Serialisability.}
+\label{fig:ser_init}
 \end{figure}
 
 \begin{figure}[h]
@@ -155,9 +150,9 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
 \begin{figure}[h]
 \begin{algorithm}[H]
   % Commit
-  \SubAlgo{\Fun ${\tt commit}(T)$\label{alg:commit_start}}{
-    \ForAll{$\partj \in \partitions(\tx.\RS \cup \tx.\WS)$}{
-      \Send{$\PREPARE(T, T.\RS, T.\WS, \VCdep)$} \KwTo $\partj$\;
+  \SubAlgo{\Fun ${\tt commit}(T)$\label{alg:ser_commit_start}}{
+    \ForAll{$\partj \in \partitions(\tx.\RS \cup \tx.\WS)$\label{alg:ser_send_prepare}}{
+      \Send{$\PREPARE(T, T.\RS, T.\WS, \VCdep)$} \KwTo $\partj$\;\label{alg:ser_send_prepare_2}
     }
 
     $\commitVC \leftarrow \tx.\VCdep$\;
@@ -195,9 +190,9 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
         $\vee \left(
           \exists x. \ \langle x, vsn \rangle \in \localRS
           \wedge (\VersionLog[x].\last.\Vcomm[i] > vsn)\right)$\\
-      \end{tabularx}
+      \end{tabularx}\label{alg:ser_conflict_check}
     }{
-      \Send{$\VOTE(t, \abort)$} \KwTo $c_j$\;
+      \Send{$\VOTE(t, \abort)$} \KwTo $c_j$\;\label{alg:ser_vote_abort}
       \Return\;
     }
 
@@ -232,6 +227,7 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
   }
 \end{algorithm}
 \caption{Serialisable termination protocol at server $s_i$}
+\label{fig:ser_termination}
 \end{figure}
 
 \clearpage
@@ -239,7 +235,7 @@ To implement a protocol that satisfies Serialisability, we expand the protocol e
 \section{Read Committed}
 \label{appendix:rc}
 
-Read Committed (RC) is the weakest consistency criterion that satisfies the \emph{isolation} property required by ACID transactions. It forbids concurrent transactions from observing any data that has not been committed. It doesn't place any restriction on the ordering of transactions, and doesn't preclude write-write conflicts. Thus, transactions may be ordered in any way. Figure~\ref{fig:rc-prot-ds-table} shows a summary of the data structures involved in the protocol.
+Read Committed (RC) is the weakest consistency model that satisfies the \emph{isolation} property required by ACID transactions. It forbids concurrent transactions from observing any data that has not been committed, but it doesn't place any restriction on the ordering of transactions, and doesn't preclude write-write conflicts. Thus, transactions may be ordered in any way. Figure~\ref{fig:rc-prot-ds-table} shows a summary of the data structures involved in the protocol.
 
 \begin{figure}[h]
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
@@ -271,9 +267,9 @@ Read Committed (RC) is the weakest consistency criterion that satisfies the \emp
 \label{fig:rc-prot-ds-table}
 \end{figure}
 
-Since transactions only need to observe the last committed version of an object, it is sufficient to store only one version per key. In addition, transactions don't need to observe a consistent snapshot of the state of a partition, and therefore we can remove all data structures related to computing a snapshot. This is reflected in the execution of a transaction, as can be seen in Figure~\ref{fig:rc_tx_exection}. A server $s_i$ executing a remote read on behalf of a transaction $\tx$ simply fetches the currently available value of the requested object, and returns it to the client (line~\ref{alg:rc_db_get}).
+Since transactions only need to observe the last committed version of an object, it is sufficient to store only one version. Thus, we can substitute the $\VersionLog$ mapping with a \emph{Database}, that simply maps an object to its latest version. In addition, transactions don't need to observe a consistent snapshot of the state of a partition, and therefore we can remove all data structures related to computing a snapshot. This is reflected in the execution of a transaction, as can be seen in Figure~\ref{fig:rc_tx_exection}. A server $s_i$ executing a remote read on behalf of a transaction $\tx$ simply fetches the currently available value of the requested object, and returns it to the client (line~\ref{alg:rc_db_get}).
 
-A protocol satisfying Read Committed still needs to offer atomic visibility. To do so, our implementation uses two-phase commit, guaranteeing that a transaction commits at every partition (line~\ref{alg:rc_commit_start}). Servers that participate during the commit phase always vote $\commit$ (line~\ref{alg:rc_send_vote}), since RC doesn't preclude write-write conflicts. After a successful commit phase, all partitions incorporate the transaction updates to its storage state (line~\ref{alg:rc_kv_apply}).
+A protocol satisfying Read Committed still needs to offer atomic visibility. To do so, our implementation uses two-phase commit, guaranteeing that a transaction commits at every partition (line~\ref{alg:rc_commit_start}). Servers that participate during the commit phase always vote $\commit$ (line~\ref{alg:rc_send_vote}), since RC doesn't preclude write-write conflicts. After a successful commit phase, all servers incorporate the transaction updates to its partition state (line~\ref{alg:rc_kv_apply}).
 
 \begin{figure}[h]
 \begin{algorithm}[H]
