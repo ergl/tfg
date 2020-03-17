@@ -183,8 +183,8 @@ Figure~\ref{fig:anomalies} summarises the consistency models we reviewed togethe
 \label{fig:anomalies}
 \end{figure}
 
-\section{Entity Groups}
+% \section{Entity Groups}
 
-\todo{Should this go here, on in the next chapter?} The concept of \emph{entity} was introduced by Helland~\citep{helland_entity} to refer to a self-contained data object, with application-defined boundaries, and uniquely identified by an entity key. In addition, Helland argues for the entity to be the largest \emph{scope of transactional serialisability}: transactions can only guarantee atomicity for objects held within the same entity, and with the limitation that transactions must not modify objects across entities.
+% \todo{Should this go here, on in the next chapter? Also, should we mention anything else (our approach?)} The concept of \emph{entity} was introduced by Helland~\citep{helland_entity} to refer to a self-contained data object, with application-defined boundaries, and uniquely identified by an entity key. In addition, Helland argues for the entity to be the largest \emph{scope of transactional serialisability}: transactions can only guarantee atomicity for objects held within the same entity, and with the limitation that transactions must not modify objects across entities.
 
-Later systems, such as Megastore~\citep{baker_megastore}, allow transactions to access distinct entities, which are aggregated into disjoint \emph{entity groups}. Such systems offer strong consistency for transactions accessing entities within a group, but can't offer isolation guarantees for those transactions that span multiple groups. As such, the entity group becomes the largest scope of transactional serialisability.
+% Later systems, such as Megastore~\citep{baker_megastore}, allow transactions to access distinct entities, which are aggregated into disjoint \emph{entity groups}. Such systems offer strong consistency for transactions accessing entities within a group, but can't offer isolation guarantees for those transactions that span multiple groups. As such, the entity group becomes the largest scope of transactional serialisability.
