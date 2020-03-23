@@ -8,6 +8,8 @@
 
 * We provide PSI/NMSI + strict per-partition snapshots. We use GMU's vector clocks to approach this.
 
+* Mention that our read protocol is from GMU, but that they provide Update-SER
+
 * The difference with Walter is that we have forward freshness, and that our timestamp mechanism doesn't need global sync.
 
 * The difference with Jessy is that we use 2PC, and GMU's reads instead of PDV. Why? => PDV's recursive definition is hard to follow. The original model with one entry per-key is simpler, but inefficient. In Jessy, the version compatibility check is done at they key level (does reading this specific version of an object break my causally consistent snapshot?) instead of at the partition level (like us). Impl. might violate atomicity? (see email about this, but I don't know if we ever checked).

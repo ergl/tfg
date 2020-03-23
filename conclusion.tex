@@ -8,4 +8,6 @@ Talk about the limitations of our approach, coarse grained dependency tracking. 
 Say again what we introduced (a consistency model, a protocol an its implementation, an evaluation), and what we took out of it -> read aborts? performance related to RC and SER.
 
 Future work: ``in the future we hope to propose algorithms for automatically inferring entity groups required for an application to satisfy our robustness criterion.'' (from SPSI paper)
+
+Also, could use something like RAMP's repair read when the clients sends several reads at the same time, if we encounter a read abort.
 }

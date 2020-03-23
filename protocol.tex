@@ -12,7 +12,7 @@
 % Design tradeoffs?
 % }
 
-In this chapter, we describe fastPSI, a transactional protocol that implements Parallel Snapshot Isolation while allowing stronger consistency guarantees for transactions accessing objects inside \emph{entity groups}. We begin with an overview of what entity groups are, and by explaining the consistency guarantees of fastPSI for transactions executing both within and across different entity groups. We follow with a summary of how the different participants of the protocol interact with each other, and with a description of the different data structures involved. Next, we show how the protocol is structured by going over the execution of a transaction. We conclude with a discussion of the possible drawbacks of the design.
+In this chapter, we describe \textbf{fastPSI}, a transactional protocol that implements Parallel Snapshot Isolation while allowing stronger consistency guarantees for transactions accessing objects inside \emph{entity groups}. We begin with an overview of what entity groups are, and by explaining the consistency guarantees of fastPSI for transactions executing both within and across different entity groups. We follow with a summary of how the different participants of the protocol interact with each other, and with a description of the different data structures involved. Next, we show how the protocol is structured by going over the execution of a transaction. We conclude with a discussion of the possible drawbacks of the design.
 
 \section{Consistency Guarantees}
 
@@ -359,7 +359,7 @@ Committed transactions are applied to the database in their order in $\CommitQue
 
 \begin{figure}[h]
   \centering
-  \vspace{-1cm}
+  % \vspace{-1cm}
   \includegraphics[width=0.6\textwidth]{figures/ch4_abort_execution.pdf}
   \vspace{-0.5cm}
 \caption{Example read abort execution. Bold horizontal lines represent executions of transactions over time (left to right), and the big circles represent the commit times of the transactions at different servers. The cross in the execution of $\tx_3$ marks its abort time. }
