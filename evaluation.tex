@@ -38,6 +38,33 @@ In all our benchmarks, the system is loaded with one million random keys and 256
 \label{fig:workload-types}
 \end{figure}
 
+\subsection{Scalability Trade-offs}
+
+We begin by investigating the overall performance profile of our implementations by measuring and comparing the throughput and latency of the different protocols when the number of sites stays constant. For this experiment, we vary the number of concurrent client threads until we reach the saturation point of the system: the maximum throughput it can handle without degrading overall latency in a significant manner. We aim to explore the overall overhead of fastPSI in comparison with naiveRC, and the performance benefits it offers in comparison with naiveSER. To this aim, we use Workload C and three sites. Figure~\ref{fig:general_bench} shows our results. We vary the ratio of read-only to update transactions, from 90\%/10\% to 70\%/30\% (left to right), and measure the termination latency of update transactions, i.e., the amount of time spent on the validation process of a transaction.
+
+\todo{Describe graphs}
+
+\begin{figure}[t]
+\vspace{-0.5cm}
+\includegraphics[width=\textwidth]{figures/general_bench.pdf}
+\vspace{-1cm}
+\caption{Comparison of throughput and termination latency of update transactions.}
+\label{fig:general_bench}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=0.5\textwidth]{figures/sites_bench.pdf}
+\vspace{-1cm}
+\end{center}
+\caption{Maximum Throughput of Consistency Models.\todo{Should this go here, or in next section?}}
+\label{fig:site_bench}
+\end{figure}
+
+\subsection{Dynamic Workloads}
+
+We now explore the impact of several deployment parameters on the scalability of fastPSI, as depicted in Figure~\ref{fig:dynamic_parameters}.
+
 \begin{figure}[h]
 \begin{center}
 \begin{tabularx}{0.75\linewidth}{ l | >{\centering}p{5cm} | >{\centering}X }
@@ -54,22 +81,4 @@ In all our benchmarks, the system is loaded with one million random keys and 256
 \label{fig:dynamic_parameters}
 \end{figure}
 
-\subsection{Latency \& Throughput Trade-offs}
-
-We begin by investigating the overall performance profile of our implementations by measuring and comparing the throughput and latency of the different protocols when the number of sites stays constant. For this experiment, we vary the number of concurrent client threads until we reach the saturation point of the system: the maximum throughput it can handle without degrading overall latency in a significant manner. We aim to explore the overall overhead of fastPSI in comparison with naiveRC, and the performance benefits it offers in comparison with naiveSER. To this aim, we use Workload C and three sites. Figure~\ref{fig:general_bench} shows our results. We vary the ratio of read-only to update transactions, from 90\%/10\% to 70\%/30\% (left to right), and measure the termination latency of update transactions, i.e., the amount of time spent on the validation process of a transaction.
-
-\todo{Describe graph}
-
-\begin{figure}[t]
-\vspace{-0.5cm}
-\includegraphics[width=\textwidth]{figures/general_bench.pdf}
-\vspace{-1cm}
-\caption{Comparison of throughput and termination latency of update transactions.}
-\label{fig:general_bench}
-\end{figure}
-
-\subsection{Dynamic Workloads}
-
 \subsection{Read Abort Rate Impact}
-
-\todo{Maybe?}
