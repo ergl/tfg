@@ -28,21 +28,19 @@ In all our benchmarks, the system is loaded with one million random keys and 256
     & Update Tran.
 \tabularnewline
     \hline
-    A & Zipfian & 4 Reads & 2 Reads, 2 Updates \tabularnewline
+    % A & Zipfian & 4 Reads & 2 Reads, 2 Updates \tabularnewline
     B & Uniform & 4 Reads & 3 Reads, 1 Update \tabularnewline
     C & Uniform & 2 Reads & 1 Read, 1 Update \tabularnewline
-    D & Uniform & 3 Reads & 3 Reads, 1 Update \tabularnewline
+    % D & Uniform & 3 Reads & 3 Reads, 1 Update \tabularnewline
 \end{tabularx}
 \end{center}
-\caption{Transactional YCSB Workload Types. \todo{Remove unused workloads}}
+\caption{Transactional YCSB Workload Types.}
 \label{fig:workload-types}
 \end{figure}
 
-\subsection{Scalability Trade-offs}
+\subsection{Performance \& Scalability Limits}
 
-We begin by investigating the overall performance profile of our implementations by measuring and comparing the throughput and latency of the different protocols when the number of sites stays constant. For this experiment, we vary the number of concurrent client threads until we reach the saturation point of the system: the maximum throughput it can handle without degrading overall latency in a significant manner. We aim to explore the overall overhead of fastPSI in comparison with naiveRC, and the performance benefits it offers in comparison with naiveSER. To this aim, we use Workload C and three sites. Figure~\ref{fig:general_bench} shows our results. We vary the ratio of read-only to update transactions, from 90\%/10\% to 70\%/30\% (left to right), and measure the termination latency of update transactions, i.e., the amount of time spent on the validation process of a transaction.
-
-\todo{Describe graphs}
+\paragraph{Performance.} We begin by investigating the overall performance profile of our implementations by measuring and comparing the throughput and latency of the different protocols as the number of update transactions increases while keeping the number of sites stays constant. For this experiment, we vary the number of concurrent client threads until we reach the saturation point of the system: the maximum throughput it can handle without degrading overall latency in a significant manner. We aim to explore the overall overhead of fastPSI in comparison with naiveRC, and the performance benefits it offers in comparison with naiveSER. To this aim, we use Workload C and three sites. Figure~\ref{fig:general_bench} shows our results. We vary the ratio of read-only to update transactions, from 90\%/10\% to 70\%/30\% (left to right), and measure the termination latency of update transactions, i.e., the amount of time spent on the validation process of a transaction. Since the latency is measured in the client, it only reflects the amount of time spent on the \emph{prepare} phase of the commit validation, as the client does not need to wait until the changes of a transaction are committed to the partition state.
 
 \begin{figure}[t]
 \vspace{-0.5cm}
@@ -52,13 +50,28 @@ We begin by investigating the overall performance profile of our implementations
 \label{fig:general_bench}
 \end{figure}
 
-\begin{figure}[t]
+The naiveRC implementation uses 2PC to guarantee atomicity of update transactions, but otherwise proceeds without any validation. Although this is reflected in its high performance, the validation of transactions becomes the only bottleneck of the system, which explains why the overall throughput drops by as much as 20\% as the proportion of update transactions reaches 30\%.
+
+The naiveSER implementation is limited by its need to validate every transaction, and thus its overall performance is not hurt by varying the amount of update transactions. Although fastPSI also exhibits stable performance even as the proportion of update transactions grows, its relaxed consistency model allows it to outperform naiveSER in all cases, by approximately 150\%, while showing similar latencies. However, the overall performance of fastPSI is still limited, having approximately 85\% lower throughput as naiveRC.
+
+% \paragraph{Scalability.} To explore the overall scalability of fastPSI, we
+
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.5\textwidth]{figures/sites_bench.pdf}
 \vspace{-1cm}
 \end{center}
-\caption{Maximum Throughput of Consistency Models.\todo{Should this go here, or in next section?}}
+\caption{Maximum Throughput of Consistency Models.}
 \label{fig:site_bench}
+\end{figure}
+
+\begin{figure}[htb!]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/dynamic_bench.pdf}
+\vspace{-0.5cm}
+\end{center}
+\caption{Some text here.}
+\label{fig:dynamic_bench}
 \end{figure}
 
 \subsection{Dynamic Workloads}
@@ -73,7 +86,7 @@ We now explore the impact of several deployment parameters on the scalability of
     \hline
     Sites & 1--3 & 3
 \tabularnewline
-    Update Tran. Proportion & 10\%--50\% & 10\%
+    Update Tran. Proportion & 10\%--30\% & 10\%
 \tabularnewline
 \end{tabularx}
 \end{center}
@@ -82,3 +95,5 @@ We now explore the impact of several deployment parameters on the scalability of
 \end{figure}
 
 \subsection{Read Abort Rate Impact}
+
+\todo{Do we want to compare against SER, or just show combinations that make fastPSI abort more or less? I guess we should so fastPSI against SER in some settings to get a sense of how "good" the abort rate is.}

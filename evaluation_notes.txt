@@ -1,0 +1,44 @@
+RC read only needs to touch an ETS, so reads are wait-free and don't obstruct prepares
+(although there's a write-lock when updating, but should be only for that single key, not the entire table)
+A PSI/SER read first queries the MRVC for the partition, which is a query into an ETS
+Then, a passive wait until the partition is ready (so one ETS query per retry)
+After that, there are two possibilities:
+  - If hasRead is empty, query the ETS for the MRVC
+  - If hasRead is not empty, the logging_vnode is queried (sync, so blocks other reads and writes to this partition, plus O(log n) for searching the clock), and then:
+- For a subsequent read on the same partition, only the ETS table is queried (although there's some VLog processing, which is a linear scan)
+
+For prepare, each prepare is sync (inside vnode) for a partition (sequential, oops*), then
+for RC, enqueue tx and write into ETS the key-value pairs
+for PSI, check against ETS if keys in WS are members O(n),
+  if they are not, check other ETS and compare (stale version)
+for SER, check against ETS for membership, and for stale data in both RS and WS
+After, for both PSI/SER, enqueue tx and write into ETS key-value pairs (for RS and WS in SER, for WS in PSI)
+
+*: since reads are uniformly distr. and n_reads < n_partitions, there's not much chance of taking several partitions from a single node, so there's not much harm. This arguably has much more impact
+when having only one site, since partitions are much more concentrated.
+
+For decide, each decide is from outside vnode, but sequential, and involves a single ETS write into DECIDE_TABLE (write_concurrency set to true)
+For aborts, read/write from PENDING to remove the data, insert abort into DECIDE, then clean up data (see below). Since RC never aborts, this is never executed for it.
+After, every 1ms, schedule a dequeue (cast, but inside vnode)
+For every entry in queue, read/write (ets:take) from DECIDE_TABLE to check for ready-ness. If not ready, bail out of the queue. If ready/abort, read/write (ets:take) from PENDING
+Afterwards, for each entry in the queue that was returned:
+In RC: insert into ETS the new key, done
+For PSI/SER:
+sync call to mat_vnode, for each key in WS, read from ETS, update VLog, write to ETS
+update MRVC, read/write to ETS (lookup, max, then write)
+sync call to logging_vnode, inserts data into CommitLog
+For every key in WS, write last version (last prep) to ETS
+For PSI, for every key in WS, delete from ETS pending (use for w-w conflict detect.)
+for SER, as above, plus the same with RS
+
+RC: reads don't obstruct commit phase, and writes block vnode for minimal time (enqueing) and writing to ETS pending (not for w-w, but to store it off-heap). Dequeue blocks while scanning commit queue, updating ETS and clearing data
+PSI: the first read ever doesn't obstruct commit, just reads from ETS tables
+     subsequent first reads (hasRead[p]=false), sync call logging_vnode, blocking dequeue events
+     other reads just touch from ETS. Since we use uniform distr, not much prob of hitting the same
+     partition more than once, since n_reads < n_partitions
+     commit: prepares block vnode while doing w-w conflict, then enqueing
+             decides don't block
+             dequeue blocks while scanning commit queue, then updating ETS and clearing data, same
+             as RC but blocks for longer, since has to update VLog
+SER: same as reads in PSI, but takes more time to do w-r and r-w conflicts
+This means that adding more update txns will also delay read queries
