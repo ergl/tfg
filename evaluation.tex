@@ -16,7 +16,7 @@ Given that fastPSI requires the use of multiple versions per object, it becomes 
 
 We evaluate the performance of fastPSI using the Yahoo! Cloud Serving Benchmark~\citep{ycsb}, modified to generate transactional workloads~\citep{ardekani_nmsi, ardekani_gdur}. Our implementation of Read Committed is used as a baseline for comparison in order to show the maximum possible performance. Figure~\ref{fig:workload-types} describes the workloads used. All experiments are run on a cluster consisting of six core machines with 3.80~GHz to 4.70~GHz Intel Xeon processors, 32~GB of RAM, and a single 1~Gbps network port. We partition the cluster in up to three different sites, with four server machines and four client machines per site. Thus, there is no shared memory between clients and servers, as if clients were acting as proxies in the same data centre as servers. Since all our machines are located in the same local network, we artificially add latency between sites using the \texttt{tc} Linux command.
 
-In all our benchmarks, the system is loaded with one million random keys and 256-byte values prior to receiving any operations from the clients. Keys are mapped to servers using consistent hashing, with clients being aware of the distribution of keys to servers, and thus can directly address all server machines directly. Each client machine spawns multiple concurrent threads that execute transactions and communicate with servers in a closed-loop manner. For the experiments that involve more than one site, the latency between sites is of 10~ms.
+In all our benchmarks, the system is loaded with one million random keys and 256-byte values prior to receiving any operations from the clients. Keys are mapped to servers using consistent hashing, with clients being aware of the distribution of keys to servers, and thus can directly address all server machines directly. Each client machine spawns multiple concurrent threads that execute transactions and communicate with servers in a closed-loop manner. When transactions read more than object, clients perform those operations serially. For the experiments that involve more than one site, the latency between sites is of 10~ms.
 
 \begin{figure}[h]
 \begin{center}
@@ -97,3 +97,16 @@ We now explore the impact of several deployment parameters on the scalability of
 \subsection{Read Abort Rate Impact}
 
 \todo{Do we want to compare against SER, or just show combinations that make fastPSI abort more or less? I guess we should so fastPSI against SER in some settings to get a sense of how "good" the abort rate is.}
+
+\todo{First, a graph showing how abort rate changes for a certain workload as we increase the proportion of updates. Plot updates on x axis, and abort rate on Y axis. Do we show the proportion of read aborts here?}
+
+\todo{Then, show how certain settings of fastPSI can make read aborts appear/dissappear. Ideally }
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/abort_rate_bench.pdf}
+\vspace{-0.5cm}
+\end{center}
+\caption{Transaction abort ratio for different consistency models.}
+\label{fig:raw_abort_rate}
+\end{figure}
