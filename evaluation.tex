@@ -2,7 +2,7 @@
 \chapter{Implementation and Evaluation}
 \label{chapter:evaluation}
 
-We implement an evaluation that attempts to explore the overhead of fastPSI's stronger consistency semantics compared to the weakest Read Committed model, and show how fastPSI is able to outperform a protocol implementing the stronger Serialisability consistency model. We also evaluate fastPSI's scalability as more servers and partitions are added to the system, and discuss some of the weak points of the protocol\todonote{rephrase?}.
+We implement an evaluation that attempts to explore the overhead of fastPSI's stronger consistency semantics compared to the weakest Read Committed model, and show how fastPSI is able to outperform a protocol implementing the stronger Serialisability consistency model. We also evaluate the scalability of fastPSI as more servers and partitions are added to the system, and discuss some of the weak points of the protocol.\todonote{rephrase?}
 
 \section{Implementation}
 
@@ -94,15 +94,17 @@ As the number of sites increases, so does the difference between naiveSER and fa
 \includegraphics[width=\textwidth]{figures/dynamic_bench.pdf}
 \vspace{-1cm}
 \end{center}
-\caption{Parameter space exploration to reflect the performance comparison of the protocols. Each experiment varies one parameter while keeping the other fixed at its default value (represented by the grey vertical line). Throughput is shown normalised compared to naiveRC. \todo{Figure out naiveSER line on (b)}}
+\caption{Parameter space exploration to reflect the performance comparison of the protocols. Each experiment varies one parameter while keeping the other fixed at its default value (represented by the grey vertical line). Throughput is shown normalised compared to naiveRC.}
 \label{fig:dynamic_bench}
 \end{figure}
 
 \paragraph{Overall comparison.} We've seen how the performance and scalability of the implementations is determined by the proportion of update transactions and the number of sites. To better visualise the relationship between the workload choice and performance, we explore the parameter space described in Figure~\ref{fig:dynamic_parameters} when using Workload B. As in the previous experiment, we keep the number of partitions constant as we increase the number of sites. The results are shown in Figure~\ref{fig:dynamic_bench}, with the throughput depicted normalised compared to the performance of naiveRC.
 
-As shown in Figure~\ref{fig:dynamic_bench}a, fastPSI and naiveSER have different scalability properties. Although both implementations suffer in comparison with naiveRC, fastPSI exhibits much better scalability in comparison with naiveSER. For naiveSER, the need to validate every transaction imposes a performance penalty that increases as we add more sites, and consequently increases the overall latency of the commit phase for every transaction. In contrast, the impact on fastPSI is less severe, as the increased latency only affects the read operations, since the proportion of update transactions is low. Figure~\ref{fig:dynamic_bench}b shows the performance comparison as the proportion of update transactions increases.\todo{Finish this part.}
+As shown in Figure~\ref{fig:dynamic_bench}a, fastPSI and naiveSER have different scalability properties. Although both implementations suffer in comparison with naiveRC, fastPSI exhibits much better scalability in comparison with naiveSER. For naiveSER, the need to validate every transaction imposes a performance penalty that increases as we add more sites, and consequently increases the overall latency of the commit phase for every transaction. In contrast, the impact on fastPSI is less severe, as the increased latency only affects the read operations, since the proportion of update transactions is low.
 
-\subsection{Read Abort Rate Impact}
+Figure~\ref{fig:dynamic_bench}b shows the performance comparison as the proportion of update transactions increases. While the difference in throughput between naiveRC and fastPSI stays constant, the overall performance of fastPSI is hindered by the need to compute a causally compatible snapshot. Nevertheless, the fact that the relative performance stays constant in comparison with naiveRC shows that the validation process impact does not grow with the number of update transactions. The impact of update transactions on naiveSER is less pronounced, and its performance difference with fastPSI gets smaller as the proportion of updates increases. This is explained by the choice of workload: read-only transactions perform four reads, while update transactions perform three. Since naiveSER also validates read-only transactions, as the proportion of update transactions grows, the average number of partitions that participate in the voting phase shrinks from four to three, and therefore the runtime cost decreases.
+
+\subsection{Abort Rates}
 
 \todo{Do we want to compare against SER, or just show combinations that make fastPSI abort more or less? I guess we should so fastPSI against SER in some settings to get a sense of how "good" the abort rate is.}
 
@@ -124,6 +126,6 @@ As shown in Figure~\ref{fig:dynamic_bench}a, fastPSI and naiveSER have different
 \includegraphics[width=0.8\textwidth]{figures/psi_read_abort_bench.pdf}
 \vspace{-0.5cm}
 \end{center}
-\caption{Results from exploring fastPSI read abort rate across different workload and deployment scenarios.\todo{Make prettier.}}
+\caption{Results from exploring fastPSI read abort rate across different workload and deployment scenarios.}
 \label{fig:fastpsi_abort_rate}
 \end{figure}
