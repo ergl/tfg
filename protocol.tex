@@ -2,16 +2,6 @@
 \chapter{The fastPSI protocol}
 \label{chapter:protocol}
 
-% \todo{
-% Add an ``overview'' section with a figure that explains the protocol at a high level, step by step. We can do it as an example, denoting the messages between client and server. We can also say how the state (assuming an initial one) evolves with each step.
-
-% Another option is to use this figure in two places. In overview, the figure will explain the messages and steps. In the detailed section, use the figure as a running example.
-
-% Tradeoff of 2pc vs Saeida Ardekani et al. atomic multicast (the difference with NMSI)
-
-% Design tradeoffs?
-% }
-
 In this chapter, we describe \textbf{fastPSI}, a transactional protocol that implements Parallel Snapshot Isolation while allowing stronger consistency guarantees for transactions accessing objects inside \emph{entity groups}. We begin with an overview of what entity groups are, and by explaining the consistency guarantees of fastPSI for transactions executing both within and across different entity groups. We follow with a summary of how the different participants of the protocol interact with each other, and with a description of the different data structures involved. Next, we show how the protocol is structured by going over the execution of a transaction. We conclude with a discussion of the possible drawbacks of the design.
 
 \section{Consistency Guarantees}
@@ -361,7 +351,7 @@ Committed transactions are applied to the database in their order in $\CommitQue
 
 As mentioned in \ref{subsect:protocol_execution}, a transaction $\tx$ reads a causally consistent snapshot from a partition when two properties are maintained: on the one hand, if the snapshot of $\tx$ excludes a particular transaction $\tx'$, then $\tx$ must exclude $\tx'$ and any other transaction that causally depends on it from the snapshots $\tx$ fixes at any other partition. On the other hand, if the snapshot of $\tx$ includes a transaction, that transaction---along with its causal dependencies---must be included in any other snapshot fixed by $\tx$ at any other partition (either past or future). These two properties provide fastPSI with part of its consistency guarantees: transactions accessing objects in a single partition are executed under Snapshot Isolation (SI), whereas transactions accessing objects in different partitions are executed under Parallel Snapshot Isolation (PSI).
 
-However, it might be that both consistency models cannot be guaranteed at the same time. On the one hand, since Snapshot Isolation requires a strict order between snapshots, this means that fastPSI must provide a strict per-partition order of snapshots, represented by the commit order at a particular partition. On the other hand, under Parallel Snapshot Isolation, partitions are allowed to observe different commit orders of transactions, as long as those transactions are non-conflicting.
+However, it might be that both consistency models cannot be guaranteed at the same time. On the one hand, since Snapshot Isolation requires a strict order between snapshots, this means that fastPSI must provide a strict per-partition order of snapshots, represented by the commit order at a particular partition. On the other hand, under Parallel Snapshot Isolation, partitions are allowed to observe different commit orders of transactions, as long as those transactions are non-conflicting. When a transaction cannot guarantee both consistency models, it is forced to abort.
 
 Recall from~\ref{sect:protocol_structures} the usage of version vectors to represent causal dependencies, such that two transactions $\tx_1$ and $\tx_2$ are causally dependent if $\tx_1.\Vcomm \sqsubseteq \tx_2.\VCdep$\todonote{Revisit, true, or not?}, i.e. $\tx_2$ is causally dependent on $\tx_1$ if $\tx_2$ observes the updates of $\tx_1$. At the same time, the commit order of transactions at a partition $i$ is derived from the order of the sequence number of transactions stored in their commit vectors, such that $\tx_1$ committed at $i$ before $\tx_2$ if $\tx_1.\Vcomm[i] < \tx_2.\Vcomm[i]$.
 

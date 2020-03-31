@@ -10,7 +10,7 @@ Our implementation of the fastPSI protocol consists of a client-side library~\ci
 
 To validate the results of our evaluation, we also implemented two alternative protocols satisfying the Read Committed and Serialisability consistency models, called \textbf{naiveRC} and \textbf{naiveSER}, respectively. Both were implemented on top of our original implementation and are as efficient as possible. The pseudocode for both implementations can be found in Appendix~\ref{appendix:code}.
 
-Given that fastPSI requires the use of multiple versions per object, it becomes necessary to prevent an unbounded growth of the number of versions in both the $\VersionLog$ database and the number of entries in the per-partition $\CommitLog$. We implemented a simple garbage collection mechanism that maintains a fixed number of versions and that regularly prunes the oldest versions from the state of a partition.\todonote{Bench for this? Tradeoff between number of versions and abort rate. We should talk about Blotters's TTL GC in related work.}
+Given that fastPSI requires the use of multiple versions per object, it becomes necessary to prevent an unbounded growth of the number of versions in both the $\VersionLog$ database and the number of entries in the per-partition $\CommitLog$. We implemented a simple garbage collection mechanism that maintains a fixed number of versions and that regularly prunes the oldest versions from the state of a partition.\todonote{Mention tradeoff w/ number of versions and abort rate?}
 
 \section{Evaluation}
 
