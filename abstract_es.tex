@@ -6,30 +6,36 @@
 
 \vspace{1cm}
 
-La mayoría de las bases de datos distribuidas usan protocolos de consistencia débil
+La mayoría de las bases de datos distribuidas ofrecen modelos de consistencia débil
 para evitar la penalización de rendimiento que supone la coordinación de las distintas
-réplicas. Sin embargo, dichos protocolos imponen en los programadores la necesidad de
-razonar sobre posibles anomalías, así como implementar mecanismos de resolución de
+réplicas. Sin embargo, dichos modelos imponen en los programadores la necesidad de
+razonar sobre posibles anomalías y de implementar mecanismos de resolución de
 conflictos en el código de las aplicaciones.
 
-El protocolo PSI (Parallel Snapshot Isolation) se ha propuesto como una posible solución,
-sin embargo sufre de una significativa tasa de abortos debido a lecturas de datos antiguos,
-dado que las transaciones están obligadas a leer de una instantánea fijada en el momento
-en que comienzan.
+El modelo clásico de consistencia fuerte, \emph{serialisability}, facilita la
+verificación de los invariantes de las aplicaciones, y permite que los programadores
+no se preocupen sobre posibles problemas de concurrencia. Sin embargo, las bases de datos
+que ofrecen serialisability son difíciles de implementar y escalar, pues normalmente
+requieren el uso de comunicación global.
 
-En contraste, el protocolo NMSI (Non-Monotonic Snapshot Isolation) propuesto recientemente
-permite a las transacciones leer versiones de datos confirmados después de su comienzo,
-lo que conlleva una tasa de cancelación más baja y una mayor escalabilidad. A pesar de esto,
-la implementación propuesta utiliza un mecanismo de relojes complejo para garantizar instantáneas
-consistentes.
+Dos modelos de consistencia propuestos recientemente, Parallel Snapshot Isolation
+(PSI) y Non-Monotonic Snapshot Isolation (NMSI), permiten que las bases de datos
+distribuidas tengan un mayor rendimiento y una menor tasas de cancelación de
+transacciones, siendo a su vez los modelos de consistencia más fuertes que permiten
+implementaciones escalables que no requieren comunicación global. Aun así,
+ambos modelos no ofrecen las mismas garantías que serialisability, por lo que
+pueden ser difíciles de usar desde el punto de vista de las aplicaciones.
 
-En este trabajo, mostraremos una implementación del protocolo NMSI usando relojes lógicos
-para garantizar instantáneas consistentes y una resolución de conflictos simple, comparándola
-con la implementación anterior. Además, realizamos un estudio comparativo de diferentes
-implementaciones de protocolos de consistencia, mostrando que NMSI puede ofrecer un rendimiento
-similar a los protocolos más débiles mientras proporciona garantías mas fuertes.
+En este trabajo, mostramos una propuesta que busca acortar la distancia entre los modelos
+de consistencia fuerte y débil. Implementamos fastPSI, un protocolo de consistencia
+que permite al usuario ejecutar de manera selectiva transacciones serializables,
+reteniendo a su vez las propiedades de escalabilidad propias de modelos de consistencia
+débiles como PSI o NMSI. Realizamos una evaluación exhaustiva de fastPSI, comparándolo
+con otros protocolos de consistencia, tanto fuertes como débiles. Mostramos así
+que nuestra implementación logra un rendimiento mayor que serialisability sin por
+ello renunciar a la escalabilidad de protocolos más débiles.
 
-\vspace{0.8cm} % Fit keywords
+\vspace{1cm}
 
 \begin{center}
 {\bf \Large Palabras clave}
@@ -37,5 +43,4 @@ similar a los protocolos más débiles mientras proporciona garantías mas fuert
 
 \vspace{0.5cm}
 
-% TODO(borja): Overflow, we should cut from abstract to fit
 Modelos de Consistencia, Transacciones, Parallel Snapshot Isolation, Non-Monotonic Snapshot Isolation, Control de Concurrencia.

@@ -6,30 +6,31 @@
 
 \vspace{1cm}
 
-\todo{Keep this paragraph, merge the next two into a single one, to say that both PSI and NMSI help. However, sometimes the programmer wants stronger consistency (SI). In this work, we propose a variant of PSI that allows stronger consistency, while still being ``fast''.}
-
-Most distributed database systems use weak consistency protocols to avoid the
-performance penalty of coordinating replicas. However, these protocols impose
+Most distributed database systems offer weak consistency models in order to avoid
+the performance penalty of coordinating replicas. However, these models impose
 on the programmers the need to reason about possible anomalies, and the need
 to implement conflict resolution mechanisms in application code.
 
-Parallel Snapshot Isolation (PSI) has been proposed as a solution to this
-problem, however, it suffers a significant abort rate due to stale reads,
-given that transactions are forced to read from a fixed snapshot of versions
-once they start.
+The classic strong consistency model, serialisability, makes it easy to verify
+application invariants, and frees programmers from worrying about concurrency.
+Nevertheless, implementing and scaling distributed databases that offer
+serialisability proves difficult, as it usually requires global communication.
 
-In contrast, the recently proposed Non-Monotonic Snapshot Isolation (NMSI)
-protocol allows transactions to read versions of data committed after it
-started, leading to a lower abort rate and increased scalability. In spite
-of this, the proposed implementation uses a complex clock mechanism to ensure
-consistent snapshots.
+In contrast, the recently proposed Parallel Snapshot Isolation (PSI) and
+Non-Monotonic Snapshot Isolation (NMSI) consistency models allow greater
+performance and lower abort rates, while still being the strongest models that
+allow to build scalable systems without requiring global communication.
+On the other hand, these models still provide weaker guarantees than
+serialisability, and may prove difficult to use in applications.
 
-In this work, we'll show a implementation of the NMSI protocol using logical
-clocks to ensure consistent snapshots and simple conflict resolution, and
-compare it against the previous implementation. In addition, we perform a
-comparative study of different consistency protocol implementations, showing
-that NMSI can offer similar performance to weaker protocols while providing
-stronger guarantees.
+In this work, we show an approach to bridge the gap between weak and strong
+consistency models. We implement fastPSI, a consistency protocol that allows
+the user to selectively enforce serialisability for certain executions, while
+retaining the scalability properties of weaker consistency models like PSI and
+NMSI. We perform a comprehensive evaluation of fastPSI in comparison with other
+consistency protocols, both weak and strong, showing that our implementation
+offers better performance than serialisability, while retaining the scalability
+of weaker protocols.
 
 \vspace{1cm}
 
