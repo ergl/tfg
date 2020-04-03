@@ -6,34 +6,36 @@
 
 \vspace{1cm}
 
-La mayoría de las bases de datos distribuidas ofrecen modelos de consistencia débil
-para evitar la penalización de rendimiento que supone la coordinación de las distintas
-réplicas. Sin embargo, dichos modelos imponen en los programadores la necesidad de
-razonar sobre posibles anomalías y de implementar mecanismos de resolución de
-conflictos en el código de las aplicaciones.
-
-El modelo clásico de consistencia fuerte, \emph{serialisability}, facilita la
-verificación de los invariantes de las aplicaciones, y permite que los programadores
-no se preocupen sobre posibles problemas de concurrencia. Sin embargo, las bases de datos
-que ofrecen serialisability son difíciles de implementar y escalar, pues normalmente
-requieren el uso de comunicación global.
+La mayoría de las bases de datos distribuidas ofrecen modelos de consistencia
+débil para evitar la penalización de rendimiento que supone la coordinación de
+las distintas réplicas. Idealmente, las bases de datos distribuidas ofrecerían
+modelos de consistencia fuerte, como \emph{serialisability}, ya que facilitan la
+verificación de los invariantes de las aplicaciones, y permiten que los
+programadores no se preocupen sobre posibles problemas de concurrencia. Sin
+embargo, implementar sistemas escalables que ofrezcan modelos de consistencia
+fuerte nos es fácil, pues requieren el uso de comunicación global. Por otro lado,
+aunque los modelos más débiles permiten sistemas más escalables, imponen en los
+programadores la necesidad de razonar sobre posibles anomalías, así como
+implementar mecanismos de resolución de conflictos en el código de las aplicaciones.
 
 Dos modelos de consistencia propuestos recientemente, Parallel Snapshot Isolation
-(PSI) y Non-Monotonic Snapshot Isolation (NMSI), permiten que las bases de datos
-distribuidas tengan un mayor rendimiento y una menor tasas de cancelación de
-transacciones, siendo a su vez los modelos de consistencia más fuertes que permiten
-implementaciones escalables que no requieren comunicación global. Aun así,
-ambos modelos no ofrecen las mismas garantías que serialisability, por lo que
-pueden ser difíciles de usar desde el punto de vista de las aplicaciones.
+(PSI) y Non-Monotonic Snapshot Isolation (NMSI), representan los modelos más
+fuertes que permiten implementaciones escalables sin necesidad de comunicación
+global. Permiten, a su vez, implementar sistemas con rendimientos similares a
+aquellos con modelos más débiles, a la vez que mantienen tasas de cancelación de
+transacciones similares. Aun así, ambos modelos no logran ofrecen las mismas
+garantías que serialisability, por lo que pueden ser difíciles de usar desde el
+punto de vista de las aplicaciones.
 
-En este trabajo, mostramos una propuesta que busca acortar la distancia entre los modelos
-de consistencia fuerte y débil. Implementamos fastPSI, un protocolo de consistencia
-que permite al usuario ejecutar de manera selectiva transacciones serializables,
-reteniendo a su vez las propiedades de escalabilidad propias de modelos de consistencia
-débiles como PSI o NMSI. Realizamos una evaluación exhaustiva de fastPSI, comparándolo
-con otros protocolos de consistencia, tanto fuertes como débiles. Mostramos así
-que nuestra implementación logra un rendimiento mayor que serialisability sin por
-ello renunciar a la escalabilidad de protocolos más débiles.
+En este trabajo, mostramos una propuesta que busca acortar la distancia entre
+modelos como PSI y NMSI y modelos fuertes como serialisability. Implementamos
+fastPSI, un protocolo de consistencia que permite al usuario ejecutar de manera
+selectiva transacciones serializables, reteniendo a su vez las propiedades de
+escalabilidad propias de modelos de consistencia débiles como PSI o NMSI.
+Realizamos una evaluación exhaustiva de fastPSI, comparándolo con otros protocolos
+de consistencia, tanto fuertes como débiles. Mostramos así que nuestra
+implementación logra un rendimiento mayor que serialisability sin por ello
+renunciar a la escalabilidad de protocolos más débiles.
 
 \vspace{1cm}
 
@@ -43,4 +45,5 @@ ello renunciar a la escalabilidad de protocolos más débiles.
 
 \vspace{0.5cm}
 
-Modelos de Consistencia, Transacciones, Parallel Snapshot Isolation, Non-Monotonic Snapshot Isolation, Control de Concurrencia.
+Modelos de Consistencia, Transacciones, Parallel Snapshot Isolation,
+Non-Monotonic Snapshot Isolation, Control de Concurrencia.
