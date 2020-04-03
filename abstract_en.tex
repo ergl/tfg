@@ -9,7 +9,7 @@
 Most distributed database systems offer weak consistency models in order to avoid
 the performance penalty of coordinating replicas. Ideally, distributed databases
 would offer strong consistency models, like serialisability, since they make it
-easy to verify application invariants and frees programmers from worrying about
+easy to verify application invariants, and free programmers from worrying about
 concurrency. However, implementing and scaling systems with strong consistency
 is difficult, since it usually requires global communication. Weak models, while
 easier to scale, impose on the programmers the need to reason about possible
