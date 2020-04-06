@@ -2,27 +2,30 @@
 \chapter{Related Work}
 \label{chapter:related_work}
 
-\section{Catalog of Protocols}
+In this chapter, we give an overview of the previous work in the different settings that our work spans, and highlight the main differences between fastPSI and previous approaches.
 
-\todo{Figure out how to proceed with next section: we've already covered previous work in terms of consistency models, but we need to refer to previous implementations and how we differ (and why). We also need to justify our work. Main differences:
+% For robustness: Fekete for first establishing the concept, and Gotsman for showing how
+% robustness can be applied to PSI
 
-* We provide PSI/NMSI + strict per-partition snapshots. We use GMU's vector clocks to approach this.
+\paragraph{Application Robustness.} The notion of robustness as applied to databases was first investigated by Fekete et al.~\citep{fekete_ssi}, proposing a way to analyse if applications were robust against Snapshot Isolation (SI)~\citep{sql-critique}. The work of Fekete et al. has resulted in the proliferation of static analysis tools for detecting the presence of anomalies in applications~\citep{sudhir_static}, as well as several run-time techniques for ensuring serialisable transactions~\citep{ports_postgres}. More recently, Bernardi and Gotsman~\citep{concur_robustness} proposed several robustness criteria for a variety of consistency models, including Parallel Snapshot Isolation (PSI)~\citep{psi-intro}. Our work on fastPSI builds on the robustness criteria of Parallel Snapshot Isolation and of Snapshot Isolation to build a hybrid protocol that allows programmers to selectively strengthen consistency guarantees for individual transactions.
 
-* Mention that our read protocol is from GMU, but that they provide Update-SER
+% For entity groups: Megastore provided ACID transactions inside an entity group, and a relaxed
+% consistency model across groups.
 
-* The difference with Walter is that we have forward freshness, and that our timestamp mechanism doesn't need global sync.
+\paragraph{Entity Groups.} The concept of \emph{entity} was introduced by Helland~\citep{helland_entity} to refer to a self-contained data object, with application-defined boundaries, and uniquely identified by an entity key. In addition, Helland argued for the entity to be the largest \emph{scope of transactional serialisability}: transactions can only guarantee atomicity for objects held within the same entity, and with the limitation that transactions must not modify objects across entities.
 
-* The difference with Jessy is that we use 2PC, and GMU's reads instead of PDV. Why? => PDV's recursive definition is hard to follow. The original model with one entry per-key is simpler, but inefficient. In Jessy, the version compatibility check is done at they key level (does reading this specific version of an object break my causally consistent snapshot?) instead of at the partition level (like us). Impl. might violate atomicity? (see email about this, but I don't know if we ever checked).
+Later systems, such as Megastore~\citep{baker_megastore}, introduced the concept of \emph{entity groups}, disjoint aggregations of individual entities transactions to access distinct entities. Such systems offered strong consistency for transactions accessing entities within a group, while offering only weak consistency guarantees for transactions that accessed different entity groups. Such systems broadened the scope of transactional serialisability to encompass entire entity groups. In contrast, fastPSI provides PSI for all transactions, even those that access objects in multiple entity groups. At the same time, it further strengthens consistency guarantees for transactions accessing only individual entity groups, by providing SI.
 
-* The difference with Blotter is that they use Paxos commit. (Maybe we can omit it, and just point to it).
+\paragraph{Strong Consistency Protocols.} Although there is a large variety of protocols providing strong consistency, here we focus on those that provide similar guarantees to those in fastPSI, as well as others from which we draw inspiration in the design of our protocol.
 
-* The G-DUR paper mentions a 2PC version of Jessy. Mention it with Jessy.
+% For PSI: Walter paper, used vector timestamps (similar to VCs), but fixed at the beginning of transactions, hence has base freshness. Partial replication, syncs in the background to achieve monotonic timestamps.
 
-Mention Blotter, Walter etc for approaches via replication
+Walter, designed by Sovran et al.~\citep{psi-intro}, is a transactional key-value store that offers Parallel Snapshot Isolation. To track causality relations between transactions, Walter uses vector timestamps, similar to the version vectors we use in fastPSI. In contrast with our approach, Walter can only offer snapshots with base freshness, as transactions fix a start timestamp at the beginning of their execution, and as a result may experience a higher rate of aborted transactions due to stale reads. Walter also offers partial replication, but the combination of replication and the choice of monotonic start timestamp leads the system to perform global communication in the background with all replicas.
 
-Talk about Blotters's TTL GC?
-}
+% For NMSI: Ardekani, dependence vectors. First version has one entry per key. Big overhead, but snapshots are always as fresh as possible. Partitioned dependence vectors have less overhead, at the cost of only achieving forward freshness. (Genuine) Partial replication, atomic multicast.
 
-\subsection{Walter}
-\subsection{Jessy}
-% \subsection{GMU} Tentative, since we don't talk about US in previous section
+Proposed by Saeida Ardekani et al.~\citep{ardekani_nmsi}, Jessy is a similar transactional key-value store, and the first system to provide the Non-Monotonic Snapshot Isolation (NMSI) consistency model. Unlike Walter, however, transactions in Jessy observe forward freshness in their snapshots, allowing greater scalability. To support consistency snapshots, Jessy uses a data structure called dependence vector, with a number of entries either equal to the number of objects, or equal to the number of partitions. The former approach suffers from a big overhead, although it allows transactions to read versions of objects as fresh as possible. With one entry per partition, Jessy offers greater scalability, at the cost of introducing spurious conflicts between transactions. In fastPSI, we follow a similar approach, using version vectors with one entry per partition. Like Walter, Jessy also supports partial replication. However, Jessy relies on atomic multicast primitives~\citep{guerraoui_multicast}, instead of the two-phase commit protocol used in Walter and in our own protocol, fastPSI.
+
+Another protocol that provides NMSI is Blotter, proposed by Moniz et al.~\citep{moniz_blotter}. In contrast with Jessy, Blotter support full replication, through the use of Paxos commit~\citep{gray_paxos_commit}. The design of Blotter shows how the properties of NMSI, like forward freshness, can be used to design protocols with full replication without loss of scalability. As fastPSI retains forward freshness from NMSI, our protocol could be adapted following the design described by Moniz et al. to allow a version of fastPSI that supports full replication.\todonote{Maybe leave for conclusion?}
+
+Peluso et al.~\citep{peluso_gmu} proposed GMU, a transactional protocol that uses vector clocks to track causal dependencies. Much of the design of fastPSI is inspired by GMU, including its mechanism to build consistent snapshots. The consistency guarantees are different, however, as transactions in GMU satisfy the \emph{Extended Update Serialisability} (EUS)~\citep{hansdah_update_ser, adya_thesis} consistency model. EUS guarantees serialisability for update transactions, while read-only transactions can observe different commit orders for non-conflicting transactions, similar to the guarantees offered by the causally compatible snapshots of fastPSI. Even though GMU offers a stronger consistency model than our protocol, GMU always commits read-only transactions, in contrast with the possibility of aborts under fastPSI when transactions cannot satisfy SI and PSI for the same snapshot.
