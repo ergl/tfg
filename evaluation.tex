@@ -14,7 +14,7 @@ Given that fastPSI requires the use of multiple versions per object, it becomes 
 
 \section{Evaluation}
 
-We evaluate the performance of fastPSI using the Yahoo! Cloud Serving Benchmark~\citep{ycsb}, modified to generate transactional workloads~\citep{ardekani_nmsi, ardekani_gdur}. Our implementation of Read Committed is used as a baseline for comparison, in order to show the maximum possible performance. Figure~\ref{fig:workload-types} describes the workloads used\todonote{mention that D and E are invented. Maybe say that we take inspiration from YCSB, instead of saying that we use it}. All experiments are run on a cluster consisting of machines running Debian 4.19.67-2 (Stretch) with 3.80~GHz to 4.70~GHz Intel Xeon processors with six cores, 32~GB of RAM, and a single 1~Gbps network port. We partition the cluster in up to three different sites, with four server machines and four client machines in each site. Thus, there is no shared memory between clients and servers, as if clients were acting as proxies in the same data centre as servers. Since all our machines are located in the same local network, we artificially add latency between sites using the \texttt{tc} Linux command.
+We evaluate the performance of fastPSI using several workloads inspired by the Yahoo! Cloud Serving Benchmark (YCSB)~\citep{ycsb}, modified to generate transactional workloads~\citep{ardekani_nmsi, ardekani_gdur}. Our implementation of Read Committed is used as a baseline for comparison, in order to show the maximum possible performance. Figure~\ref{fig:workload-types} describes the workloads used. All experiments are run on a cluster consisting of machines running Debian 4.19.67-2 (Stretch) with 3.80~GHz to 4.70~GHz Intel Xeon processors with six cores, 32~GB of RAM, and a single 1~Gbps network port. We partition the cluster in up to three different sites, with four server machines and four client machines in each site. Thus, there is no shared memory between clients and servers, as if clients were acting as proxies in the same data centre as servers. Since all our machines are located in the same local network, we artificially add latency between sites using the \texttt{tc} Linux command.
 
 In all our benchmarks, the system is loaded with one million random keys and 256-byte values prior to receiving any operations from the clients. Partitions are distributed uniformly across servers, such that a server might be responsible for multiple partitions. Keys are mapped to partitions using consistent hashing~\citep{karger_chashing}, with clients being aware of the distribution of keys to partitions and server machines. Thus, clients can directly address the correct server and partition for a specific key. Each client machine spawns multiple concurrent threads that execute transactions and communicate with servers in a closed-loop fashion. When transactions read more than object, clients perform those operations serially. For the experiments that involve more than one site, the latency between sites is of 10~ms.
 
@@ -28,14 +28,13 @@ In all our benchmarks, the system is loaded with one million random keys and 256
     & Update Tran.
 \tabularnewline
     \hline
-    % A & Zipfian & 4 Reads & 2 Reads, 2 Updates \tabularnewline
     B & Uniform & 4 Reads & 3 Reads, 1 Update \tabularnewline
     C & Uniform & 2 Reads & 1 Read, 1 Update \tabularnewline
     D & Uniform & 3 Reads & 3 Reads, 1 Update \tabularnewline
     E & Uniform & 3 Reads & 3 Reads, 3 Updates \tabularnewline
 \end{tabularx}
 \end{center}
-\caption{Transactional YCSB Workload Types.}
+\caption{Transactional YCSB Workload Types.\todo{Revisit workload names?}}
 \label{fig:workload-types}
 \end{figure}
 
@@ -47,7 +46,7 @@ In all our benchmarks, the system is loaded with one million random keys and 256
 \vspace{-0.5cm}
 \includegraphics[width=\textwidth]{figures/general_bench.pdf}
 \vspace{-1cm}
-\caption{Comparison of throughput and termination latency of update transactions. \todo{Move legend to top, remove title?}}
+\caption{Comparison of throughput and termination latency of update transactions.}
 \label{fig:general_bench}
 \end{figure}
 
