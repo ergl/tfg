@@ -102,7 +102,7 @@ Serialisability restricts the set of possible histories to those equivalent to s
 \end{figure}
 
 % Maybe add FaunaDB, too: https://fauna-assets.s3.amazonaws.com/public/FaunaDB-Technical-Whitepaper.pdf, or reference the Calvin paper (thomson_calvin)
-Because of the CAP theorem, distributed databases can't offer Serialisability without sacrificing availability~\citep{cap-brewer, cap-theorem}. Although some database systems offer it~\citep{google_spanner}, guaranteeing serialisability in geo-replicated systems\todonote{first mention, define} is difficult, requiring global communication and consensus mechanisms, like Paxos~\citep{lamport_paxos}.
+Because of the CAP theorem, distributed databases can't offer Serialisability without sacrificing availability~\citep{cap-brewer, cap-theorem}. Although some database systems offer it~\citep{google_spanner}, guaranteeing serialisability in geo-replicated systems is difficult, requiring global communication and consensus mechanisms, like Paxos~\citep{lamport_paxos}.
 
 \subsection{Snapshot Isolation (SI)}
 \label{sect:si}
@@ -128,12 +128,12 @@ Due to the partial order among transactions, and the condition that concurrent t
 A \emph{Write Skew} occurs whenever non-conflicting transactions update objects related with an external invariant, successfully commit, and as a result violate the original invariant.
 \end{definition}
 
-Due to the fact that transactions are assigned monotonically-increasing \emph{start} and \emph{commit} timestamps, this imposes a total order among the commit times of transactions, i.e. a total \textbf{\em commit order}. In addition, given that the updates of a transaction $\tx$ must be immediately visible to subsequent transactions, this means that $T$ must wait to commit until all its updates have been propagated to all remote replicas\todonote{first mention}. These two facts make Snapshot Isolation unsuitable for geo-replicated database systems without relying on global communication, which makes them hard to scale.
+Due to the fact that transactions are assigned monotonically-increasing \emph{start} and \emph{commit} timestamps, this imposes a total order among the commit times of transactions, i.e. a total \textbf{\em commit order}. In addition, given that the updates of a transaction $\tx$ must be immediately visible to subsequent transactions, this means that $T$ must wait to commit until all its updates have been propagated to all remote replicas. These two facts make Snapshot Isolation unsuitable for geo-replicated database systems without relying on global communication, which makes them hard to scale.
 
 \subsection{Parallel Snapshot Isolation (PSI)}
 \label{sect:psi}
 
-Parallel Snapshot Isolation (PSI), proposed by Sovran et al.~\citep{psi-intro}, is a consistency model aimed at solving the scalability limits of classical Snapshot Isolation in geo-replicated\todonote{define} systems. While concurrent conflicting transactions are not allowed, PSI allows non-conflicting transactions to exhibit a relative commit order that varies between replicas\todonote{define}. This means that PSI can propagate transactions to replicas in \emph{causal} order, sidestepping another scalability limit of SI.
+Parallel Snapshot Isolation (PSI), proposed by Sovran et al.~\citep{psi-intro}, is a consistency model aimed at solving the scalability limits of classical Snapshot Isolation in geo-replicated systems. While concurrent conflicting transactions are not allowed, PSI allows non-conflicting transactions to exhibit a relative commit order that varies between replicas. This means that PSI can propagate transactions to replicas in \emph{causal} order, sidestepping another scalability limit of SI.
 
 However, allowing different commit orders for non-conflicting transactions at different replicas (or \emph{sites}) makes PSI susceptible to the \emph{Long Fork} anomaly~\citep{psi-intro}. Consider the history depicted in Figure~\ref{fig:long_fork_history}. If transactions $\tx_4$ and $\tx_5$ are executing in different sites, they might observe different commit orders for $\tx_2$ and $\tx_3$.
 
@@ -148,7 +148,7 @@ However, allowing different commit orders for non-conflicting transactions at di
 A \emph{Long Fork} occurs whenever a transaction is able to observe different orderings of previous non-conflicting update transactions.
 \end{definition}
 
-Like SI, PSI exhibits \emph{base freshness}~\citep{ardekani_freshness}: a transaction $\tx$ is limited to read only versions of objects written by transactions that committed before $\tx$ started. In the geo-replicated scenarios that PSI is meant to address, this limitation leads to a high number of stale data reads. Consider the example of two sites $s_1$ and $s_2$ separated by a high latency link: if a transaction starts in $s_1$ and subsequently tries to read an object located at $s_2$, it might be the case that the version it is forced to read due to base freshness has already been overwritten by other transactions. Saeida Ardekani et al.~\citep[Theorem 4]{ardekani_si_limits} prove that base freshness requires replicas that do not replicate data accessed by a transaction $\tx$ to coordinate in order to commit $\tx$\todonote{Mention why this is bad}. Indeed, the original implementation advanced by Sovran et al. communicates with all the replicas in the system~\citep{psi-intro}.
+Like SI, PSI exhibits \emph{base freshness}~\citep{ardekani_freshness}: a transaction $\tx$ is limited to read only versions of objects written by transactions that committed before $\tx$ started. In the geo-replicated scenarios that PSI is meant to address, this limitation leads to a high number of stale data reads. Consider the example of two sites $s_1$ and $s_2$ separated by a high latency link: if a transaction starts in $s_1$ and subsequently tries to read an object located at $s_2$, it might be the case that the version it is forced to read due to base freshness has already been overwritten by other transactions. Saeida Ardekani et al.~\citep[Theorem 4]{ardekani_si_limits} prove that base freshness requires replicas that do not replicate data accessed by a transaction $\tx$ to coordinate in order to commit $\tx$, which results in lower system performance and limits scalability. Indeed, the original implementation advanced by Sovran et al. communicates with all the replicas in the system~\citep{psi-intro}.
 
 \subsection{Non-Monotonic Snapshot Isolation (NMSI)}
 \label{sect:nmsi}
