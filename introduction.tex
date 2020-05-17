@@ -29,7 +29,7 @@ Most recently, Bernardi and Gotsman~\citep{concur_robustness} proposed a way to 
 
 Our goal is to help programmers to bridge the gap between weak and strong consistency protocols, without sacrificing application correctness. To that end, we propose fastPSI, an implementation of Parallel Snapshot Isolation that allows to selectively enforce serialisability for transactions through careful grouping of database objects into \emph{entity groups}~\citep{baker_megastore}: transactions accessing objects in the same group execute as if they were running under a system guaranteeing SI (instead of the weaker PSI). Following the techniques proposed by Fekete et al.~\citep{fekete_ssi}, these transactions can be further constrained so that they execute as if running under serialisability.\\
 
-The contributions of this work are:
+As such, the contributions of this work are:
 
 \begin{itemize}
     \item A hybrid consistency protocol that allows mixing Snapshot Isolation with Parallel Snapshot Isolation, by relying on entity groups. This protocol allows programmers to combine the scalability of Parallel Snapshot Isolation with the familiarity and intuitiveness of well-known consistency models like Snapshot Isolation and Serialisability.
@@ -39,4 +39,48 @@ The contributions of this work are:
     \item An exposition of the drawbacks and trade-offs of the protocol, and a discussion of how their impact can be minimised.
 \end{itemize}
 
+\section{Work Plan}
+
+The work carried out for this project was divided in the following phases:
+
+\begin{itemize}
+    \item Explore previous contributions. It's necessary to get familiarised with existing terminology, as well as previous work and implementations.
+
+    \item Delimit project scope. After having the necessary knowledge to carry out the work, we established the limits and specific contributions of our work. We also establish the hypotheses that our final implementation should validate.
+
+    \item Implementation phase. After settling clear objectives and milestones, we carried out the bulk of the implementation. Throughout this phase, we also interleaved testing and validation of the software, both with unit tests and with model checking techniques.
+
+    \item Benchmark and validation. With the implementation complete, we design representative benchmarks and scenarios to validate the performance of our implementation. We also validate our previous hypotheses, and frame our results in the context of the existing literature.
+\end{itemize}
+
+\section{Document Structure}
+
 The rest of this document is structured as follows. Chapter~\ref{chapter:preliminaries} provides an overview of the most relevant consistency models, as well as basic notions that will be used throughout this document. Chapter~\ref{chapter:protocol} introduces fastPSI, a PSI protocol that allows the programmer to selectively enforce serialisable executions. It also discusses some potential shortcomings of its design. Chapter~\ref{chapter:evaluation} provides a comprehensive evaluation of fastPSI and a comparison against alternative consistency models. Chapter~\ref{chapter:related_work} compares our approach with previous work, and highlights the main differences. Finally, Chapter~\ref{chapter:conclusion} provides our conclusions.
+
+\section{Sources and Repositories}
+
+The relevant sources related to this document can be found online at the following repositories:
+
+\begin{itemize}
+    \item The server-side of the fastPSI protocol, to be found at \url{https://github.com/ergl/antidote/tree/pvc}.
+
+    \item The client-side library of the fastPSI protocol, to be found at \url{https://github.com/ergl/pvc/tree/master}.
+
+    \item The software used to benchmark fastPSI, modified with extra features, to be found at \url{https://github.com/ergl/lasp-bench/tree/coord}.
+
+    \item The benchmark data, along with several scripts used to generate the plots on Chapter~\ref{chapter:evaluation}, to be found at \url{https://github.com/ergl/antidote-evaluation}.
+\end{itemize}
+
+\section{Related Program Courses}
+
+Several courses during the Computer Science program were of great help to learn the foundations and the necessary skills to carry out the work in this document:
+
+\begin{itemize}
+    \item \emph{Databases} and \emph{Advanced Databases}, which taught the foundational concepts of transactions, consistency and concurrency control. In particular, the latter covered the implementation and design of the storage subsystems of databases.
+
+    \item \emph{Networks} and \emph{Advanced Operating Systems and Networks}, which taught the necessary skills to design and implement an efficient client-server protocol on top of TCP.
+
+    \item \emph{Technology and Organisation of Computer Systems}, which taught the necessary cache and distributed memory designs that allowed an increased performance of the fastPSI server implementation.
+
+    \item \emph{Probability and Statistics} and \emph{Evaluation of Computer Systems}, which taught the foundational concepts needed for an effective interpretation of benchmark data, along with theoretical models---such as queueing theory---necessary to tune performance and to design effective performance experiments.
+\end{itemize}
