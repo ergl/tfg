@@ -127,12 +127,12 @@ Due to the fact that transactions are assigned monotonically-increasing \emph{st
 
 Parallel Snapshot Isolation (PSI), proposed by Sovran et al.~\citep{psi-intro}, is a consistency model aimed at solving the scalability limits of classical Snapshot Isolation in geo-replicated systems. While concurrent conflicting transactions are not allowed, PSI allows non-conflicting transactions to exhibit a relative commit order that varies between replicas. This means that PSI can propagate transactions to replicas in \emph{causal} order, sidestepping another scalability limit of SI.
 
-However, allowing different commit orders for non-conflicting transactions at different replicas (or \emph{sites}) makes PSI susceptible to the \emph{Long Fork} anomaly~\citep{psi-intro}. Consider the history depicted in Figure~\ref{fig:long_fork_history}. If transactions $\tx_4$ and $\tx_5$ are executing in different sites, they might observe different commit orders for $\tx_2$ and $\tx_3$.
+However, allowing different commit orders for non-conflicting transactions at different replicas (or \emph{sites}) makes PSI susceptible to the \emph{Long Fork} anomaly~\citep{psi-intro}. Consider the history depicted in Figure~\ref{fig:long_fork_history}. If transactions $\tx_4$ and $\tx_5$ execute in different replicas, they are allowed to observe different commit orders for $\tx_2$ and $\tx_3$.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{figures/long_fork_hist.pdf}
-  \caption{Example of a history showing the long fork anomaly. Transaction $\tx_4$ observes $\tx_1 \hb \tx_2 \hb \tx_3$ while $\tx_5$ observes $\tx_1 \hb \tx_3 \hb \tx_2$.}
+  \caption{Example of a history showing the Long Fork anomaly. Transaction $\tx_4$ observes $\tx_1 \hb \tx_2 \hb \tx_3$ while $\tx_5$ observes $\tx_1 \hb \tx_3 \hb \tx_2$.}
   \label{fig:long_fork_history}
 \end{figure}
 
