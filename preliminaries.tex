@@ -2,12 +2,12 @@
 \chapter{Preliminaries}
 \label{chapter:preliminaries}
 
-We begin with an introduction to the notation and basic concepts used throughout this document. We also review several \emph{strong} and \emph{weak} consistency models, based on the anomalies that are observable in each model.
+This chapter begins with an introduction to the notation and basic concepts used throughout this document. It also reviews several \emph{strong} and \emph{weak} consistency models, based on the anomalies that are observable in each model.
 
 \section{Notation}
 \label{sect:notation}
 
-In this section, we define the elements we use throughout this chapter, such as transactions, histories, and relations. We follow the models used by Saeida Ardekani~\citep{ardekani_thesis}, Adya~\citep{adya_thesis} and Bernstein et al.~\citep{bernstein_concurrency}.
+This section defines the elements used throughout this chapter, such as transactions, histories, and relations. It follows the models used by Saeida Ardekani~\citep{ardekani_thesis}, Adya~\citep{adya_thesis} and Bernstein et al.~\citep{bernstein_concurrency}.
 
 \subsection{Objects and Replication}
 \label{sect:objects}
@@ -61,14 +61,14 @@ A \emph{Dirty Write} occurs in a history $h$ when a transaction $\tx_i$ modifies
 A \emph{Dirty Read} occurs in a history $h$ when a transaction $\tx_i$ reads an object $x$ modified by a pending transaction $\tx_j$. If $\tx_j$ ultimately aborts in $h$, its updates never take place. Thus, the value shouldn't be observed by $\tx_i$. This is represented by a history such as $r_1(x_0)\ldots w_1(x_1)\ldots r_2(x_1)\ldots c_2\ldots a_1$.
 \end{definition}
 
-Both of these anomalies can be prevented by making a the changes of a transaction visible only after it commits. For example, the updates of a transaction can be buffered locally. All the consistency models we describe in the sections that follow preclude dirty writes and reads. Transactions executing under such models offer \emph{atomicity} (A in \underline{A}CID).
+Both \emph{Dirty Writes} and \emph{Dirty Reads} can be prevented in at the implementation level by making the changes made by a transaction visible only after the transaction commits. For example, the updates of a transaction can be buffered locally. All the consistency models we describe in the sections that follow preclude dirty writes and reads. Transactions executing under such models offer \emph{atomicity} (A in \underline{A}CID).
 
 \subsection{Read Committed (RC)}
 
 Read Committed is the simplest consistency model that satisfies the atomicity guarantee of ACID transactions, by preventing dirty reads and writes. Although this model specifies that all or none of the updates by a transaction are applied to the database, it does not prevent concurrent transactions from observing only a subset of those updates. As a result of the simplicity of this model, systems operating under Read Committed might observe anomalous behaviour, such as non-repeatable reads or lost updates, as described below.
 
 \begin{definition}[Non-Repeatable Read]
-A non-repeatable read---also called a \emph{fuzzy read}--occurs whenever a transaction $\tx_i$ observes different values for an object $x$ on subsequent read operations when interleaved by a commit by another transaction, $\tx_j$. This can be seen in $r_1(x_0)\ldots r_2(x_0).w_2(x_2).c_2 \ldots r_1(x_2)$. Here, $\tx_1$ observers two different values of $x$: the initial version $x_0$ and the version $x_2$ written by $\tx_2$.
+A non-repeatable read---also called a \emph{fuzzy read}--occurs whenever a transaction $\tx_i$ observes different values for an object $x$ on subsequent read operations when interleaved by a commit by another transaction, $\tx_j$. This can be seen in $r_1(x_0)\ldots r_2(x_0).w_2(x_2).c_2 \ldots r_1(x_2)$. Here, $\tx_1$ observes two different values of $x$: the initial version $x_0$ and the version $x_2$ written by $\tx_2$.
 \end{definition}
 
 The non-repeatable read anomaly can be prevented in an easy way: a transaction can keep a cache of already read values. Subsequent read operations can return values from this read cache.
