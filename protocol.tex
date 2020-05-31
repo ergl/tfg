@@ -38,7 +38,7 @@ Each partition stores multiple versions of an object represented by a tuple $\la
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
 \begin{tabularx}{\linewidth}{|c|p{5.5cm}|X|}
   \hline
-  \multicolumn{3}{|c|}{\textbf{Variables at a server $s_i$}}\\
+  \multicolumn{3}{|c|}{\textbf{Data Structures at a server $s_i$}}\\
   \hline
   $\lastprep$ & {\sf Integer} & The number of update transactions that tried to
   commit at the server.
@@ -68,6 +68,33 @@ Each partition stores multiple versions of an object represented by a tuple $\la
   at the server.
 \\
   \hline
+\end{tabularx}
+}
+\caption{
+  Data structures used by servers in the protocol. The orders of entries in $\CommitLog$, $\VersionLog$ and $\CommitQueue$ are consistent with the commit order of the associated transactions. We select the components of various tuples using the names given in the figure.}
+\label{fig:server-structures}
+\end{figure}
+
+Each server $s_i$ maintains five main data structures, summarised in Figure~\ref{fig:server-structures}. We now offer a more detailed explanation of each of them.
+
+$\lastprep$ is a counter of the number of update transactions that initiated their commit phase at a given server. When a transaction commits at a server $s_i$, it gets assigned the value of the counter as a \emph{sequence number} $k$, which induces the \emph{commit order} of transactions at $s_i$. A transaction computes its \emph{commit vector} $V_c$ from these sequence numbers, such that the vector represents the set of dots $\{(s_i, k) \mid k \le V_c[i]\}$ which identifies the writes by previous transactions whose sequence number at a server $s_i$ is no higher than $V_c[i]$.
+
+$\VersionLog$ is a mapping of objects to a list of versions, which we call the \emph{database}. As noted before, each version is a tuple $\langle \mathsf{val},\ \Vcomm \rangle$ such that $\mathsf{val}$ is a value and $\Vcomm$ is the commit vector of the transaction that wrote $\mathsf{val}$. The $\VersionLog$ at $s_i$ is ordered by the $i$-th component of the commit vector of each version, which follows the commit order of transactions at the server. We denote by $\VersionLog[x].\last$ the most recent entry in the list for the object $x$.
+
+$\CommitLog$ is an ordered list that maintains a tuple $\langle T,\ \Vaggr \rangle$ for each update transaction that committed at a server, such that $\tx$ is the identifier of a committed transaction and $\Vaggr$ is an \emph{aggregate vector}. The aggregate vector represents the join of the commit vectors of all the transactions up to $\tx$ in $\CommitLog$. Entries in the log at $s_i$ are totally ordered according to the $i$-th entry of their aggregate vectors, $\Vaggr[i]$, which also follows the commit order of transactions at the server. These aggregate vectors are stored for efficiency, and are used to compute the snapshot of a transaction at the server. The aggregate vector of the last committed transaction is stored in $\LocalTime$. Initially, the $\CommitLog$ contains a single placeholder entry $\langle \_, \vec{0} \rangle$.
+
+Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit updates at the server. The queue has entries of two types. An entry $\langle \tx, \pending, \localWS \rangle$ means that $\tx$ is successfully prepared to commit at $s_i$, but the final decision on it is not yet known; $\localWS$ is the \emph{write-set} of the transaction, containing object-value pairs. An entry $\langle \tx, \ready, \localWS, V \rangle$ in the queue means that $\tx$ has been decided to commit with a commit vector $V$, but its writes have not yet been added to the $\VersionLog$. The order of transactions in $\CommitQueue$ follows the commit order at the server.
+
+\section{Protocol Description}
+
+We now describe in detail how the protocol works by following the execution of a transaction. We begin by describing how a transaction is initialised, along with the mechanism to build a causally consistent snapshot. Later, we show the mechanism to validate and commit a transaction.
+
+\subsection{Transaction Execution}
+\label{subsect:protocol_execution}
+
+\begin{figure}[h]
+\noindent\adjustbox{max width=\paperwidth}{\footnotesize
+\begin{tabularx}{\linewidth}{|c|p{4cm}|X|}
   \hline
   \multicolumn{3}{|c|}{\textbf{Context for a transaction $T$ at a client $c_i$}} \\
   \hline
@@ -89,30 +116,14 @@ Each partition stores multiple versions of an object represented by a tuple $\la
   \hline
 \end{tabularx}
 }
-\caption{List of variables used in the protocol, where
-  ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$. The orders
-  of entries in $\CommitLog$, $\VersionLog$ and $\CommitQueue$ are consistent
-  with the commit order of the associated transactions. We
-  select the components of various tuples using the names given in the figure.}
-\label{fig:prot-ds-table}
+\caption{
+  Data structures used in the transaction context, kept by the clients in the protocol. In the table, ${\sf WriteSet} = {\sf Set}[\langle \keytype, \valuetype \rangle]$
+}
+\label{fig:context-variables}
 \end{figure}
 
-Each server $s_i$ maintains five main data structures, summarised in Figure~\ref{fig:prot-ds-table}. We now offer a more detailed explanation of each of them.
 
-$\lastprep$ is a counter of the number of update transactions that initiated their commit phase at a given server. When a transaction commits at a server $s_i$, it gets assigned the value of the counter as a \emph{sequence number} $k$, which induces the \emph{commit order} of transactions at $s_i$. A transaction computes its \emph{commit vector} $V_c$ from these sequence numbers, such that the vector represents the set of dots $\{(s_i, k) \mid k \le V_c[i]\}$ which identifies the writes by previous transactions whose sequence number at a server $s_i$ is no higher than $V_c[i]$.
-
-$\VersionLog$ is a mapping of objects to a list of versions, which we call the \emph{database}. As noted before, each version is a tuple $\langle \mathsf{val},\ \Vcomm \rangle$ such that $\mathsf{val}$ is a value and $\Vcomm$ is the commit vector of the transaction that wrote $\mathsf{val}$. The $\VersionLog$ at $s_i$ is ordered by the $i$-th component of the commit vector of each version, which follows the commit order of transactions at the server. We denote by $\VersionLog[x].\last$ the most recent entry in the list for the object $x$.
-
-$\CommitLog$ is an ordered list that maintains a tuple $\langle T,\ \Vaggr \rangle$ for each update transaction that committed at a server, such that $\tx$ is the identifier of a committed transaction and $\Vaggr$ is an \emph{aggregate vector}. The aggregate vector represents the join of the commit vectors of all the transactions up to $\tx$ in $\CommitLog$. Entries in the log at $s_i$ are totally ordered according to the $i$-th entry of their aggregate vectors, $\Vaggr[i]$, which also follows the commit order of transactions at the server. These aggregate vectors are stored for efficiency, and are used to compute the snapshot of a transaction at the server. The aggregate vector of the last committed transaction is stored in $\LocalTime$. Initially, the $\CommitLog$ contains a single placeholder entry $\langle \_, \vec{0} \rangle$.
-
-Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit updates at the server. The queue has entries of two types. An entry $\langle \tx, \pending, \localWS \rangle$ means that $\tx$ is successfully prepared to commit at $s_i$, but the final decision on it is not yet known; $\localWS$ is the \emph{write-set} of the transaction, containing object-value pairs. An entry $\langle \tx, \ready, \localWS, V \rangle$ in the queue means that $\tx$ has been decided to commit with a commit vector $V$, but its writes have not yet been added to the $\VersionLog$. The order of transactions in $\CommitQueue$ follows the commit order at the server.
-
-\section{Protocol Description}
-
-We now describe in detail how the protocol works by following the execution of a transaction. We begin by describing how a transaction is initialised, along with the mechanism to build a causally consistent snapshot. Later, we show the mechanism to validate and commit a transaction.
-
-\subsection{Transaction Execution}
-\label{subsect:protocol_execution}
+A client executing a transaction $\tx$ maintains a transaction \emph{context} including several pieces of data, summarised in Figure~\ref{fig:context-variables} and explained below. This context is initialised by the client when it starts a transaction (line~\ref{alg:start_tx_start}).
 
 \begin{figure}[h]
 \begin{algorithm}[H]
@@ -130,10 +141,10 @@ We now describe in detail how the protocol works by following the execution of a
     $\tx.\WS \leftarrow \left(\tx.\WS\ \backslash\ \{\langle x, \_ \rangle\}\right) \cup \{\langle x,v\rangle\}$\;\label{alg:write_end}
   }
 \end{algorithm}
-\caption{Initialisation of a transaction and update of an object \emph{x} at client $c_i$.}
+\caption{
+  Initialisation of a transaction and update of an object \emph{x} at client $c_i$.
+}
 \end{figure}
-
-A client executing a transaction $\tx$ maintains a transaction \emph{context} including several pieces of data, summarised in Figure~\ref{fig:prot-ds-table} and explained below. This context is initialised by the client when it starts a transaction (line~\ref{alg:start_tx_start}).
 
 Since our protocol uses optimistic concurrency control, the execution of $\tx$ is speculative: clients read objects from servers and buffer writes locally. At the end of the execution, the decision whether to commit or abort a transaction is taken based on the existence of conflicts with concurrently executing transactions. When a transaction $\tx$ writes a value $v$ to an object $x$ (line~\ref{alg:write_start}), the client buffers this write in $\tx$'s \emph{write-set}, $\tx.\WS$, while discarding any previously written value of $x$.
 
