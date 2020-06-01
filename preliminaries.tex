@@ -103,19 +103,6 @@ Proposed by Berenson et al.~\citep{sql-critique}, Snapshot Isolation (SI) relaxe
 
 Due to the partial order among transactions, and the condition that concurrent transactions only abort if their set of updated objects overlap, a system under Snapshot Isolation is able observe the so-called \emph{Write Skew} anomaly. This anomaly occurs when an external invariant is violated as a result of concurrent non-conflicting transactions. As an example, suppose that objects $x$ and $y$ are related by a constraint such that $x + y \le 10$, with $x = 5$ and $y = 2$ as the initial state. In such a setting, a history such as the following can violate the invariant: $h = r_1(x=5).r_1(y=2).r_2(x=5).r_2(y=2).w_1(x=7).w_2(y=4).c_1.c_2$. Both $\tx_1$ and $\tx_2$ start their execution and observe a consistent state that upholds the invariant. Then, $\tx_1$ updates the object $x$ to the value $7$, which still maintains the invariant, as $7 + 2 \le 10$. Concurrently, $\tx_2$ proceeds as $\tx_1$, updating $y$ to $4$, which also maintains the original invariant ($5 + 4 \le 10$). However, as the result of both $\tx_1$ and $\tx_2$ successfully committing, the invariant is violated, with $7 + 4 \not\le 10$.
 
-%  Figure~\ref{fig:write_skew_history} shows an example of such a history.
-
-% Reads and updates are performed against the transaction snapshot (precluding non-repeatable reads) and made visible after the transaction commits (precluding dirty reads and writes).
-
-% \begin{figure}[h]
-%   \centering
-%   \vspace{-0.4cm}
-%   \includegraphics[width=0.6\textwidth]{figures/skew_history.pdf}
-%   \vspace{-0.6cm}
-%   \caption{Example of a history showing the write skew anomaly. Both $\tx_2$ and $\tx_3$ observe a consistent state of objects $x$ and $y$, but the versions diverge after both transactions commit.}
-%   \label{fig:write_skew_history}
-% \end{figure}
-
 \begin{definition}[Write Skew]
 A \emph{Write Skew} occurs whenever non-conflicting transactions update objects related with an external invariant, successfully commit, and as a result violate the original invariant.
 \end{definition}
