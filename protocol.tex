@@ -87,10 +87,14 @@ Finally, $\CommitQueue$ is an ordered queue of transactions trying to commit upd
 
 \section{Protocol Description}
 
-We now describe in detail how the protocol works by following the execution of a transaction. We begin by describing how a transaction is initialised, along with the mechanism to build a causally consistent snapshot. Later, we show the mechanism to validate and commit a transaction.
+The protocol is now described in detail by following the execution of a transaction. We begin by describing how a transaction is initialised, along with the mechanism to build a causally consistent snapshot. Later, we show the mechanism to validate and commit a transaction.
 
 \subsection{Transaction Execution}
 \label{subsect:protocol_execution}
+
+The fastPSI protocol uses optimistic concurrency control, that is, the execution of a transaction is speculative. Clients read objects from servers and buffer writes locally. At the end of the execution, the decision whether to commit or abort a transaction is taken based on the existence of conflicts with concurrently executing transactions. Clients executing a transaction maintain a transaction \emph{context} including several pieces of data, summarised in Figure~\ref{fig:context-variables} and explained below.
+
+In the following, we refer to the algorithms in Figures~\ref{fig:client-init-write} and~\ref{fig:read-local-remote} to describe the steps taken by both clients and servers to execute $\tx$.
 
 \begin{figure}[h]
 \noindent\adjustbox{max width=\paperwidth}{\footnotesize
@@ -122,8 +126,7 @@ We now describe in detail how the protocol works by following the execution of a
 \label{fig:context-variables}
 \end{figure}
 
-
-A client executing a transaction $\tx$ maintains a transaction \emph{context} including several pieces of data, summarised in Figure~\ref{fig:context-variables} and explained below. This context is initialised by the client when it starts a transaction (line~\ref{alg:start_tx_start}).
+When a client starts a transaction $\tx$, it first initialises its context (line~\ref{alg:start_tx_start}). When a transaction $\tx$ writes a value $v$ to an object $x$ (line~\ref{alg:write_start}), the client buffers this write in $\tx$'s \emph{write-set}, $\tx.\WS$, while discarding any previously written value of $x$.
 
 \begin{figure}[h]
 \begin{algorithm}[H]
@@ -144,9 +147,8 @@ A client executing a transaction $\tx$ maintains a transaction \emph{context} in
 \caption{
   Initialisation of a transaction and update of an object \emph{x} at client $c_i$.
 }
+\label{fig:client-init-write}
 \end{figure}
-
-Since our protocol uses optimistic concurrency control, the execution of $\tx$ is speculative: clients read objects from servers and buffer writes locally. At the end of the execution, the decision whether to commit or abort a transaction is taken based on the existence of conflicts with concurrently executing transactions. When a transaction $\tx$ writes a value $v$ to an object $x$ (line~\ref{alg:write_start}), the client buffers this write in $\tx$'s \emph{write-set}, $\tx.\WS$, while discarding any previously written value of $x$.
 
 When the transaction $\tx$ issues a read operation on an object $x$ (line~\ref{alg:read_start}), the client first checks $\tx.\WS$ (line~\ref{alg:read_ws_check}): if $\tx$ has already written to $x$, the value stored in the write-set is returned. Otherwise, and assuming that $j = \partitionOf(x)$, the client sends a $\READREQUEST$ message to the server $s_j$ to fetch the value of the object (line~\ref{alg:read_send}).
 
@@ -195,6 +197,7 @@ When the transaction $\tx$ reads an object from a partition $j$ for the first ti
   }
 \end{algorithm}
 \caption{Local and remote read of object \emph{x}.}
+\label{fig:read-local-remote}
 \end{figure}
 
 Thus, the entries in the snapshot vector for partitions that $\tx$ has not yet read from delimit all the possible causal dependencies $\tx$ may develop at these partitions.
@@ -244,6 +247,8 @@ Consider the example depicted in Figure~\ref{fig:sample_execution}a, which shows
 
 \subsection{Transaction Termination}
 
+To terminate a transaction, clients submit the transaction \emph{context} to the servers for validation against both previous and concurrently executing transactions. We describe how this validation occurs by referring to the algorithms in Figures~\ref{fig:client-commit} and~\ref{fig:server-commit}.
+
 A client executing a transaction $\tx$ tries to commit it by calling a {\tt commit} function (line~\ref{alg:commit_start}). Read-only transactions are committed without any additional checks, since they already read a causally consistent snapshot (line~\ref{alg:commit_readonly_start}). To commit an update transaction $\tx$, the client executing $\tx$ serves as the coordinator for a two-phase commit among the processes that store the objects written by $\tx$.
 
 In more detail, to commit a transaction $\tx$, the client first sends a $\PREPARE$ message to all servers storing the objects written by the transaction (line~\ref{alg:commit_send_loop}). The message contains $\tx$'s write-set and its dependency vector $\tx.\VCdep$. When a server $s_i$ receives this message (line~\ref{alg:prepare_start}), it \emph{validates} the transaction, deciding whether it should commit or abort due to conflicting concurrent transactions. The server then replies to the client with a \emph{vote} representing its decision. Based on the votes, the client determines the final decision on the transaction---the transaction commits if all votes are positive---and distributes the decision to the relevant servers.
@@ -283,6 +288,7 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
 
 \end{algorithm}
 \caption{Commit protocol of a transaction at client $c_i$. The client acts as a coordinator for the commit.}
+\label{fig:client-commit}
 \end{figure}
 
 \begin{figure}[h]
@@ -337,6 +343,7 @@ In more detail, to commit a transaction $\tx$, the client first sends a $\PREPAR
   }
 \end{algorithm}
 \caption{Commit protocol of a transaction at server $s_i$.}
+\label{fig:server-commit}
 \end{figure}
 
 We now describe how a server $s_i$ computes its vote on a transaction (line~\ref{alg:conflict_check}). The vote for a transaction $\tx$ ensures the write-conflict freedom property of PSI:
