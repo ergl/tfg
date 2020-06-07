@@ -7,16 +7,17 @@
 \vspace{1cm}
 
 La mayoría de las bases de datos distribuidas ofrecen modelos de consistencia
-débil para evitar la penalización de rendimiento que supone la coordinación de
-las distintas réplicas. Idealmente, las bases de datos distribuidas ofrecerían
-modelos de consistencia fuerte, como \emph{serialisability}, ya que facilitan la
-verificación de los invariantes de las aplicaciones, y permiten que los
-programadores no se preocupen sobre posibles problemas de concurrencia. Sin
-embargo, implementar sistemas escalables que ofrezcan modelos de consistencia
-fuerte no es fácil, pues requieren el uso de comunicación global. Por otro lado,
-aunque los modelos más débiles permiten sistemas más escalables, imponen en los
-programadores la necesidad de razonar sobre posibles anomalías, así como
-implementar mecanismos de resolución de conflictos en el código de las aplicaciones.
+débil, con la finalidad de evitar la penalización de rendimiento que supone la
+coordinación de las distintas réplicas. Idealmente, las bases de datos distribuidas
+ofrecerían modelos de consistencia fuerte, como \emph{serialisability}, ya que
+facilitan la verificación de los invariantes de las aplicaciones, y permiten que
+los programadores no deban preocuparse sobre posibles problemas de concurrencia.
+Sin embargo, implementar sistemas escalables que con modelos de consistencia
+fuerte no es fácil, pues requieren el uso de comunicación global. Sin embargo,
+aunque los modelos de consistencia más débiles permiten sistemas más escalables,
+imponen en los programadores la necesidad de razonar sobre posibles anomalías,
+así como implementar mecanismos de resolución de conflictos en el código de las
+aplicaciones.
 
 Dos modelos de consistencia propuestos recientemente, Parallel Snapshot Isolation
 (PSI) y Non-Monotonic Snapshot Isolation (NMSI), representan los modelos más
@@ -27,15 +28,16 @@ transacciones similares. Aun así, ambos modelos no logran ofrecer las mismas
 garantías que \emph{serialisability}, por lo que pueden ser difíciles de usar desde el
 punto de vista de las aplicaciones.
 
-En este trabajo, mostramos una propuesta que busca acortar la distancia entre
-modelos como PSI y NMSI y modelos fuertes como \emph{serialisability}. Implementamos
-fastPSI, un protocolo de consistencia que permite al usuario ejecutar de manera
-selectiva transacciones serializables, reteniendo a su vez las propiedades de
-escalabilidad propias de modelos de consistencia débiles como PSI o NMSI.
-Realizamos una evaluación exhaustiva de fastPSI, comparándolo con otros protocolos
-de consistencia, tanto fuertes como débiles. Mostramos así que nuestra
-implementación logra un rendimiento mayor que \emph{serialisability} sin por ello
-renunciar a la escalabilidad de protocolos más débiles.
+Este trabajo presenta una propuesta que busca acortar la distancia entre
+modelos como PSI y NMSI y modelos fuertes como \emph{serialisability}. Con esa
+finalidad, este trabajo presenta fastPSI, un protocolo de consistencia que permite
+al usuario ejecutar de manera selectiva transacciones serializables, reteniendo a
+su vez las propiedades de escalabilidad propias de modelos de consistencia débiles
+como PSI o NMSI. Además, este trabajo cuenta con una evaluación exhaustiva de
+fastPSI, comparándolo con otros protocolos de consistencia, tanto fuertes como
+débiles. Se muestra así que fastPSI logra un rendimiento mayor que
+\emph{serialisability} sin por ello renunciar a la escalabilidad de protocolos
+más débiles.
 
 \vspace{1cm}
 
